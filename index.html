@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>1930년대 미국식 8칸 특급 열차 3D</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #080c12;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", sans-serif;
+      color: #e6dfcf;
+    }
+
+    #canvas-container {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    /* Minimalist Art Deco Top Bar */
+    #top-bar {
+      position: absolute;
+      top: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(14, 20, 28, 0.82);
+      border: 1px solid rgba(212, 175, 55, 0.4);
+      border-radius: 8px;
+      padding: 8px 18px;
+      backdrop-filter: blur(8px);
+      z-index: 10;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+    }
+
+    #car-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #dfb142;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+      min-width: 260px;
+    }
+
+    .car-buttons {
+      display: flex;
+      gap: 5px;
+      border-left: 1px solid rgba(255, 255, 255, 0.15);
+      padding-left: 10px;
+    }
+
+    .btn-car {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      color: #e6dfcf;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-car:hover {
+      background: #dfb142;
+      color: #121820;
+      border-color: #dfb142;
+    }
+
+    .tool-btn {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #ccc;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .tool-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+    }
+
+    /* Subtle Crosshair */
+    #crosshair {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 6px;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    /* Start / Pause Blocker Overlay */
+    #blocker {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-color: transparent;
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      padding-bottom: 35px;
+      z-index: 20;
+      pointer-events: none;
+    }
+
+    #instructions {
+      text-align: center;
+      background: rgba(14, 20, 28, 0.9);
+      border: 1px solid #dfb142;
+      padding: 14px 32px;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 6px 25px rgba(0, 0, 0, 0.7);
+      pointer-events: auto;
+      backdrop-filter: blur(6px);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    #instructions:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(223, 177, 66, 0.3);
+    }
+
+    #instructions h1 {
+      font-size: 16px;
+      color: #dfb142;
+      margin-bottom: 6px;
+      font-weight: 600;
+      letter-spacing: 0.8px;
+    }
+
+    #instructions p {
+      font-size: 13px;
+      line-height: 1.5;
+      color: #cfd4dc;
+    }
+
+    .click-prompt {
+      margin-top: 8px;
+      display: inline-block;
+      padding: 5px 16px;
+      background: #c59b27;
+      color: #0b1118;
+      font-weight: bold;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+  </style>
+
+  <!-- Libraries -->
+  <script src="libs/three.min.js"></script>
+  <script src="libs/PointerLockControls.js"></script>
+</head>
+<body>
+  <div id="canvas-container"></div>
+  <div id="crosshair"></div>
+
+  <!-- Top Navigation Bar -->
+  <div id="top-bar">
+    <div id="car-title">1호차: 증기기관차 (운전실 & 탄수차)</div>
+    <div class="car-buttons">
+      <button class="btn-car" id="btn-car-1" title="1호차 증기기관차">1 기관차</button>
+      <button class="btn-car" id="btn-car-2" title="2호차 수하물차">2 수하물</button>
+      <button class="btn-car" id="btn-car-3" title="3호차 일반 객차">3 일반</button>
+      <button class="btn-car" id="btn-car-4" title="4호차 1등석 침대">4 1등침대</button>
+      <button class="btn-car" id="btn-car-5" title="5호차 2등석 침대">5 2등침대</button>
+      <button class="btn-car" id="btn-car-6" title="6호차 식당차">6 식당</button>
+      <button class="btn-car" id="btn-car-7" title="7호차 라운지차">7 라운지</button>
+      <button class="btn-car" id="btn-car-8" title="8호차 전망차">8 전망차</button>
+    </div>
+    <button class="tool-btn" id="btn-light" title="손전등 켜기/끄기 (F키)">🔦 랜턴</button>
+    <button class="tool-btn" id="btn-audio" title="사운드 음소거/켜기">🔊 사운드</button>
+  </div>
+
+  <!-- Initial Click Overlay -->
+  <div id="blocker">
+    <div id="instructions">
+      <h1>1930s PACIFIC EXPRESS</h1>
+      <p>실제 크기 8칸 열차 1인칭 탐색</p>
+      <p><strong>WASD</strong>: 이동 &nbsp;|&nbsp; <strong>마우스</strong>: 시선 &nbsp;|&nbsp; <strong>Shift</strong>: 달리기</p>
+      <p><strong>숫자키 1~8</strong>: 칸 순간이동 &nbsp;|&nbsp; <strong>H / 클릭</strong>: 증기 경적(기적) &nbsp;|&nbsp; <strong>F</strong>: 손전등</p>
+      <div class="click-prompt">화면을 클릭하여 탑승</div>
+    </div>
+  </div>
+
+  <!-- Source Scripts -->
+  <script src="src/textures.js"></script>
+  <script src="src/audio.js"></script>
+  <script src="src/environment.js"></script>
+  <script src="src/train/car1_locomotive.js"></script>
+  <script src="src/train/car2_baggage.js"></script>
+  <script src="src/train/car3_coach.js"></script>
+  <script src="src/train/car4_sleeper1.js"></script>
+  <script src="src/train/car5_sleeper2.js"></script>
+  <script src="src/train/car6_diner.js"></script>
+  <script src="src/train/car7_lounge.js"></script>
+  <script src="src/train/car8_observation.js"></script>
+  <script src="src/train/trainManager.js"></script>
+  <script src="src/player.js"></script>
+  <script src="src/main.js"></script>
+</body>
+</html>
