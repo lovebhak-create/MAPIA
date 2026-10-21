@@ -15,16 +15,16 @@ const Player = (() => {
     sprint: false
   };
 
-  let targetY = 3.25; // Eye height in cab
-  let currentY = 3.25;
+  let targetY = 2.85; // Passenger eye height
+  let currentY = 2.85;
 
   const init = (cam, domElement) => {
     camera = cam;
     controls = new THREE.PointerLockControls(camera, domElement);
 
-    // Initial position: Inside Locomotive Cab looking at the boiler backhead!
-    camera.position.set(0.0, 3.25, -0.4);
-    camera.rotation.set(0, Math.PI, 0);
+    // Initial position: Inside Car 3 (일반 객차) looking down the aisle towards Car 4!
+    camera.position.set(0.0, 2.85, -43.0);
+    camera.rotation.set(0, 0, 0);
 
     // Vintage Brass Hand Lantern / Flashlight attached to camera
     flashlight = new THREE.SpotLight(0xfffae0, 0.0, 22.0, Math.PI / 5, 0.45, 1.2);
