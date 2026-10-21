@@ -55,6 +55,12 @@ const Car7_Lounge = (() => {
       metalness: 0.9
     });
 
+    const matGold = new THREE.MeshStandardMaterial({
+      color: 0xdfb142,
+      roughness: 0.35,
+      metalness: 0.85
+    });
+
     const matMirror = new THREE.MeshStandardMaterial({
       color: 0xccddee,
       roughness: 0.05,

@@ -40,34 +40,55 @@ const Characters = (() => {
     const matFront = new THREE.MeshStandardMaterial({
       map: frontTex,
       transparent: true,
-      alphaTest: 0.15,
-      roughness: 0.65,
-      metalness: 0.1,
+      alphaTest: 0.1,
+      depthWrite: true,
+      roughness: 0.7,
+      metalness: 0.05,
       side: THREE.FrontSide
     });
 
     const matBack = new THREE.MeshStandardMaterial({
       map: backTex,
       transparent: true,
-      alphaTest: 0.15,
-      roughness: 0.65,
-      metalness: 0.1,
+      alphaTest: 0.1,
+      depthWrite: true,
+      roughness: 0.7,
+      metalness: 0.05,
       side: THREE.FrontSide
     });
 
-    // Front & Back planes
+    // Front & Back planes with 3D thickness (0.04m apart)
     const geom = new THREE.PlaneGeometry(width, height);
 
     const frontMesh = new THREE.Mesh(geom, matFront);
-    frontMesh.position.set(0, height / 2, 0.012);
+    frontMesh.position.set(0, height / 2, 0.02);
     frontMesh.castShadow = true;
 
     const backMesh = new THREE.Mesh(geom, matBack);
-    backMesh.position.set(0, height / 2, -0.012);
+    backMesh.position.set(0, height / 2, -0.02);
     backMesh.rotation.y = Math.PI;
     backMesh.castShadow = true;
 
-    group.add(frontMesh, backMesh);
+    // Side profile cross-planes (prevents paper-thin look when viewed from the side)
+    const sideMat = new THREE.MeshStandardMaterial({
+      map: frontTex,
+      transparent: true,
+      alphaTest: 0.1,
+      depthWrite: true,
+      roughness: 0.75,
+      side: THREE.DoubleSide
+    });
+    const crossMesh1 = new THREE.Mesh(geom, sideMat);
+    crossMesh1.position.set(0, height / 2, 0);
+    crossMesh1.rotation.y = 0.35; // 20 degrees angle
+    crossMesh1.scale.set(0.96, 1.0, 1.0);
+
+    const crossMesh2 = new THREE.Mesh(geom, sideMat);
+    crossMesh2.position.set(0, height / 2, 0);
+    crossMesh2.rotation.y = -0.35; // -20 degrees angle
+    crossMesh2.scale.set(0.96, 1.0, 1.0);
+
+    group.add(frontMesh, backMesh, crossMesh1, crossMesh2);
 
     // Soft Contact Floor Shadow
     const shadowMat = new THREE.MeshBasicMaterial({
