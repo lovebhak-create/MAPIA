@@ -27,6 +27,9 @@ const Player = (() => {
   const initSeats = () => {
     seats.length = 0;
 
+    // Car 2: Baggage Guard Cot / Bed (Z = -15.8)
+    seats.push({ x: -0.85, y: 1.70, z: -15.8, name: 'Baggage Guard Cot', isBed: true, standPos: { x: 0.0, y: 2.85, z: -15.8 } });
+
     // Car 3: 9 pairs of Coach double seats (Eye height Y = 2.38m)
     for (let i = 0; i < 9; i++) {
       const sz = -52.0 + i * 1.6;
@@ -39,30 +42,26 @@ const Player = (() => {
     seats.push({ x: 0.95, y: 2.32, z: -61.35, name: 'Suite 1 Armchair', standPos: { x: 0.35, y: 2.85, z: -61.35 } });
     seats.push({ x: 0.95, y: 2.32, z: -66.35, name: 'Suite 2 Armchair', standPos: { x: 0.35, y: 2.85, z: -66.35 } });
     seats.push({ x: 0.95, y: 2.32, z: -71.35, name: 'Suite 3 Armchair', standPos: { x: 0.35, y: 2.85, z: -71.35 } });
-    // Luxury Double Beds (E / click to sleep/rest, Space to wake up!)
-    seats.push({ x: 0.65, y: 1.85, z: -62.8, name: 'Suite 1 Bed', isBed: true, standPos: { x: -0.15, y: 2.85, z: -62.8 } });
-    seats.push({ x: 0.65, y: 1.85, z: -67.8, name: 'Suite 2 Bed', isBed: true, standPos: { x: -0.15, y: 2.85, z: -67.8 } });
-    seats.push({ x: 0.65, y: 1.85, z: -72.8, name: 'Suite 3 Bed', isBed: true, standPos: { x: -0.15, y: 2.85, z: -72.8 } });
+    // Luxury Double Beds (Mattress at X: 0.85, Z: sCenter - 1.4, standPos safely in open suite entrance X: 0.05, Z: sCenter)
+    seats.push({ x: 0.85, y: 1.74, z: -63.4, name: 'Suite 1 Bed', isBed: true, standPos: { x: 0.05, y: 2.85, z: -62.0 } });
+    seats.push({ x: 0.85, y: 1.74, z: -68.4, name: 'Suite 2 Bed', isBed: true, standPos: { x: 0.05, y: 2.85, z: -67.0 } });
+    seats.push({ x: 0.85, y: 1.74, z: -73.4, name: 'Suite 3 Bed', isBed: true, standPos: { x: 0.05, y: 2.85, z: -72.0 } });
 
     // Car 5: 2nd Class Sleeper Berths (Beds)
-    seats.push({ x: 0.85, y: 1.80, z: -83.5, name: 'Berth Bed 1', isBed: true, standPos: { x: 0.0, y: 2.85, z: -83.5 } });
-    seats.push({ x: -0.85, y: 1.80, z: -88.5, name: 'Berth Bed 2', isBed: true, standPos: { x: 0.0, y: 2.85, z: -88.5 } });
-    seats.push({ x: 0.85, y: 1.80, z: -93.5, name: 'Berth Bed 3', isBed: true, standPos: { x: 0.0, y: 2.85, z: -93.5 } });
+    seats.push({ x: 0.85, y: 1.72, z: -83.5, name: 'Berth Bed 1', isBed: true, standPos: { x: 0.0, y: 2.85, z: -83.5 } });
+    seats.push({ x: -0.85, y: 1.72, z: -88.5, name: 'Berth Bed 2', isBed: true, standPos: { x: 0.0, y: 2.85, z: -88.5 } });
+    seats.push({ x: 0.85, y: 1.72, z: -93.5, name: 'Berth Bed 3', isBed: true, standPos: { x: 0.0, y: 2.85, z: -93.5 } });
 
     // Car 6: Dining Car chairs (4 tables on each side)
-    // Eye height Y = 2.42m gives an authentic view over the tabletop and plates!
     const dinerTableZ = [-113.5, -110.5, -107.5, -104.5];
     dinerTableZ.forEach(tz => {
-      // Right 4-person table chairs
       seats.push({ x: 0.95, y: 2.42, z: tz - 0.7, name: 'Dining Chair', standPos: { x: 0.25, y: 2.85, z: tz - 0.7 } });
       seats.push({ x: 0.95, y: 2.42, z: tz + 0.7, name: 'Dining Chair', standPos: { x: 0.25, y: 2.85, z: tz + 0.7 } });
-      // Left 2-person table chairs
       seats.push({ x: -0.95, y: 2.42, z: tz - 0.7, name: 'Dining Chair', standPos: { x: -0.25, y: 2.85, z: tz - 0.7 } });
       seats.push({ x: -0.95, y: 2.42, z: tz + 0.7, name: 'Dining Chair', standPos: { x: -0.25, y: 2.85, z: tz + 0.7 } });
     });
 
     // Car 7: Lounge Car Club Armchairs & Barstools
-    // Club Armchairs
     seats.push({ x: 0.85, y: 2.30, z: -131.0, name: 'Club Armchair', standPos: { x: 0.20, y: 2.85, z: -131.0 } });
     seats.push({ x: 0.85, y: 2.30, z: -133.5, name: 'Club Armchair', standPos: { x: 0.20, y: 2.85, z: -133.5 } });
     seats.push({ x: 0.85, y: 2.30, z: -136.5, name: 'Club Armchair', standPos: { x: 0.20, y: 2.85, z: -136.5 } });
@@ -88,9 +87,9 @@ const Player = (() => {
       return;
     }
 
-    // Only allow sitting/lying if within intimate interaction distance (<= 1.35m)
+    // Check closest chair or bed within 1.65m
     let nearest = null;
-    let minDist = 1.35;
+    let minDist = 1.65;
     for (let i = 0; i < seats.length; i++) {
       const s = seats[i];
       const dist = Math.hypot(camera.position.x - s.x, camera.position.z - s.z);
@@ -108,23 +107,34 @@ const Player = (() => {
 
       const prompt = document.getElementById('sit-prompt');
       if (prompt) {
-        prompt.textContent = '[Space] 키를 눌러 일어나기';
+        prompt.textContent = nearest.isBed ? '[Space] 키를 눌러 일어나기' : '[Space] 키를 눌러 일어나기';
         prompt.style.display = 'block';
+      }
+
+      // If bed: look straight up at the ceiling!
+      if (nearest.isBed) {
+        camera.rotation.set(Math.PI / 2, camera.rotation.y, 0, 'YXZ');
       }
     }
   };
 
   const standUp = () => {
     if (!isSitting) return;
-    isSitting = false;
 
-    // Use safe collision-free stand-up position in open walkway
+    // Reset camera pitch from ceiling to horizontal
+    if (sittingChair && sittingChair.isBed) {
+      camera.rotation.set(0, camera.rotation.y, 0, 'YXZ');
+    }
+
+    // Step safely to designated collision-free position
     if (sittingChair && sittingChair.standPos) {
       camera.position.set(sittingChair.standPos.x, sittingChair.standPos.y, sittingChair.standPos.z);
     } else {
       camera.position.y = 2.85;
     }
+
     velocity.set(0, 0, 0);
+    isSitting = false;
     sittingChair = null;
 
     const prompt = document.getElementById('sit-prompt');
@@ -246,9 +256,19 @@ const Player = (() => {
     document.addEventListener('keydown', onKeyDown);
     document.addEventListener('keyup', onKeyUp);
 
-    // Mouse click when locked to interact with chairs / sit or whistle
+    // Pointerdown and click listeners for mouse click when locked (triggers sitting/sleeping 100% reliably)
+    document.addEventListener('pointerdown', (e) => {
+      if (e.button === 0 && controls && controls.isLocked) {
+        if (isSitting) {
+          standUp();
+          return;
+        }
+        trySitOrStand();
+      }
+    });
+
     domElement.addEventListener('click', () => {
-      if (!controls.isLocked) return;
+      if (!controls || !controls.isLocked) return;
       if (isSitting) {
         standUp();
         return;
@@ -280,10 +300,14 @@ const Player = (() => {
   const update = (delta) => {
     if (!controls || !controls.isLocked) return;
 
-    // If sitting down, camera stays at chair position, looking around with mouse is free!
+    // If sitting down, camera stays at chair position
+    // If in bed, camera stays looking directly up at ceiling!
     if (isSitting) {
       if (sittingChair) {
         camera.position.set(sittingChair.x, sittingChair.y, sittingChair.z);
+        if (sittingChair.isBed) {
+          camera.rotation.set(Math.PI / 2, camera.rotation.y, 0, 'YXZ');
+        }
       }
       return;
     }

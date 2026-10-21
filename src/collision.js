@@ -106,21 +106,26 @@ const Collision = (() => {
     addBox(-0.65, 1.5, -13.2, -11.5, 0.5, 4.5, 'TenderWalkwayRightWall');
 
     // ==========================================
-    // 4. CAR 2: BAGGAGE CAR (Z = -13.0 to -33.0)
+    // 4. CAR 2: BAGGAGE CAR (Z = -13.0 to -33.0, center = -23.0)
     // ==========================================
-    // Front bulkhead posts
+    // Bulkhead posts
     addBox(-1.4, -0.55, -13.2, -12.8, 1.0, 4.0, 'Car2_BulkheadFront_L');
     addBox(0.55, 1.4, -13.2, -12.8, 1.0, 4.0, 'Car2_BulkheadFront_R');
-    // Rear bulkhead posts
     addBox(-1.4, -0.55, -33.2, -32.8, 1.0, 4.0, 'Car2_BulkheadRear_L');
     addBox(0.55, 1.4, -33.2, -32.8, 1.0, 4.0, 'Car2_BulkheadRear_R');
-    // Crate stacks & luggage trunks
-    addBox(-1.4, -0.5, -31.5, -26.0, 1.0, 3.0, 'Car2_CratesL1');
-    addBox(-1.4, -0.5, -21.0, -18.0, 1.0, 3.0, 'Car2_CratesL2');
-    addBox(0.5, 1.4, -31.5, -26.0, 1.0, 3.0, 'Car2_TrunksR1');
-    addBox(0.5, 1.4, -21.0, -18.0, 1.0, 3.0, 'Car2_TrunksR2');
-    addBox(-1.4, -0.5, -17.5, -15.0, 1.0, 3.0, 'Car2_MailRack');
-    addBox(0.5, 1.4, -17.5, -15.0, 1.0, 3.0, 'Car2_Scale');
+
+    // Baggage Master Cot / Single Bed (Z = -16.8 to -14.8, X: -1.35 to -0.42)
+    addBox(-1.35, -0.42, -16.8, -14.8, 1.0, 2.0, 'Car2_GuardCot');
+    // Baggage Master Desk & Cubbies (Z = -18.6 to -17.4, X: -1.35 to -0.45)
+    addBox(-1.35, -0.45, -18.6, -17.4, 1.0, 2.5, 'Car2_ClerkDesk');
+    // 4-Wheel Baggage Trolley (Z = -17.9 to -16.1, X: 0.45 to 1.35)
+    addBox(0.45, 1.35, -17.9, -16.1, 1.0, 2.0, 'Car2_TrolleyCart');
+
+    // Cargo Stacks along walls (leaves clear 1.0m central walkway X: -0.40 to +0.40)
+    // Left side leather dome trunks (Z = -31.0 to -24.5, X: -1.35 to -0.42)
+    addBox(-1.35, -0.42, -31.0, -24.5, 1.0, 2.2, 'Car2_TrunksL');
+    // Right side wooden crates & wardrobe crate (Z = -31.0 to -24.5, X: 0.42 to 1.35)
+    addBox(0.42, 1.35, -31.0, -24.5, 1.0, 3.2, 'Car2_CratesR');
 
     // ==========================================
     // 5. CAR 3: COACH CAR (Z = -35.0 to -55.0)
@@ -167,9 +172,9 @@ const Collision = (() => {
     addBox(-0.42, -0.28, -71.45, -69.5, 1.0, 4.0, 'Car4_CorridorW5');
     addBox(-0.42, -0.28, -74.5, -72.55, 1.0, 4.0, 'Car4_CorridorW6');
     // Luxury Beds inside suites
-    addBox(0.35, 1.35, -64.35, -62.45, 1.0, 2.5, 'Car4_BedSuite1');
-    addBox(0.35, 1.35, -69.35, -67.45, 1.0, 2.5, 'Car4_BedSuite2');
-    addBox(0.35, 1.35, -74.35, -72.45, 1.0, 2.5, 'Car4_BedSuite3');
+    addBox(0.38, 1.35, -64.35, -62.45, 1.0, 2.5, 'Car4_BedSuite1');
+    addBox(0.38, 1.35, -69.35, -67.45, 1.0, 2.5, 'Car4_BedSuite2');
+    addBox(0.38, 1.35, -74.35, -72.45, 1.0, 2.5, 'Car4_BedSuite3');
     // Bedside Nightstands
     addBox(-0.15, 0.25, -64.35, -63.95, 1.0, 2.0, 'Car4_Nightstand1');
     addBox(-0.15, 0.25, -69.35, -68.95, 1.0, 2.0, 'Car4_Nightstand2');

@@ -1,5 +1,12 @@
-// Car 2: Baggage & Express Mail Car (수하물차)
-// Cargo, crates, trunks, parcels, and mail storage
+// Car 2: Baggage & Express Mail Car (수하물차 - 1930s Historic Specification)
+// Faithfully rebuilt based on historic reference photos and architectural cross-sections:
+// - White beadboard curved ceiling with clerestory side transoms
+// - Forged-iron 2-arm arched hanging chandeliers with milky white frosted glass globe pendants
+// - Large double sliding cargo doors on both sides with iron tracks and vertical bar handles
+// - Folding iron security pipe cage grates for high-value express cargo
+// - Baggage Master Station: guard cot/bed, sorting desk, hurricane lantern, pigeonhole cubbies, 4-wheel handcart
+// - Authentic variety of cargo: stenciled wooden crates, dome-top leather trunks, upright wardrobe crate
+
 const Car2_Baggage = (() => {
   const create = () => {
     const group = new THREE.Group();
@@ -13,216 +20,332 @@ const Car2_Baggage = (() => {
     const width = 3.0;
     const height = 2.7;
 
+    // Materials
     const matWoodFloor = new THREE.MeshStandardMaterial({
       map: Textures.woodFloor,
-      roughness: 0.85,
+      roughness: 0.8,
       metalness: 0.1
     });
 
-    const matExtGreen = new THREE.MeshStandardMaterial({
-      map: Textures.exteriorGreen,
-      roughness: 0.5,
-      metalness: 0.3
+    const matCreamWall = new THREE.MeshStandardMaterial({
+      color: 0xf4eee4,
+      roughness: 0.75,
+      metalness: 0.05
     });
 
-    const matRibSteel = new THREE.MeshStandardMaterial({
-      map: Textures.rivetedSteel,
+    const matDarkWainscot = new THREE.MeshStandardMaterial({
+      map: Textures.mahogany,
       roughness: 0.7,
-      metalness: 0.7
+      metalness: 0.15
+    });
+
+    const matWhiteCeiling = new THREE.MeshStandardMaterial({
+      color: 0xfaf8f2,
+      roughness: 0.8
     });
 
     const matCastIron = new THREE.MeshStandardMaterial({
       color: 0x222428,
-      roughness: 0.8,
-      metalness: 0.4
+      roughness: 0.7,
+      metalness: 0.6
+    });
+
+    const matBrass = new THREE.MeshStandardMaterial({
+      color: 0xdfb142,
+      roughness: 0.35,
+      metalness: 0.8
     });
 
     const matCrate = new THREE.MeshStandardMaterial({
       map: Textures.crate,
       roughness: 0.8,
-      metalness: 0.1
+      metalness: 0.05
     });
 
-    const matLuggage = new THREE.MeshStandardMaterial({
-      color: 0x5c3317,
-      roughness: 0.6,
+    const matTrunkBrown = new THREE.MeshStandardMaterial({
+      color: 0x4e2d1a,
+      roughness: 0.55,
       metalness: 0.2
     });
 
-    const matLeatherBlack = new THREE.MeshStandardMaterial({
-      color: 0x1a1a1a,
+    const matTrunkBlack = new THREE.MeshStandardMaterial({
+      color: 0x1c1c1f,
       roughness: 0.5,
       metalness: 0.2
     });
 
     const matCanvasMail = new THREE.MeshStandardMaterial({
-      color: 0xb5a37f,
+      color: 0xc8b898,
       roughness: 0.9,
       metalness: 0.05
     });
 
-    // 1. Floor & Roof
+    // 1. Planked Wood Floor & Clerestory Beadboard Ceiling
     const floor = new THREE.Mesh(new THREE.BoxGeometry(width, 0.15, length), matWoodFloor);
     floor.position.set(0, -0.075, 0);
     floor.receiveShadow = true;
     group.add(floor);
 
-    const roofCurve = new THREE.CylinderGeometry(width * 0.55, width * 0.55, length, 24, 1, false, 0, Math.PI);
-    const roof = new THREE.Mesh(roofCurve, matRibSteel);
-    roof.rotation.z = Math.PI / 2;
-    roof.rotation.y = Math.PI / 2;
-    roof.position.set(0, height, 0);
-    roof.scale.set(0.4, 1, 1.0);
-    group.add(roof);
+    // Curved Ceiling with Clerestory Deck (From Photo 4)
+    const ceiling = new THREE.Mesh(new THREE.BoxGeometry(width - 0.2, 0.08, length), matWhiteCeiling);
+    ceiling.position.set(0, height, 0);
+    group.add(ceiling);
 
-    // 2. Left & Right Walls
-    const wallL = new THREE.Mesh(new THREE.BoxGeometry(0.12, height, length), matExtGreen);
-    wallL.position.set(-width / 2 + 0.06, height / 2, 0);
-    const wallR = new THREE.Mesh(new THREE.BoxGeometry(0.12, height, length), matExtGreen);
-    wallR.position.set(width / 2 - 0.06, height / 2, 0);
-    group.add(wallL, wallR);
-
-    // End Walls with Doorways
-    const createEndWall = (zPos) => {
-      const ewGroup = new THREE.Group();
-      ewGroup.position.set(0, 0, zPos);
-      const postL = new THREE.Mesh(new THREE.BoxGeometry(0.9, height, 0.12), matRibSteel);
-      postL.position.set(-1.0, height / 2, 0);
-      const postR = new THREE.Mesh(new THREE.BoxGeometry(0.9, height, 0.12), matRibSteel);
-      postR.position.set(1.0, height / 2, 0);
-      const transom = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.6, 0.12), matRibSteel);
-      transom.position.set(0, height - 0.3, 0);
-      ewGroup.add(postL, postR, transom);
-      return ewGroup;
-    };
-    group.add(createEndWall(length / 2));
-    group.add(createEndWall(-length / 2));
-
-    // Internal Steel Rib Arches every 3 meters
-    for (let z = -length / 2 + 3; z < length / 2; z += 3) {
-      const ribL = new THREE.Mesh(new THREE.BoxGeometry(0.1, height, 0.1), matCastIron);
-      ribL.position.set(-width / 2 + 0.15, height / 2, z);
-      const ribR = new THREE.Mesh(new THREE.BoxGeometry(0.1, height, 0.1), matCastIron);
-      ribR.position.set(width / 2 - 0.15, height / 2, z);
-      const ribTop = new THREE.Mesh(new THREE.BoxGeometry(width - 0.2, 0.1, 0.1), matCastIron);
-      ribTop.position.set(0, height - 0.1, z);
-      group.add(ribL, ribR, ribTop);
-    }
-
-    // 3. Sliding Cargo Side Doors (Cutout look & track)
-    [-4, 4].forEach(doorZ => {
-      // Left side sliding cargo door
-      const doorMeshL = new THREE.Mesh(new THREE.BoxGeometry(0.08, 2.2, 2.0), matRibSteel);
-      doorMeshL.position.set(-width / 2 + 0.14, 1.1, doorZ);
-      const barL = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.05, 2.2), matCastIron);
-      barL.position.set(-width / 2 + 0.2, 1.1, doorZ);
-      group.add(doorMeshL, barL);
-
-      // Right side sliding cargo door
-      const doorMeshR = new THREE.Mesh(new THREE.BoxGeometry(0.08, 2.2, 2.0), matRibSteel);
-      doorMeshR.position.set(width / 2 - 0.14, 1.1, doorZ);
-      group.add(doorMeshR);
+    // Clerestory side transoms along upper ceiling
+    const transomMat = new THREE.MeshPhysicalMaterial({ color: 0xccddee, transparent: true, opacity: 0.4, roughness: 0.1 });
+    [-1, 1].forEach(side => {
+      const transomStrip = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.22, length - 2.0), transomMat);
+      transomStrip.position.set(side * (width / 2 - 0.25), height - 0.15, 0);
+      group.add(transomStrip);
     });
 
-    // 4. Cargo, Crates & Trunks Placement
-    const createCrateStack = (x, z, rot = 0) => {
-      const stack = new THREE.Group();
-      stack.position.set(x, 0, z);
-      stack.rotation.y = rot;
+    // 2. Exterior Side Walls with Warm Wood Wainscoting
+    const createBaggageSideWall = (xSide) => {
+      const wGroup = new THREE.Group();
+      wGroup.position.set(xSide * (width / 2 - 0.06), 0, 0);
 
-      const c1 = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.9, 0.9), matCrate);
-      c1.position.set(0, 0.45, 0);
-      c1.castShadow = true;
-      stack.add(c1);
+      // Lower sturdy wainscot
+      const lower = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.2, length), matDarkWainscot);
+      lower.position.set(0, 0.6, 0);
+      // Upper cream beadboard
+      const upper = new THREE.Mesh(new THREE.BoxGeometry(0.12, height - 1.2, length), matCreamWall);
+      upper.position.set(0, 1.2 + (height - 1.2) / 2, 0);
 
-      const c2 = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.7, 0.8), matCrate);
-      c2.position.set(0.05, 1.25, 0.05);
-      c2.rotation.y = 0.15;
-      c2.castShadow = true;
-      stack.add(c2);
+      wGroup.add(lower, upper);
+      return wGroup;
+    };
+    group.add(createBaggageSideWall(-1));
+    group.add(createBaggageSideWall(1));
 
-      return stack;
+    // End Bulkheads with Connecting Doors
+    const createBulkhead = (zPos) => {
+      const bh = new THREE.Group();
+      bh.position.set(0, 0, zPos);
+      const postL = new THREE.Mesh(new THREE.BoxGeometry(0.95, height, 0.12), matDarkWainscot);
+      postL.position.set(-1.0, height / 2, 0);
+      const postR = new THREE.Mesh(new THREE.BoxGeometry(0.95, height, 0.12), matDarkWainscot);
+      postR.position.set(1.0, height / 2, 0);
+      const transom = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.6, 0.12), matDarkWainscot);
+      transom.position.set(0, height - 0.3, 0);
+      bh.add(postL, postR, transom);
+      return bh;
+    };
+    group.add(createBulkhead(length / 2));
+    group.add(createBulkhead(-length / 2));
+
+    // 3. Sliding Cargo Double Doors on Both Sides (From Photo 2, 3, 4)
+    [-1, 1].forEach(side => {
+      // Large sliding double doors at Z = 0
+      const doorL = new THREE.Mesh(new THREE.BoxGeometry(0.06, 2.2, 1.2), matDarkWainscot);
+      doorL.position.set(side * (width / 2 - 0.12), 1.1, -0.6);
+      const doorR = new THREE.Mesh(new THREE.BoxGeometry(0.06, 2.2, 1.2), matDarkWainscot);
+      doorR.position.set(side * (width / 2 - 0.12), 1.1, 0.6);
+
+      // Heavy Iron Overhead Sliding Rail & Rollers
+      const rail = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 2.8), matCastIron);
+      rail.position.set(side * (width / 2 - 0.14), 2.26, 0);
+
+      // Vertical Iron Grab Bars
+      const handleL = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.6, 8), matCastIron);
+      handleL.position.set(side * (width / 2 - 0.16), 1.1, -0.1);
+      const handleR = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.6, 8), matCastIron);
+      handleR.position.set(side * (width / 2 - 0.16), 1.1, 0.1);
+
+      group.add(doorL, doorR, rail, handleL, handleR);
+    });
+
+    // 4. Folding Iron Security Pipe Cage Grates (From Photo 4)
+    // Mounted along walls to lock express packages and bonded freight
+    [-1, 1].forEach(side => {
+      const cageGroup = new THREE.Group();
+      cageGroup.position.set(side * (width / 2 - 0.35), 0, -4.5);
+
+      // Vertical pipe bars
+      for (let bz = -2.0; bz <= 2.0; bz += 0.35) {
+        const pipe = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 2.1, 8), matCastIron);
+        pipe.position.set(0, 1.05, bz);
+        cageGroup.add(pipe);
+      }
+      // Horizontal bracing bars
+      [0.2, 1.1, 2.0].forEach(hy => {
+        const hBar = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.03, 4.1), matCastIron);
+        hBar.position.set(0, hy, 0);
+        cageGroup.add(hBar);
+      });
+      group.add(cageGroup);
+    });
+
+    // 5. BAGGAGE MASTER GUARD STATION (Front Section Z = +5.0 to +9.0, From Photo 3)
+    // A. Baggage Master Cot / Single Bed
+    const cotGroup = new THREE.Group();
+    cotGroup.position.set(-width / 2 + 0.65, 0, 7.2);
+
+    const cotFrame = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.22, 1.9), matDarkWainscot);
+    cotFrame.position.set(0, 0.18, 0);
+    const cotHead = new THREE.Mesh(new THREE.BoxGeometry(0.86, 0.55, 0.06), matDarkWainscot);
+    cotHead.position.set(0, 0.45, 0.95);
+    const cotMattress = new THREE.Mesh(
+      new THREE.BoxGeometry(0.8, 0.16, 1.8),
+      new THREE.MeshStandardMaterial({ color: 0xddd5c7, roughness: 0.85 })
+    );
+    cotMattress.position.set(0, 0.34, 0);
+    const cotBlanket = new THREE.Mesh(
+      new THREE.BoxGeometry(0.81, 0.08, 1.2),
+      new THREE.MeshStandardMaterial({ color: 0x3d4b5c, roughness: 0.9 })
+    );
+    cotBlanket.position.set(0, 0.44, -0.3);
+    const cotPillow = new THREE.Mesh(
+      new THREE.BoxGeometry(0.5, 0.12, 0.32),
+      new THREE.MeshStandardMaterial({ color: 0xf5f3ee, roughness: 0.7 })
+    );
+    cotPillow.position.set(0, 0.46, 0.65);
+    cotGroup.add(cotFrame, cotHead, cotMattress, cotBlanket, cotPillow);
+    group.add(cotGroup);
+
+    // B. Baggage Clerk Desk & Wall Pigeonhole Sorting Rack
+    const deskGroup = new THREE.Group();
+    deskGroup.position.set(-width / 2 + 0.55, 0, 5.0);
+    const deskBody = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.75, 1.1), matDarkWainscot);
+    deskBody.position.set(0, 0.375, 0);
+
+    // Pigeonhole Cubbies Unit on Wall
+    const cubbies = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.75, 1.0), matDarkWainscot);
+    cubbies.position.set(-0.15, 1.25, 0);
+
+    // Glowing Kerosene Hurricane Lantern
+    const lanternBase = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.07, 0.06, 8), matBrass);
+    lanternBase.position.set(0.1, 0.78, 0);
+    const lanternGlass = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.045, 0.045, 0.12, 8),
+      new THREE.MeshBasicMaterial({ color: 0xffdf88 })
+    );
+    lanternGlass.position.set(0.1, 0.87, 0);
+    const lanternLight = new THREE.PointLight(0xffbe60, 1.2, 5.0);
+    lanternLight.position.set(0.1, 0.87, 0);
+
+    deskGroup.add(deskBody, cubbies, lanternBase, lanternGlass, lanternLight);
+    group.add(deskGroup);
+
+    // C. 4-Wheel Railway Freight Handcart / Baggage Trolley (From Photo 3)
+    const trolleyGroup = new THREE.Group();
+    trolleyGroup.position.set(width / 2 - 0.65, 0, 6.0);
+
+    const bedWood = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.08, 1.6), matDarkWainscot);
+    bedWood.position.set(0, 0.28, 0);
+
+    // 4 Cast Iron Spoke Wheels
+    [-0.38, 0.38].forEach(wx => {
+      [-0.6, 0.6].forEach(wz => {
+        const wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 0.04, 12), matCastIron);
+        wheel.rotation.z = Math.PI / 2;
+        wheel.position.set(wx, 0.14, wz);
+        trolleyGroup.add(wheel);
+      });
+    });
+
+    // Trolley Upright Handle
+    const handleBar = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.7, 0.04), matCastIron);
+    handleBar.position.set(0, 0.65, 0.75);
+    trolleyGroup.add(bedWood, handleBar);
+
+    // Mail Pouches stacked on trolley
+    [-0.3, 0.2].forEach(pz => {
+      const bag = new THREE.Mesh(new THREE.SphereGeometry(0.24, 10, 10), matCanvasMail);
+      bag.scale.set(0.8, 1.3, 0.7);
+      bag.position.set(0, 0.50, pz);
+      trolleyGroup.add(bag);
+    });
+    group.add(trolleyGroup);
+
+    // 6. CARGO AREA (Rear Section Z = -1.0 to -9.0, From Photo 3)
+    // Varied Wooden Crates with Diagonal Cross-Bracing
+    const createStenciledCrate = (x, z, w, h, d, rotY = 0) => {
+      const crateGroup = new THREE.Group();
+      crateGroup.position.set(x, h / 2, z);
+      crateGroup.rotation.y = rotY;
+
+      const body = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), matCrate);
+      body.castShadow = true;
+      crateGroup.add(body);
+      return crateGroup;
     };
 
-    const createTrunkStack = (x, z) => {
-      const stack = new THREE.Group();
-      stack.position.set(x, 0, z);
+    // Stacks of Wooden Crates along Right Wall
+    group.add(createStenciledCrate(0.85, -2.5, 0.95, 0.95, 0.95, 0.05));
+    group.add(createStenciledCrate(0.85, -2.5, 0.8, 0.75, 0.8, 0.2).translateY(0.85));
+    group.add(createStenciledCrate(0.85, -4.2, 0.85, 0.85, 1.2, -0.1));
+    group.add(createStenciledCrate(0.85, -5.8, 0.9, 0.9, 0.9, 0.15));
 
-      // Large leather steamer trunk
-      const t1 = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.6, 0.65), matLuggage);
-      t1.position.set(0, 0.3, 0);
-      t1.castShadow = true;
+    // Tall Upright Wardrobe Shipping Crate (From Photo 3)
+    group.add(createStenciledCrate(0.88, -7.5, 0.75, 1.85, 0.85, 0));
 
-      // Medium black suitcase on top
-      const t2 = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.3, 0.45), matLeatherBlack);
-      t2.position.set(0.1, 0.75, 0.05);
-      t2.rotation.y = -0.2;
-      t2.castShadow = true;
+    // Dome-Top Antique Steamer Trunks (From Photo 3)
+    const createDomeTopTrunk = (x, z, w, h, d, color = 0x4e2d1a) => {
+      const trunk = new THREE.Group();
+      trunk.position.set(x, 0, z);
 
-      stack.add(t1, t2);
-      return stack;
+      const matT = new THREE.MeshStandardMaterial({ color, roughness: 0.5, metalness: 0.2 });
+      const tBase = new THREE.Mesh(new THREE.BoxGeometry(w, h * 0.75, d), matT);
+      tBase.position.set(0, h * 0.375, 0);
+
+      // Curved Dome Lid
+      const lidCurve = new THREE.CylinderGeometry(d / 2, d / 2, w, 12, 1, false, 0, Math.PI);
+      const lid = new THREE.Mesh(lidCurve, matT);
+      lid.rotation.z = Math.PI / 2;
+      lid.position.set(0, h * 0.75, 0);
+
+      // Brass Straps & Lock
+      const strap = new THREE.Mesh(new THREE.BoxGeometry(w + 0.02, 0.03, d + 0.02), matBrass);
+      strap.position.set(0, h * 0.5, 0);
+
+      trunk.add(tBase, lid, strap);
+      return trunk;
     };
 
-    // Place stacks along left and right walls leaving a clear 1.2m center aisle
-    group.add(createCrateStack(-0.85, -6.5, 0.1));
-    group.add(createCrateStack(-0.9, -4.2, -0.1));
-    group.add(createTrunkStack(0.85, -7.0));
-    group.add(createTrunkStack(0.85, -5.0));
+    group.add(createDomeTopTrunk(-0.85, -2.2, 1.1, 0.65, 0.6, 0x5a2d18));
+    group.add(createDomeTopTrunk(-0.85, -4.0, 1.0, 0.6, 0.55, 0x1f2b38));
+    group.add(createDomeTopTrunk(-0.85, -5.8, 1.15, 0.7, 0.65, 0x241d18));
+    group.add(createDomeTopTrunk(-0.85, -7.5, 0.95, 0.55, 0.5, 0x422212));
 
-    group.add(createCrateStack(0.85, 2.0, 0.2));
-    group.add(createCrateStack(0.85, 4.2, -0.15));
-    group.add(createTrunkStack(-0.85, 1.5));
-    group.add(createTrunkStack(-0.85, 3.5));
+    // 7. HISTORIC CENTERLINE FORGED-IRON CHANDELIERS (From Photo 4)
+    // 2-arm arched forged-iron hangers with milky white frosted glass globes
+    [-7.0, -2.5, 2.5, 7.0].forEach(lz => {
+      const chandelier = new THREE.Group();
+      chandelier.position.set(0, height - 0.08, lz);
 
-    // Mail Sack Rack (U.S. MAIL canvas bags)
-    const mailRack = new THREE.Group();
-    mailRack.position.set(-0.85, 0, 7.0);
-    const rackFrame = new THREE.Mesh(new THREE.BoxGeometry(0.6, 1.6, 2.2), matCastIron);
-    rackFrame.position.set(0, 0.8, 0);
-    for (let mz = -0.7; mz <= 0.7; mz += 0.45) {
-      const bag = new THREE.Mesh(new THREE.SphereGeometry(0.22, 12, 12), matCanvasMail);
-      bag.scale.set(0.8, 1.4, 0.8);
-      bag.position.set(0, 0.8, mz);
-      mailRack.add(bag);
-    }
-    group.add(mailRack);
+      // Ceiling Mounting Rose
+      const ceilingRose = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.14, 0.04, 12), matCastIron);
+      ceilingRose.position.set(0, -0.02, 0);
 
-    // Vintage Freight Platform Scale
-    const scaleGroup = new THREE.Group();
-    scaleGroup.position.set(0.85, 0, 7.0);
-    const scalePlatform = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.12, 0.8), matCastIron);
-    scalePlatform.position.set(0, 0.06, 0);
-    const scaleColumn = new THREE.Mesh(new THREE.BoxGeometry(0.1, 1.4, 0.1), matCastIron);
-    scaleColumn.position.set(0.3, 0.7, 0);
-    const scaleBeam = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.08, 0.04), matCastIron);
-    scaleBeam.position.set(0.2, 1.35, 0);
-    scaleGroup.add(scalePlatform, scaleColumn, scaleBeam);
-    group.add(scaleGroup);
+      // Arched 2-Arm Forged Iron Bracket
+      const armL = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.45, 8), matCastIron);
+      armL.rotation.z = 0.35;
+      armL.position.set(-0.08, -0.22, 0);
+      const armR = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.45, 8), matCastIron);
+      armR.rotation.z = -0.35;
+      armR.position.set(0.08, -0.22, 0);
 
-    // 5. Overhead Hanging Cage Bulb Lights
-    for (let z = -7.0; z <= 7.0; z += 4.5) {
-      const bulbGroup = new THREE.Group();
-      bulbGroup.position.set(0, height - 0.25, z);
+      // Globe Holder & Milky White Frosted Glass Globe
+      const globeHolder = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.08, 0.05, 12), matCastIron);
+      globeHolder.position.set(0, -0.42, 0);
 
-      const cord = new THREE.Mesh(new THREE.CylinderGeometry(0.005, 0.005, 0.2, 4), matCastIron);
-      const bulb = new THREE.Mesh(
-        new THREE.SphereGeometry(0.08, 8, 8),
-        new THREE.MeshBasicMaterial({ color: 0xffeaae })
+      const globe = new THREE.Mesh(
+        new THREE.SphereGeometry(0.16, 16, 14),
+        new THREE.MeshStandardMaterial({
+          color: 0xfffae8,
+          emissive: 0xffeed0,
+          emissiveIntensity: 0.6,
+          roughness: 0.2
+        })
       );
-      bulb.position.set(0, -0.15, 0);
+      globe.position.set(0, -0.58, 0);
 
-      const cage = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.1, 0.1, 0.2, 6, 1, true),
-        new THREE.MeshBasicMaterial({ color: 0x222222, wireframe: true })
-      );
-      cage.position.set(0, -0.15, 0);
+      const pointLight = new THREE.PointLight(0xfff0d8, 1.1, 7.5);
+      pointLight.position.set(0, -0.65, 0);
 
-      const light = new THREE.PointLight(0xffd588, 0.9, 6.0);
-      light.position.set(0, -0.2, 0);
-
-      bulbGroup.add(cord, bulb, cage, light);
-      group.add(bulbGroup);
-    }
+      chandelier.add(ceilingRose, armL, armR, globeHolder, globe, pointLight);
+      group.add(chandelier);
+    });
 
     return group;
   };
