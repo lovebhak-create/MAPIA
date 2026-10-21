@@ -145,7 +145,6 @@ const Player = (() => {
       }
       velocity.set(0, 0, 0);
       SoundManager.playDoorSound();
-      updateUI();
     }
   };
 
@@ -198,16 +197,6 @@ const Player = (() => {
 
     // Continuous slide collision resolution for all furniture, walls, doors, characters!
     Collision.move(camera.position, dx, dz, camera.position.y);
-
-    updateUI();
-  };
-
-  const updateUI = () => {
-    const currentCar = TrainManager.getCurrentCar(camera.position.z);
-    const carTitleElem = document.getElementById('car-title');
-    if (carTitleElem && currentCar) {
-      carTitleElem.textContent = currentCar.name;
-    }
   };
 
   return {

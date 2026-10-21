@@ -37,6 +37,8 @@ try {
                 }
                 $response.ContentType = $contentType
                 $response.Headers.Add("Access-Control-Allow-Origin", "*")
+                $response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate")
+                $response.Headers.Add("Pragma", "no-cache")
                 $bytes = [System.IO.File]::ReadAllBytes($filePath)
                 $response.ContentLength64 = $bytes.Length
                 $response.OutputStream.Write($bytes, 0, $bytes.Length)

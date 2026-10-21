@@ -37,30 +37,19 @@
       transform: translateX(-50%);
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 8px;
       background: rgba(14, 20, 28, 0.82);
       border: 1px solid rgba(212, 175, 55, 0.4);
       border-radius: 8px;
-      padding: 8px 18px;
+      padding: 6px 14px;
       backdrop-filter: blur(8px);
       z-index: 10;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
     }
 
-    #car-title {
-      font-size: 15px;
-      font-weight: 600;
-      color: #dfb142;
-      letter-spacing: 0.5px;
-      white-space: nowrap;
-      min-width: 260px;
-    }
-
     .car-buttons {
       display: flex;
       gap: 5px;
-      border-left: 1px solid rgba(255, 255, 255, 0.15);
-      padding-left: 10px;
     }
 
     .btn-car {
@@ -123,16 +112,15 @@
 
   <!-- Top Navigation Bar -->
   <div id="top-bar">
-    <div id="car-title">3호차: 일반 객차</div>
     <div class="car-buttons">
-      <button class="btn-car" id="btn-car-1" title="1호차 증기기관차">1 기관차</button>
-      <button class="btn-car" id="btn-car-2" title="2호차 수하물차">2 수하물</button>
-      <button class="btn-car" id="btn-car-3" title="3호차 일반 객차">3 일반</button>
-      <button class="btn-car" id="btn-car-4" title="4호차 1등석 침대">4 1등침대</button>
-      <button class="btn-car" id="btn-car-5" title="5호차 2등석 침대">5 2등침대</button>
-      <button class="btn-car" id="btn-car-6" title="6호차 식당차">6 식당</button>
-      <button class="btn-car" id="btn-car-7" title="7호차 라운지차">7 라운지</button>
-      <button class="btn-car" id="btn-car-8" title="8호차 전망차">8 전망차</button>
+      <button class="btn-car" id="btn-car-1" title="1호차">1</button>
+      <button class="btn-car" id="btn-car-2" title="2호차">2</button>
+      <button class="btn-car" id="btn-car-3" title="3호차">3</button>
+      <button class="btn-car" id="btn-car-4" title="4호차">4</button>
+      <button class="btn-car" id="btn-car-5" title="5호차">5</button>
+      <button class="btn-car" id="btn-car-6" title="6호차">6</button>
+      <button class="btn-car" id="btn-car-7" title="7호차">7</button>
+      <button class="btn-car" id="btn-car-8" title="8호차">8</button>
     </div>
     <button class="tool-btn" id="btn-light" title="손전등 (F키)">🔦</button>
     <button class="tool-btn" id="btn-audio" title="사운드">🔊</button>
@@ -142,21 +130,21 @@
   <div id="char-nameplate" style="display:none; position:absolute; bottom:35px; left:50%; transform:translateX(-50%); background:rgba(14,20,28,0.88); border:1px solid #dfb142; color:#dfb142; padding:6px 18px; border-radius:6px; font-weight:600; font-size:14px; pointer-events:none; z-index:15; letter-spacing:0.5px; box-shadow:0 4px 15px rgba(0,0,0,0.6);"></div>
 
   <!-- Source Scripts -->
-  <script src="src/textures.js"></script>
-  <script src="src/audio.js"></script>
-  <script src="src/collision.js"></script>
-  <script src="src/environment.js"></script>
-  <script src="src/train/car1_locomotive.js"></script>
-  <script src="src/train/car2_baggage.js"></script>
-  <script src="src/train/car3_coach.js"></script>
-  <script src="src/train/car4_sleeper1.js"></script>
-  <script src="src/train/car5_sleeper2.js"></script>
-  <script src="src/train/car6_diner.js"></script>
-  <script src="src/train/car7_lounge.js"></script>
-  <script src="src/train/car8_observation.js"></script>
-  <script src="src/train/trainManager.js"></script>
-  <script src="src/characters.js"></script>
-  <script src="src/player.js"></script>
-  <script src="src/main.js"></script>
+  <script src="src/textures.js?v=2"></script>
+  <script src="src/audio.js?v=2"></script>
+  <script src="src/collision.js?v=2"></script>
+  <script src="src/environment.js?v=2"></script>
+  <script src="src/train/car1_locomotive.js?v=2"></script>
+  <script src="src/train/car2_baggage.js?v=2"></script>
+  <script src="src/train/car3_coach.js?v=2"></script>
+  <script src="src/train/car4_sleeper1.js?v=2"></script>
+  <script src="src/train/car5_sleeper2.js?v=2"></script>
+  <script src="src/train/car6_diner.js?v=2"></script>
+  <script src="src/train/car7_lounge.js?v=2"></script>
+  <script src="src/train/car8_observation.js?v=2"></script>
+  <script src="src/train/trainManager.js?v=2"></script>
+  <script src="src/characters.js?v=2"></script>
+  <script src="src/player.js?v=2"></script>
+  <script src="src/main.js?v=2"></script>
 </body>
 </html>
