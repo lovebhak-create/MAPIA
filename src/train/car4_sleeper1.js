@@ -148,14 +148,22 @@ const Car4_Sleeper1 = (() => {
       postL.position.set(-1.125, height / 2, 0);
       const postR = new THREE.Mesh(new THREE.BoxGeometry(1.25, height, 0.12), matMahogany);
       postR.position.set(1.125, height / 2, 0);
-      const topTransom = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.6, 0.12), matMahogany);
-      topTransom.position.set(0, height - 0.3, 0);
+
+      // Transom spans completely from door top (2.05m) to ceiling (height) - ZERO GAP!
+      const topTransom = new THREE.Mesh(new THREE.BoxGeometry(1.0, height - 2.05, 0.12), matMahogany);
+      topTransom.position.set(0, 2.05 + (height - 2.05) / 2, 0);
+      const transomCasing = new THREE.Mesh(new THREE.BoxGeometry(1.04, 0.05, 0.14), matMahogany);
+      transomCasing.position.set(0, 2.05, 0);
 
       const sDoor = new THREE.Mesh(new THREE.BoxGeometry(0.98, 2.05, 0.05), matMahogany);
       sDoor.position.set(0, 1.025, 0);
       const dWin = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.7, 0.06), matGlass);
       dWin.position.set(0, 0.35, 0);
       sDoor.add(dWin);
+
+      if (typeof DoorManager !== 'undefined' && DoorManager.createRecessedHandle) {
+        DoorManager.createRecessedHandle(sDoor, 0.36);
+      }
 
       if (typeof DoorManager !== 'undefined') {
         DoorManager.registerDoor({
@@ -168,7 +176,7 @@ const Car4_Sleeper1 = (() => {
         });
       }
 
-      bh.add(postL, postR, topTransom, sDoor);
+      bh.add(postL, postR, topTransom, transomCasing, sDoor);
       return bh;
     };
     group.add(createCarEndBulkhead(length / 2));  // Front door (from Car 3)
@@ -326,6 +334,36 @@ const Car4_Sleeper1 = (() => {
 
     vanityGroup.add(vBaseCabinet, vTopMarble, basin, faucetArch, knobL, knobR, pot, diffuserBottle, pumpBracket, pumpBottle1, pumpBottle2, tray, towelFold1, towelFold2);
 
+    // Animated Flowing Water Stream & Puddle (interactive on E/click)
+    const matWater = new THREE.MeshPhysicalMaterial({
+      color: 0x88ddff,
+      transmission: 0.92,
+      opacity: 0.85,
+      transparent: true,
+      roughness: 0.05,
+      ior: 1.33
+    });
+    const waterStream = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.016, 0.16, 8), matWater);
+    waterStream.position.set(0.14, 0.82, 0.04);
+    waterStream.visible = false;
+
+    const waterPuddle = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.01, 12), matWater);
+    waterPuddle.position.set(0, 0.73, 0.04);
+    waterPuddle.visible = false;
+
+    vanityGroup.add(waterStream, waterPuddle);
+
+    if (typeof SinkManager !== 'undefined') {
+      SinkManager.registerSink({
+        x: 1.42,
+        y: 2.02,
+        z: -67.0 - 8.15,
+        waterStream: waterStream,
+        waterPuddle: waterPuddle,
+        name: '4호차 1등석 세면대'
+      });
+    }
+
     // 3. Large Beveled Vanity Mirror with Brass Bezel on Right Wall
     const vMirror = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.78, 0.52), matMirror);
     vMirror.position.set(width / 2 - 0.08, 1.50, -8.15);
@@ -451,9 +489,11 @@ const Car4_Sleeper1 = (() => {
       const wallP2 = new THREE.Mesh(new THREE.BoxGeometry(0.1, height, 1.95), matMahogany);
       wallP2.position.set(corridorDividerX, height / 2, sCenter + 1.525);
 
-      // Door Transom over doorway (height 2.1m to 2.7m, width 1.1m)
-      const transom = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.6, 1.1), matMahogany);
-      transom.position.set(corridorDividerX, height - 0.3, sCenter);
+      // Door Transom over doorway spanning all the way down to door top (2.05m) - ZERO GAP!
+      const transom = new THREE.Mesh(new THREE.BoxGeometry(0.1, height - 2.05, 1.1), matMahogany);
+      transom.position.set(corridorDividerX, 2.05 + (height - 2.05) / 2, sCenter);
+      const transomCasing = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.05, 1.14), matMahogany);
+      transomCasing.position.set(corridorDividerX, 2.05, sCenter);
 
       // Door frame posts
       const dPostL = new THREE.Mesh(new THREE.BoxGeometry(0.12, height, 0.06), matMahogany);
@@ -461,12 +501,20 @@ const Car4_Sleeper1 = (() => {
       const dPostR = new THREE.Mesh(new THREE.BoxGeometry(0.12, height, 0.06), matMahogany);
       dPostR.position.set(corridorDividerX, height / 2, sCenter + 0.55);
 
-      // Open sliding mahogany door with long vertical handle (Photo 1)
+      // Sliding mahogany suite door with recessed brass pocket handle
       const suiteDoor = new THREE.Mesh(new THREE.BoxGeometry(0.05, 2.05, 1.0), matMahogany);
       suiteDoor.position.set(corridorDividerX - 0.06, 1.025, sCenter);
-      const doorLongHandle = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.45, 8), matBrass);
-      doorLongHandle.position.set(-0.04, 0, -0.42);
-      suiteDoor.add(doorLongHandle);
+
+      // Recessed pocket handles on both inner and outer door faces
+      const matHandleBrass = new THREE.MeshStandardMaterial({ color: 0xdfb142, roughness: 0.3, metalness: 0.85 });
+      const matHandleCup = new THREE.MeshStandardMaterial({ color: 0x1a160e, roughness: 0.5 });
+      [-0.026, 0.026].forEach(hx => {
+        const hPlate = new THREE.Mesh(new THREE.BoxGeometry(0.008, 0.18, 0.065), matHandleBrass);
+        hPlate.position.set(hx, 0, -0.36);
+        const hCup = new THREE.Mesh(new THREE.BoxGeometry(0.008, 0.12, 0.038), matHandleCup);
+        hCup.position.set(hx > 0 ? hx + 0.001 : hx - 0.001, 0, -0.36);
+        suiteDoor.add(hPlate, hCup);
+      });
 
       // Register interactive suite door (slides along corridor wall on Z axis, NEVER enters room!)
       if (typeof DoorManager !== 'undefined') {
@@ -487,7 +535,7 @@ const Car4_Sleeper1 = (() => {
       const namePlate = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.08, 0.32), matBrass);
       namePlate.position.set(corridorDividerX - 0.07, 1.45, sCenter + 0.72);
 
-      group.add(wallP1, wallP2, transom, dPostL, dPostR, suiteDoor, romanPlate, namePlate);
+      group.add(wallP1, wallP2, transom, transomCasing, dPostL, dPostR, suiteDoor, romanPlate, namePlate);
 
       // ==========================================
       // SUITE INTERIOR FURNITURE (Photo 3 Drawing Room Plan)

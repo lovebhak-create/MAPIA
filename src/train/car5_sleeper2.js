@@ -111,16 +111,24 @@ const Car5_Sleeper2 = (() => {
       postL.position.set(-1.125, height / 2, 0);
       const postR = new THREE.Mesh(new THREE.BoxGeometry(1.25, height, 0.12), matMahogany);
       postR.position.set(1.125, height / 2, 0);
-      const topTransom = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.6, 0.12), matMahogany);
-      topTransom.position.set(0, height - 0.3, 0);
-      bh.add(postL, postR, topTransom);
+      // Transom spans completely from door top (2.05m) to ceiling (height) - ZERO GAP!
+      const topTransom = new THREE.Mesh(new THREE.BoxGeometry(1.0, height - 2.05, 0.12), matMahogany);
+      topTransom.position.set(0, 2.05 + (height - 2.05) / 2, 0);
+      const transomCasing = new THREE.Mesh(new THREE.BoxGeometry(1.04, 0.05, 0.14), matMahogany);
+      transomCasing.position.set(0, 2.05, 0);
+      bh.add(postL, postR, topTransom, transomCasing);
 
-      // Sliding Mahogany Door
+      // Sliding Mahogany Door with authentic recessed pocket handle
       const sDoor = new THREE.Mesh(new THREE.BoxGeometry(0.98, 2.05, 0.05), matMahogany);
       sDoor.position.set(0, 1.025, 0);
       const dWin = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.7, 0.06), matGlass);
       dWin.position.set(0, 0.35, 0);
       sDoor.add(dWin);
+
+      if (typeof DoorManager !== 'undefined' && DoorManager.createRecessedHandle) {
+        DoorManager.createRecessedHandle(sDoor, 0.36);
+      }
+
       bh.add(sDoor);
 
       if (typeof DoorManager !== 'undefined') {
@@ -340,7 +348,36 @@ const Car5_Sleeper2 = (() => {
     nickelSpout.position.set(0.06, 0.16, 0);
     const soapNiche = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.04, 0.12), matNickelSilver);
     soapNiche.position.set(0.14, 0.32, 0);
-    washNicheGroup.add(nicheBackplate, nicheArch, nickelBasin, basinSupport, nickelSpout, soapNiche);
+
+    // Animated Flowing Water Stream & Puddle (interactive on E/click)
+    const matWater = new THREE.MeshPhysicalMaterial({
+      color: 0x88ddff,
+      transmission: 0.92,
+      opacity: 0.85,
+      transparent: true,
+      roughness: 0.05,
+      ior: 1.33
+    });
+    const waterStream = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.016, 0.14, 8), matWater);
+    waterStream.position.set(0.04, 0.06, 0);
+    waterStream.visible = false;
+
+    const waterPuddle = new THREE.Mesh(new THREE.CylinderGeometry(0.10, 0.10, 0.01, 12), matWater);
+    waterPuddle.position.set(0, -0.04, 0);
+    waterPuddle.visible = false;
+
+    washNicheGroup.add(nicheBackplate, nicheArch, nickelBasin, basinSupport, nickelSpout, soapNiche, waterStream, waterPuddle);
+
+    if (typeof SinkManager !== 'undefined') {
+      SinkManager.registerSink({
+        x: 1.42,
+        y: 2.02,
+        z: -89.0 - 8.15,
+        waterStream: waterStream,
+        waterPuddle: waterPuddle,
+        name: '5호차 세면대'
+      });
+    }
 
     // 3. Ornate Carved Oval Vanity Mirror on Right Wall (Photo 2)
     const mirrorGroup = new THREE.Group();

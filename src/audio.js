@@ -199,10 +199,61 @@ const SoundManager = (() => {
     osc.stop(t + 0.15);
   };
 
+  let waterGain = null;
+  let waterSource = null;
+
+  const playWaterSound = (start) => {
+    init();
+    if (!ctx) return;
+    if (start) {
+      if (waterSource) return;
+      try {
+        const bufferSize = ctx.sampleRate * 2;
+        const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const output = noiseBuffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          output[i] = Math.random() * 2 - 1;
+        }
+        waterSource = ctx.createBufferSource();
+        waterSource.buffer = noiseBuffer;
+        waterSource.loop = true;
+
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(850, ctx.currentTime);
+        filter.Q.setValueAtTime(1.5, ctx.currentTime);
+
+        waterGain = ctx.createGain();
+        waterGain.gain.setValueAtTime(0.001, ctx.currentTime);
+        waterGain.gain.exponentialRampToValueAtTime(isMuted ? 0.001 : 0.14, ctx.currentTime + 0.15);
+
+        waterSource.connect(filter);
+        filter.connect(waterGain);
+        waterGain.connect(ctx.destination);
+        waterSource.start();
+      } catch (e) {}
+    } else {
+      if (waterGain && waterSource) {
+        try {
+          waterGain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.12);
+          setTimeout(() => {
+            if (waterSource) {
+              try { waterSource.stop(); } catch (e) {}
+              waterSource = null;
+            }
+          }, 150);
+        } catch (e) {}
+      }
+    }
+  };
+
   const toggleMute = () => {
     isMuted = !isMuted;
     if (fireGain && ctx) {
       fireGain.gain.setValueAtTime(isMuted ? 0 : 0.18, ctx.currentTime);
+    }
+    if (waterGain && ctx) {
+      waterGain.gain.setValueAtTime(isMuted ? 0 : 0.14, ctx.currentTime);
     }
     return isMuted;
   };
@@ -212,6 +263,7 @@ const SoundManager = (() => {
     startAmbient,
     playWhistle,
     playDoorSound,
+    playWaterSound,
     toggleMute,
     getIsMuted: () => isMuted
   };

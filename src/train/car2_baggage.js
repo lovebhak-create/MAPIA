@@ -117,7 +117,7 @@ const Car2_Baggage = (() => {
     group.add(createBaggageSideWall(-1));
     group.add(createBaggageSideWall(1));
 
-    // End Bulkheads with Connecting Doors & Sliding Crew Doors
+    // End Bulkheads with Connecting Doors & Sliding Crew Doors (Flawless zero-gap transom & casing trim)
     const createBulkhead = (zPos) => {
       const bh = new THREE.Group();
       bh.position.set(0, 0, zPos);
@@ -125,18 +125,25 @@ const Car2_Baggage = (() => {
       postL.position.set(-1.125, height / 2, 0);
       const postR = new THREE.Mesh(new THREE.BoxGeometry(1.25, height, 0.12), matDarkWainscot);
       postR.position.set(1.125, height / 2, 0);
-      const transom = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.6, 0.12), matDarkWainscot);
-      transom.position.set(0, height - 0.3, 0);
-      bh.add(postL, postR, transom);
 
-      // Heavy sliding crew door
+      // Transom spans completely from door top (2.05m) to ceiling (height) - ZERO GAP!
+      const transom = new THREE.Mesh(new THREE.BoxGeometry(1.0, height - 2.05, 0.12), matDarkWainscot);
+      transom.position.set(0, 2.05 + (height - 2.05) / 2, 0);
+      const transomCasing = new THREE.Mesh(new THREE.BoxGeometry(1.04, 0.05, 0.14), matDarkWainscot);
+      transomCasing.position.set(0, 2.05, 0);
+      bh.add(postL, postR, transom, transomCasing);
+
+      // Heavy sliding crew door with authentic recessed pocket handle
       const crewDoor = new THREE.Mesh(new THREE.BoxGeometry(0.98, 2.05, 0.05), matDarkWainscot);
       crewDoor.position.set(0, 1.025, 0);
       const dWin = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.6, 0.06), transomMat);
       dWin.position.set(0, 0.35, 0);
-      const dHandle = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.4, 8), matCastIron);
-      dHandle.position.set(0.38, 0, 0.04);
-      crewDoor.add(dWin, dHandle);
+      crewDoor.add(dWin);
+
+      if (typeof DoorManager !== 'undefined' && DoorManager.createRecessedHandle) {
+        DoorManager.createRecessedHandle(crewDoor, 0.36);
+      }
+
       bh.add(crewDoor);
 
       // Register interactive door with DoorManager
@@ -178,10 +185,10 @@ const Car2_Baggage = (() => {
     });
 
     // 4. Folding Iron Security Pipe Cage Grates (From Photo 4)
-    // Mounted along walls to lock express packages and bonded freight
+    // Mounted snugly along walls to lock express packages and bonded freight
     [-1, 1].forEach(side => {
       const cageGroup = new THREE.Group();
-      cageGroup.position.set(side * (width / 2 - 0.35), 0, -4.5);
+      cageGroup.position.set(side * (width / 2 - 0.16), 0, -4.5);
 
       // Vertical pipe bars
       for (let bz = -2.0; bz <= 2.0; bz += 0.35) {
@@ -291,7 +298,7 @@ const Car2_Baggage = (() => {
     group.add(trolleyGroup);
 
     // 6. CARGO AREA (Rear Section Z = -1.0 to -9.0, From Photo 3)
-    // Varied Wooden Crates with Diagonal Cross-Bracing
+    // Varied Wooden Crates with Diagonal Cross-Bracing - Snugly backed against the right wall!
     const createStenciledCrate = (x, z, w, h, d, rotY = 0) => {
       const crateGroup = new THREE.Group();
       crateGroup.position.set(x, h / 2, z);
@@ -303,16 +310,16 @@ const Car2_Baggage = (() => {
       return crateGroup;
     };
 
-    // Stacks of Wooden Crates along Right Wall
-    group.add(createStenciledCrate(0.85, -2.5, 0.95, 0.95, 0.95, 0.05));
-    group.add(createStenciledCrate(0.85, -2.5, 0.8, 0.75, 0.8, 0.2).translateY(0.85));
-    group.add(createStenciledCrate(0.85, -4.2, 0.85, 0.85, 1.2, -0.1));
-    group.add(createStenciledCrate(0.85, -5.8, 0.9, 0.9, 0.9, 0.15));
+    // Stacks of Wooden Crates backed directly against Right Wall (X = 1.69)
+    group.add(createStenciledCrate(1.215, -2.5, 0.95, 0.95, 0.95, 0.02));
+    group.add(createStenciledCrate(1.28, -2.5, 0.8, 0.75, 0.8, 0.08).translateY(0.85));
+    group.add(createStenciledCrate(1.265, -4.2, 0.85, 0.85, 1.2, -0.05));
+    group.add(createStenciledCrate(1.24, -5.8, 0.9, 0.9, 0.9, 0.06));
 
-    // Tall Upright Wardrobe Shipping Crate (From Photo 3)
-    group.add(createStenciledCrate(0.88, -7.5, 0.75, 1.85, 0.85, 0));
+    // Tall Upright Wardrobe Shipping Crate flush against Right Wall (From Photo 3)
+    group.add(createStenciledCrate(1.315, -7.5, 0.75, 1.85, 0.85, 0));
 
-    // Dome-Top Antique Steamer Trunks (From Photo 3)
+    // Dome-Top Antique Steamer Trunks backed directly against Left Wall (X = -1.69)
     const createDomeTopTrunk = (x, z, w, h, d, color = 0x4e2d1a) => {
       const trunk = new THREE.Group();
       trunk.position.set(x, 0, z);
@@ -335,13 +342,13 @@ const Car2_Baggage = (() => {
       return trunk;
     };
 
-    group.add(createDomeTopTrunk(-0.85, -2.2, 1.1, 0.65, 0.6, 0x5a2d18));
-    group.add(createDomeTopTrunk(-0.85, -4.0, 1.0, 0.6, 0.55, 0x1f2b38));
-    group.add(createDomeTopTrunk(-0.85, -5.8, 1.15, 0.7, 0.65, 0x241d18));
-    group.add(createDomeTopTrunk(-0.85, -7.5, 0.95, 0.55, 0.5, 0x422212));
+    group.add(createDomeTopTrunk(-1.38, -2.2, 1.1, 0.65, 0.6, 0x5a2d18));
+    group.add(createDomeTopTrunk(-1.38, -4.0, 1.0, 0.6, 0.55, 0x1f2b38));
+    group.add(createDomeTopTrunk(-1.36, -5.8, 1.15, 0.7, 0.65, 0x241d18));
+    group.add(createDomeTopTrunk(-1.41, -7.5, 0.95, 0.55, 0.5, 0x422212));
 
     // 7. HISTORIC CENTERLINE FORGED-IRON CHANDELIERS (From Photo 4)
-    // 2-arm arched forged-iron hangers with milky white frosted glass globes
+    // Dim, moody vintage industrial lighting suited for an unheated express freight car
     [-7.0, -2.5, 2.5, 7.0].forEach(lz => {
       const chandelier = new THREE.Group();
       chandelier.position.set(0, height - 0.08, lz);
@@ -365,15 +372,16 @@ const Car2_Baggage = (() => {
       const globe = new THREE.Mesh(
         new THREE.SphereGeometry(0.16, 16, 14),
         new THREE.MeshStandardMaterial({
-          color: 0xfffae8,
-          emissive: 0xffeed0,
-          emissiveIntensity: 0.6,
-          roughness: 0.2
+          color: 0xffe8b8,
+          emissive: 0xffd280,
+          emissiveIntensity: 0.22,
+          roughness: 0.35
         })
       );
       globe.position.set(0, -0.58, 0);
 
-      const pointLight = new THREE.PointLight(0xfff0d8, 1.1, 7.5);
+      // Atmospheric, moody warm industrial lighting (dimmer, authentic baggage freight ambience!)
+      const pointLight = new THREE.PointLight(0xffc870, 0.38, 6.5);
       pointLight.position.set(0, -0.65, 0);
 
       chandelier.add(ceilingRose, armL, armR, globeHolder, globe, pointLight);

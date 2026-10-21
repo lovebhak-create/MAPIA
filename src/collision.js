@@ -42,6 +42,14 @@ const Collision = (() => {
         return true;
       }
     }
+
+    // Dynamic Closed Door Blocking (Player cannot walk through closed doors!)
+    if (typeof DoorManager !== 'undefined' && DoorManager.isBlockedByClosedDoor) {
+      if (DoorManager.isBlockedByClosedDoor(x, z, playerRadius)) {
+        return true;
+      }
+    }
+
     return false;
   };
 

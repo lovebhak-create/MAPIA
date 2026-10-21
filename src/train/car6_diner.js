@@ -140,7 +140,7 @@ const Car6_Diner = (() => {
     group.add(createDinerSideWall(-1));
     group.add(createDinerSideWall(1));
 
-    // End Bulkheads
+    // End Bulkheads with Doorways & Interactive Sliding Doors (Zero-gap transom & recessed pocket handles)
     const createBulkhead = (zPos) => {
       const bh = new THREE.Group();
       bh.position.set(0, 0, zPos);
@@ -148,9 +148,38 @@ const Car6_Diner = (() => {
       postL.position.set(-1.125, height / 2, 0);
       const postR = new THREE.Mesh(new THREE.BoxGeometry(1.25, height, 0.12), matMahogany);
       postR.position.set(1.125, height / 2, 0);
-      const topTransom = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.6, 0.12), matMahogany);
-      topTransom.position.set(0, height - 0.3, 0);
-      bh.add(postL, postR, topTransom);
+
+      // Transom spans completely from door top (2.05m) to ceiling (height) - ZERO GAP!
+      const topTransom = new THREE.Mesh(new THREE.BoxGeometry(1.0, height - 2.05, 0.12), matMahogany);
+      topTransom.position.set(0, 2.05 + (height - 2.05) / 2, 0);
+      const transomCasing = new THREE.Mesh(new THREE.BoxGeometry(1.04, 0.05, 0.14), matMahogany);
+      transomCasing.position.set(0, 2.05, 0);
+      bh.add(postL, postR, topTransom, transomCasing);
+
+      // Sliding Mahogany Door with authentic recessed pocket handle
+      const sDoor = new THREE.Mesh(new THREE.BoxGeometry(0.98, 2.05, 0.05), matMahogany);
+      sDoor.position.set(0, 1.025, 0);
+      const dWin = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.7, 0.06), matGlass);
+      dWin.position.set(0, 0.35, 0);
+      sDoor.add(dWin);
+
+      if (typeof DoorManager !== 'undefined' && DoorManager.createRecessedHandle) {
+        DoorManager.createRecessedHandle(sDoor, 0.36);
+      }
+
+      bh.add(sDoor);
+
+      if (typeof DoorManager !== 'undefined') {
+        DoorManager.registerDoor({
+          mesh: sDoor,
+          type: 'slide',
+          openOffset: 0.92,
+          x: 0,
+          z: -111.0 + zPos,
+          name: zPos > 0 ? '6호차 앞문' : '6호차 뒷문'
+        });
+      }
+
       return bh;
     };
     group.add(createBulkhead(length / 2));

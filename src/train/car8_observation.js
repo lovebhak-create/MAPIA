@@ -112,19 +112,46 @@ const Car8_Observation = (() => {
     group.add(createObsSideWall(-1));
     group.add(createObsSideWall(1));
 
-    // Front Bulkhead (Connecting to Car 7)
+    // Front Bulkhead (Connecting to Car 7) - Zero-gap transom & recessed pocket handle
     const frontBulkhead = new THREE.Group();
     frontBulkhead.position.set(0, 0, length / 2);
     const postL = new THREE.Mesh(new THREE.BoxGeometry(1.25, height, 0.12), matMahogany);
     postL.position.set(-1.125, height / 2, 0);
     const postR = new THREE.Mesh(new THREE.BoxGeometry(1.25, height, 0.12), matMahogany);
     postR.position.set(1.125, height / 2, 0);
-    const topTransom = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.6, 0.12), matMahogany);
-    topTransom.position.set(0, height - 0.3, 0);
-    frontBulkhead.add(postL, postR, topTransom);
+
+    const topTransom = new THREE.Mesh(new THREE.BoxGeometry(1.0, height - 2.05, 0.12), matMahogany);
+    topTransom.position.set(0, 2.05 + (height - 2.05) / 2, 0);
+    const transomCasing = new THREE.Mesh(new THREE.BoxGeometry(1.04, 0.05, 0.14), matMahogany);
+    transomCasing.position.set(0, 2.05, 0);
+    frontBulkhead.add(postL, postR, topTransom, transomCasing);
+
+    const sDoor = new THREE.Mesh(new THREE.BoxGeometry(0.98, 2.05, 0.05), matMahogany);
+    sDoor.position.set(0, 1.025, 0);
+    const dWin = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.7, 0.06), matGlass);
+    dWin.position.set(0, 0.35, 0);
+    sDoor.add(dWin);
+
+    if (typeof DoorManager !== 'undefined' && DoorManager.createRecessedHandle) {
+      DoorManager.createRecessedHandle(sDoor, 0.36);
+    }
+    frontBulkhead.add(sDoor);
+
+    if (typeof DoorManager !== 'undefined') {
+      DoorManager.registerDoor({
+        mesh: sDoor,
+        type: 'slide',
+        openOffset: 0.92,
+        x: 0,
+        z: -155.0 + length / 2,
+        name: '8호차 앞문'
+      });
+    }
+
     group.add(frontBulkhead);
 
     // Rear Interior Partition with French Glass Doors opening to the Observation Platform (Z = -length/2 + 3.0 = -7.0)
+    // Zero-gap transom + interactive double swing French doors with brass hardware and closed door collision
     const rearWallGroup = new THREE.Group();
     rearWallGroup.position.set(0, 0, -length / 2 + 3.0);
 
@@ -132,25 +159,55 @@ const Car8_Observation = (() => {
     rwL.position.set(-1.15, height / 2, 0);
     const rwR = new THREE.Mesh(new THREE.BoxGeometry(1.15, height, 0.12), matMahogany);
     rwR.position.set(1.15, height / 2, 0);
-    const rwTop = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.5, 0.12), matMahogany);
-    rwTop.position.set(0, height - 0.25, 0);
 
-    // Double French Glass Doors (Open slightly so player can walk outside!)
-    const doorL = new THREE.Mesh(new THREE.BoxGeometry(0.55, 2.1, 0.06), matMahogany);
-    doorL.position.set(-0.28, 1.05, 0);
-    doorL.rotation.y = -0.5; // Swung open
-    const doorGlassL = new THREE.Mesh(new THREE.BoxGeometry(0.38, 1.6, 0.04), matGlass);
-    doorGlassL.position.set(0, 0, 0);
-    doorL.add(doorGlassL);
+    // Transom spans completely down to door top (2.05m) - ZERO GAP!
+    const rwTop = new THREE.Mesh(new THREE.BoxGeometry(1.2, height - 2.05, 0.12), matMahogany);
+    rwTop.position.set(0, 2.05 + (height - 2.05) / 2, 0);
+    const rwCasing = new THREE.Mesh(new THREE.BoxGeometry(1.24, 0.05, 0.14), matMahogany);
+    rwCasing.position.set(0, 2.05, 0);
 
-    const doorR = new THREE.Mesh(new THREE.BoxGeometry(0.55, 2.1, 0.06), matMahogany);
-    doorR.position.set(0.28, 1.05, 0);
-    doorR.rotation.y = 0.5; // Swung open
-    const doorGlassR = new THREE.Mesh(new THREE.BoxGeometry(0.38, 1.6, 0.04), matGlass);
-    doorGlassR.position.set(0, 0, 0);
-    doorR.add(doorGlassR);
+    // Double French Glass Doors (Interactive swing open/close!)
+    const doorPivotL = new THREE.Group();
+    doorPivotL.position.set(-0.55, 0, 0);
+    const doorL = new THREE.Mesh(new THREE.BoxGeometry(0.54, 2.05, 0.05), matMahogany);
+    doorL.position.set(0.27, 1.025, 0);
+    const doorGlassL = new THREE.Mesh(new THREE.BoxGeometry(0.38, 1.5, 0.04), matGlass);
+    doorGlassL.position.set(0, 0.1, 0);
+    const handleL1 = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.14, 8), matBrass);
+    handleL1.position.set(0.22, 0, 0.04);
+    const handleL2 = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.14, 8), matBrass);
+    handleL2.position.set(0.22, 0, -0.04);
+    doorL.add(doorGlassL, handleL1, handleL2);
+    doorPivotL.add(doorL);
 
-    rearWallGroup.add(rwL, rwR, rwTop, doorL, doorR);
+    const doorPivotR = new THREE.Group();
+    doorPivotR.position.set(0.55, 0, 0);
+    const doorR = new THREE.Mesh(new THREE.BoxGeometry(0.54, 2.05, 0.05), matMahogany);
+    doorR.position.set(-0.27, 1.025, 0);
+    const doorGlassR = new THREE.Mesh(new THREE.BoxGeometry(0.38, 1.5, 0.04), matGlass);
+    doorGlassR.position.set(0, 0.1, 0);
+    const handleR1 = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.14, 8), matBrass);
+    handleR1.position.set(-0.22, 0, 0.04);
+    const handleR2 = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.14, 8), matBrass);
+    handleR2.position.set(-0.22, 0, -0.04);
+    doorR.add(doorGlassR, handleR1, handleR2);
+    doorPivotR.add(doorR);
+
+    if (typeof DoorManager !== 'undefined') {
+      DoorManager.registerDoor({
+        mesh: doorPivotL,
+        secondaryMesh: doorPivotR,
+        type: 'swing',
+        openAngle: -1.35,
+        secondaryOpenAngle: 1.35,
+        x: 0,
+        z: -155.0 - 7.0,
+        doorBox: { minX: -0.55, maxX: 0.55, minZ: -162.20, maxZ: -161.80 },
+        name: '전망차 발코니 프렌치 도어'
+      });
+    }
+
+    rearWallGroup.add(rwL, rwR, rwTop, rwCasing, doorPivotL, doorPivotR);
     group.add(rearWallGroup);
 
     // ==========================================

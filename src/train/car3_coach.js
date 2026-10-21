@@ -157,7 +157,7 @@ const Car3_Coach = (() => {
     group.add(createSideWall(-1));
     group.add(createSideWall(1));
 
-    // End Bulkheads with Doorways & Interactive Sliding Doors
+    // End Bulkheads with Doorways & Interactive Sliding Doors (Zero-gap transom & recessed pocket handles)
     const createBulkhead = (zPos) => {
       const bh = new THREE.Group();
       bh.position.set(0, 0, zPos);
@@ -165,16 +165,25 @@ const Car3_Coach = (() => {
       postL.position.set(-1.125, height / 2, 0);
       const postR = new THREE.Mesh(new THREE.BoxGeometry(1.25, height, 0.12), matMahogany);
       postR.position.set(1.125, height / 2, 0);
-      const topTransom = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.6, 0.12), matMahogany);
-      topTransom.position.set(0, height - 0.3, 0);
-      bh.add(postL, postR, topTransom);
 
-      // Sliding Mahogany Door
+      // Transom spans completely from door top (2.05m) to ceiling (height) - ZERO GAP!
+      const topTransom = new THREE.Mesh(new THREE.BoxGeometry(1.0, height - 2.05, 0.12), matMahogany);
+      topTransom.position.set(0, 2.05 + (height - 2.05) / 2, 0);
+      const transomCasing = new THREE.Mesh(new THREE.BoxGeometry(1.04, 0.05, 0.14), matMahogany);
+      transomCasing.position.set(0, 2.05, 0);
+      bh.add(postL, postR, topTransom, transomCasing);
+
+      // Sliding Mahogany Door with authentic recessed pocket handle
       const sDoor = new THREE.Mesh(new THREE.BoxGeometry(0.98, 2.05, 0.05), matMahogany);
       sDoor.position.set(0, 1.025, 0);
       const dWin = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.7, 0.06), matGlass);
       dWin.position.set(0, 0.35, 0);
       sDoor.add(dWin);
+
+      if (typeof DoorManager !== 'undefined' && DoorManager.createRecessedHandle) {
+        DoorManager.createRecessedHandle(sDoor, 0.36);
+      }
+
       bh.add(sDoor);
 
       if (typeof DoorManager !== 'undefined') {
@@ -416,6 +425,36 @@ const Car3_Coach = (() => {
     vHandleR.position.set(0.14, 0.84, 0.10);
 
     vanityGroup.add(vanityCabinet, steelTop, marineRim, ceramicBasin, vFaucetSpout, vHandleL, vHandleR);
+
+    // Animated Flowing Water Stream & Puddle (interactive on E/click)
+    const matWater = new THREE.MeshPhysicalMaterial({
+      color: 0x88ddff,
+      transmission: 0.92,
+      opacity: 0.85,
+      transparent: true,
+      roughness: 0.05,
+      ior: 1.33
+    });
+    const waterStream = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.016, 0.16, 8), matWater);
+    waterStream.position.set(0.14, 0.82, 0.02);
+    waterStream.visible = false;
+
+    const waterPuddle = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.01, 12), matWater);
+    waterPuddle.position.set(0, 0.73, 0.02);
+    waterPuddle.visible = false;
+
+    vanityGroup.add(waterStream, waterPuddle);
+
+    if (typeof SinkManager !== 'undefined') {
+      SinkManager.registerSink({
+        x: 1.42,
+        y: 2.02,
+        z: -45.0 - 8.15,
+        waterStream: waterStream,
+        waterPuddle: waterPuddle,
+        name: '3호차 세면대'
+      });
+    }
 
     // 2. Rectangular Beveled Vanity Mirror with Chrome Frame on Right Wall
     const vanityMirror = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.68, 0.48), matChrome);

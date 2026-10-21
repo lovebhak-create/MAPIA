@@ -70,9 +70,12 @@ window.addEventListener('DOMContentLoaded', () => {
     // Update Player movement & physics
     Player.update(delta);
 
-    // Update Interactive Animated Doors
+    // Update Interactive Animated Doors & Sinks
     if (typeof DoorManager !== 'undefined') {
       DoorManager.update(delta);
+    }
+    if (typeof SinkManager !== 'undefined') {
+      SinkManager.update(delta);
     }
 
     // Update Characters (Push physics: player pushes characters smoothly out of the way!)
