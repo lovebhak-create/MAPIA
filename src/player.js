@@ -23,46 +23,62 @@ const Player = (() => {
   let sittingChair = null;
   const seats = [];
 
-  // Register all chairs across all 8 cars
+  // Register all chairs and beds across all 8 cars with realistic eye height and safe stand-up spots
   const initSeats = () => {
     seats.length = 0;
 
-    // Car 3: 9 pairs of Coach double seats
+    // Car 3: 9 pairs of Coach double seats (Eye height Y = 2.38m)
     for (let i = 0; i < 9; i++) {
       const sz = -52.0 + i * 1.6;
-      seats.push({ x: -0.95, y: 1.95, z: sz, name: 'Coach Seat' });
-      seats.push({ x: 0.95, y: 1.95, z: sz, name: 'Coach Seat' });
+      seats.push({ x: -0.95, y: 2.38, z: sz, name: 'Coach Seat', standPos: { x: -0.25, y: 2.85, z: sz } });
+      seats.push({ x: 0.95, y: 2.38, z: sz, name: 'Coach Seat', standPos: { x: 0.25, y: 2.85, z: sz } });
     }
 
-    // Car 4: 1st Class Suite Armchairs
-    seats.push({ x: 0.95, y: 1.95, z: -61.35, name: 'Suite 1 Armchair' });
-    seats.push({ x: 0.95, y: 1.95, z: -66.35, name: 'Suite 2 Armchair' });
-    seats.push({ x: 0.95, y: 1.95, z: -71.35, name: 'Suite 3 Armchair' });
+    // Car 4: 1st Class Luxury Suites - Armchairs & Beds
+    // Armchairs
+    seats.push({ x: 0.95, y: 2.32, z: -61.35, name: 'Suite 1 Armchair', standPos: { x: 0.35, y: 2.85, z: -61.35 } });
+    seats.push({ x: 0.95, y: 2.32, z: -66.35, name: 'Suite 2 Armchair', standPos: { x: 0.35, y: 2.85, z: -66.35 } });
+    seats.push({ x: 0.95, y: 2.32, z: -71.35, name: 'Suite 3 Armchair', standPos: { x: 0.35, y: 2.85, z: -71.35 } });
+    // Luxury Double Beds (E / click to sleep/rest, Space to wake up!)
+    seats.push({ x: 0.65, y: 1.85, z: -62.8, name: 'Suite 1 Bed', isBed: true, standPos: { x: -0.15, y: 2.85, z: -62.8 } });
+    seats.push({ x: 0.65, y: 1.85, z: -67.8, name: 'Suite 2 Bed', isBed: true, standPos: { x: -0.15, y: 2.85, z: -67.8 } });
+    seats.push({ x: 0.65, y: 1.85, z: -72.8, name: 'Suite 3 Bed', isBed: true, standPos: { x: -0.15, y: 2.85, z: -72.8 } });
+
+    // Car 5: 2nd Class Sleeper Berths (Beds)
+    seats.push({ x: 0.85, y: 1.80, z: -83.5, name: 'Berth Bed 1', isBed: true, standPos: { x: 0.0, y: 2.85, z: -83.5 } });
+    seats.push({ x: -0.85, y: 1.80, z: -88.5, name: 'Berth Bed 2', isBed: true, standPos: { x: 0.0, y: 2.85, z: -88.5 } });
+    seats.push({ x: 0.85, y: 1.80, z: -93.5, name: 'Berth Bed 3', isBed: true, standPos: { x: 0.0, y: 2.85, z: -93.5 } });
 
     // Car 6: Dining Car chairs (4 tables on each side)
+    // Eye height Y = 2.42m gives an authentic view over the tabletop and plates!
     const dinerTableZ = [-113.5, -110.5, -107.5, -104.5];
     dinerTableZ.forEach(tz => {
-      seats.push({ x: 0.95, y: 1.95, z: tz - 0.7, name: 'Dining Chair' });
-      seats.push({ x: 0.95, y: 1.95, z: tz + 0.7, name: 'Dining Chair' });
-      seats.push({ x: -0.95, y: 1.95, z: tz - 0.7, name: 'Dining Chair' });
-      seats.push({ x: -0.95, y: 1.95, z: tz + 0.7, name: 'Dining Chair' });
+      // Right 4-person table chairs
+      seats.push({ x: 0.95, y: 2.42, z: tz - 0.7, name: 'Dining Chair', standPos: { x: 0.25, y: 2.85, z: tz - 0.7 } });
+      seats.push({ x: 0.95, y: 2.42, z: tz + 0.7, name: 'Dining Chair', standPos: { x: 0.25, y: 2.85, z: tz + 0.7 } });
+      // Left 2-person table chairs
+      seats.push({ x: -0.95, y: 2.42, z: tz - 0.7, name: 'Dining Chair', standPos: { x: -0.25, y: 2.85, z: tz - 0.7 } });
+      seats.push({ x: -0.95, y: 2.42, z: tz + 0.7, name: 'Dining Chair', standPos: { x: -0.25, y: 2.85, z: tz + 0.7 } });
     });
 
     // Car 7: Lounge Car Club Armchairs & Barstools
-    seats.push({ x: 0.85, y: 1.90, z: -131.0, name: 'Club Armchair' });
-    seats.push({ x: 0.85, y: 1.90, z: -133.5, name: 'Club Armchair' });
-    seats.push({ x: 0.85, y: 1.90, z: -136.5, name: 'Club Armchair' });
-    seats.push({ x: 0.85, y: 1.90, z: -138.5, name: 'Club Armchair' });
-    seats.push({ x: -0.85, y: 1.90, z: -132.5, name: 'Club Armchair' });
-    seats.push({ x: -0.85, y: 1.90, z: -135.0, name: 'Club Armchair' });
-    seats.push({ x: 0.48, y: 1.92, z: -128.3, name: 'Barstool' });
-    seats.push({ x: 0.48, y: 1.92, z: -127.0, name: 'Barstool' });
-    seats.push({ x: 0.48, y: 1.92, z: -125.7, name: 'Barstool' });
+    // Club Armchairs
+    seats.push({ x: 0.85, y: 2.30, z: -131.0, name: 'Club Armchair', standPos: { x: 0.20, y: 2.85, z: -131.0 } });
+    seats.push({ x: 0.85, y: 2.30, z: -133.5, name: 'Club Armchair', standPos: { x: 0.20, y: 2.85, z: -133.5 } });
+    seats.push({ x: 0.85, y: 2.30, z: -136.5, name: 'Club Armchair', standPos: { x: 0.20, y: 2.85, z: -136.5 } });
+    seats.push({ x: 0.85, y: 2.30, z: -138.5, name: 'Club Armchair', standPos: { x: 0.20, y: 2.85, z: -138.5 } });
+    seats.push({ x: -0.85, y: 2.30, z: -132.5, name: 'Club Armchair', standPos: { x: -0.20, y: 2.85, z: -132.5 } });
+    seats.push({ x: -0.85, y: 2.30, z: -135.0, name: 'Club Armchair', standPos: { x: -0.20, y: 2.85, z: -135.0 } });
+
+    // Barstools (Placed at X = -0.05, standPos at X = 0.60 in wide open walkway!)
+    seats.push({ x: -0.05, y: 2.45, z: -128.3, name: 'Barstool', standPos: { x: 0.60, y: 2.85, z: -128.3 } });
+    seats.push({ x: -0.05, y: 2.45, z: -127.0, name: 'Barstool', standPos: { x: 0.60, y: 2.85, z: -127.0 } });
+    seats.push({ x: -0.05, y: 2.45, z: -125.7, name: 'Barstool', standPos: { x: 0.60, y: 2.85, z: -125.7 } });
 
     // Car 8: Observation Swivel Chairs
     [-160.0, -157.5, -155.0, -152.5, -150.0, -147.5].forEach(cz => {
-      seats.push({ x: -0.95, y: 1.95, z: cz, name: 'Observation Swivel Chair' });
-      seats.push({ x: 0.95, y: 1.95, z: cz, name: 'Observation Swivel Chair' });
+      seats.push({ x: -0.95, y: 2.35, z: cz, name: 'Observation Swivel Chair', standPos: { x: -0.20, y: 2.85, z: cz } });
+      seats.push({ x: 0.95, y: 2.35, z: cz, name: 'Observation Swivel Chair', standPos: { x: 0.20, y: 2.85, z: cz } });
     });
   };
 
@@ -72,9 +88,9 @@ const Player = (() => {
       return;
     }
 
-    // Find nearest chair within 2.5 meters
+    // Only allow sitting/lying if within intimate interaction distance (<= 1.35m)
     let nearest = null;
-    let minDist = 2.5;
+    let minDist = 1.35;
     for (let i = 0; i < seats.length; i++) {
       const s = seats[i];
       const dist = Math.hypot(camera.position.x - s.x, camera.position.z - s.z);
@@ -91,7 +107,10 @@ const Player = (() => {
       velocity.set(0, 0, 0);
 
       const prompt = document.getElementById('sit-prompt');
-      if (prompt) prompt.style.display = 'block';
+      if (prompt) {
+        prompt.textContent = '[Space] 키를 눌러 일어나기';
+        prompt.style.display = 'block';
+      }
     }
   };
 
@@ -99,10 +118,12 @@ const Player = (() => {
     if (!isSitting) return;
     isSitting = false;
 
-    // Step slightly toward center aisle so player is standing next to chair
-    if (camera.position.x > 0.3) camera.position.x = 0.15;
-    else if (camera.position.x < -0.3) camera.position.x = -0.15;
-    camera.position.y = 2.85;
+    // Use safe collision-free stand-up position in open walkway
+    if (sittingChair && sittingChair.standPos) {
+      camera.position.set(sittingChair.standPos.x, sittingChair.standPos.y, sittingChair.standPos.z);
+    } else {
+      camera.position.y = 2.85;
+    }
     velocity.set(0, 0, 0);
     sittingChair = null;
 

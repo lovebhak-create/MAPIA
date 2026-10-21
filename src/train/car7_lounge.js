@@ -151,42 +151,42 @@ const Car7_Lounge = (() => {
     const barGroup = new THREE.Group();
     barGroup.position.set(0, 0, 6.0);
 
-    // Rich Art Deco Bar Counter (X: -0.45 to +0.10, length 4.4m)
-    // Front counter body
-    const barCounter = new THREE.Mesh(new THREE.BoxGeometry(0.55, 1.08, 4.4), matMahogany);
-    barCounter.position.set(-0.175, 0.54, 0);
+    // Rich Art Deco Bar Counter (shifted to left, leaving spacious 1.25m right corridor and 0.62m bartender corridor)
+    // Counter spans X = -0.72 to -0.32 (width 0.40m, center X = -0.52)
+    const barCounter = new THREE.Mesh(new THREE.BoxGeometry(0.40, 1.08, 4.2), matMahogany);
+    barCounter.position.set(-0.52, 0.54, 0);
 
-    // Polished Countertop with curved ends and brass edge trim
+    // Polished Countertop with brass edge trim
     const barTop = new THREE.Mesh(
-      new THREE.BoxGeometry(0.65, 0.08, 4.5),
+      new THREE.BoxGeometry(0.48, 0.08, 4.3),
       new THREE.MeshStandardMaterial({ color: 0x221711, roughness: 0.2, metalness: 0.1 })
     );
-    barTop.position.set(-0.175, 1.10, 0);
+    barTop.position.set(-0.52, 1.10, 0);
 
-    const barTrim = new THREE.Mesh(new THREE.BoxGeometry(0.67, 0.03, 4.52), matBrass);
-    barTrim.position.set(-0.175, 1.06, 0);
+    const barTrim = new THREE.Mesh(new THREE.BoxGeometry(0.50, 0.03, 4.32), matBrass);
+    barTrim.position.set(-0.52, 1.06, 0);
 
     // Warm Under-counter Art Deco ambient glow
     const barGlow = new THREE.PointLight(0xffbe6b, 0.85, 3.5);
-    barGlow.position.set(0.15, 0.95, 0);
+    barGlow.position.set(-0.25, 0.95, 0);
 
     // Brass Footrail for seated patrons
-    const footrail = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 4.2, 8), matBrass);
+    const footrail = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 4.0, 8), matBrass);
     footrail.rotation.x = Math.PI / 2;
-    footrail.position.set(0.25, 0.18, 0);
+    footrail.position.set(-0.22, 0.18, 0);
 
     barGroup.add(barCounter, barTop, barTrim, barGlow, footrail);
 
-    // Swivel Barstools (3 Stools with Brass pedestal and Leather seat)
+    // Swivel Barstools (3 Stools placed neatly at X = -0.05, leaves X: +0.15 to +1.35 completely OPEN!)
     for (let bsz = -1.3; bsz <= 1.3; bsz += 1.3) {
       const stool = new THREE.Group();
-      stool.position.set(0.48, 0, bsz);
+      stool.position.set(-0.05, 0, bsz);
 
-      const base = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.22, 0.04, 12), matBrass);
+      const base = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.18, 0.04, 12), matBrass);
       base.position.set(0, 0.02, 0);
-      const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.65, 8), matBrass);
+      const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.028, 0.65, 8), matBrass);
       stem.position.set(0, 0.35, 0);
-      const cushion = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.1, 16), matLeatherBurgundy);
+      const cushion = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 0.09, 16), matLeatherBurgundy);
       cushion.position.set(0, 0.72, 0);
 
       stool.add(base, stem, cushion);
@@ -241,17 +241,17 @@ const Car7_Lounge = (() => {
 
     // Bar Counter Accessories (Cocktail Shaker, Ice Bucket, Coupe Glasses)
     const shaker = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.035, 0.24, 12), matBrass);
-    shaker.position.set(-0.15, 1.24, 0.8);
+    shaker.position.set(-0.52, 1.24, 0.8);
 
     const iceBucket = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.06, 0.15, 12), matBrass);
-    iceBucket.position.set(-0.15, 1.20, -0.9);
+    iceBucket.position.set(-0.52, 1.20, -0.9);
 
     [-0.3, 0.1, 0.4].forEach(gz => {
       const glass = new THREE.Mesh(
         new THREE.CylinderGeometry(0.04, 0.01, 0.1, 10),
         new THREE.MeshPhysicalMaterial({ color: 0xffffff, transparent: true, opacity: 0.5, roughness: 0.1, transmission: 0.9 })
       );
-      glass.position.set(0.05, 1.18, gz);
+      glass.position.set(-0.42, 1.18, gz);
       barGroup.add(glass);
     });
 

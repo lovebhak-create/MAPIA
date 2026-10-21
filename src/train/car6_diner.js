@@ -79,9 +79,9 @@ const Car6_Diner = (() => {
     floor.receiveShadow = true;
     group.add(floor);
 
-    // Carpet covers dining room section (Z = -length/2 + 6 to +length/2)
-    const diningCarpet = new THREE.Mesh(new THREE.BoxGeometry(width - 0.2, 0.01, length - 6.0), matCarpet);
-    diningCarpet.position.set(0, 0.01, 3.0);
+    // Carpet covers dining room and pantry walkway (Z = -length/2 to +length/2)
+    const diningCarpet = new THREE.Mesh(new THREE.BoxGeometry(width - 0.2, 0.01, length - 0.4), matCarpet);
+    diningCarpet.position.set(0, 0.01, 0);
     group.add(diningCarpet);
 
     // 2. Ceiling
@@ -243,60 +243,106 @@ const Car6_Diner = (() => {
     });
 
     // ==========================================
-    // 5. KITCHEN / GALLEY SECTION (Z = -4.5 to -9.8)
+    // 5. STEWARD BUFFET & WINE SERVERY (Z = -4.5 to -9.8)
     // ==========================================
-    // Dividing Wall with Porthole Swinging Door
-    const dividerGroup = new THREE.Group();
-    dividerGroup.position.set(0, 0, -4.2);
-    const divWallL = new THREE.Mesh(new THREE.BoxGeometry(1.8, height, 0.1), matMahogany);
-    divWallL.position.set(0.6, height / 2, 0);
-    const divWallR = new THREE.Mesh(new THREE.BoxGeometry(0.3, height, 0.1), matMahogany);
-    divWallR.position.set(-1.35, height / 2, 0);
-    const divTransom = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.6, 0.1), matMahogany);
-    divTransom.position.set(-0.75, height - 0.3, 0);
+    // Ornate Mahogany Archway dividing Dining Room and Buffet Saloon
+    const archGroup = new THREE.Group();
+    archGroup.position.set(0, 0, -4.2);
+    const archPostL = new THREE.Mesh(new THREE.BoxGeometry(0.75, height, 0.12), matMahogany);
+    archPostL.position.set(-1.08, height / 2, 0);
+    const archPostR = new THREE.Mesh(new THREE.BoxGeometry(0.75, height, 0.12), matMahogany);
+    archPostR.position.set(1.08, height / 2, 0);
+    const archTop = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.5, 0.14), matMahogany);
+    archTop.position.set(0, height - 0.25, 0);
+    const archTrim = new THREE.Mesh(new THREE.BoxGeometry(1.65, 0.04, 0.16), matBrass);
+    archTrim.position.set(0, height - 0.5, 0);
+    archGroup.add(archPostL, archPostR, archTop, archTrim);
+    group.add(archGroup);
 
-    // Swinging Kitchen Door with Brass Porthole
-    const kDoor = new THREE.Mesh(new THREE.BoxGeometry(0.85, 2.0, 0.06), matMahogany);
-    kDoor.position.set(-0.75, 1.0, 0);
-    const porthole = new THREE.Mesh(new THREE.TorusGeometry(0.12, 0.02, 8, 16), matBrass);
-    porthole.position.set(-0.75, 1.5, 0.04);
-    dividerGroup.add(divWallL, divWallR, divTransom, kDoor, porthole);
-    group.add(dividerGroup);
+    // Left Side: 1930s Luxury Pullman Credenza & Wine Display (X = -1.05)
+    const credenzaGroup = new THREE.Group();
+    credenzaGroup.position.set(-1.05, 0, -7.0);
 
-    // Stainless Steel Counters along Right Kitchen Wall
-    const counterR = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.9, 5.0), matStainless);
-    counterR.position.set(width / 2 - 0.42, 0.45, -7.0);
-    group.add(counterR);
+    // Polished Mahogany Cabinet with brass handles
+    const credenzaBody = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.95, 4.2), matMahogany);
+    credenzaBody.position.set(0, 0.475, 0);
 
-    // Heavy Cast Iron Cooking Range / Stove
-    const stoveGroup = new THREE.Group();
-    stoveGroup.position.set(-width / 2 + 0.45, 0, -7.5);
-    const stoveBase = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.95, 1.6), matCastIron);
-    stoveBase.position.set(0, 0.47, 0);
-    // Stove Flue Pipe leading into ceiling
-    const stovePipe = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 1.7, 12), matCastIron);
-    stovePipe.position.set(0, 1.8, 0);
-    stoveGroup.add(stoveBase, stovePipe);
-    group.add(stoveGroup);
+    // Marble Top
+    const credenzaTop = new THREE.Mesh(
+      new THREE.BoxGeometry(0.72, 0.06, 4.3),
+      new THREE.MeshStandardMaterial({ color: 0xefede8, roughness: 0.15, metalness: 0.1 })
+    );
+    credenzaTop.position.set(0, 0.98, 0);
 
-    // Copper Pots & Sauté Pans hanging on overhead rack
-    const potRack = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.04, 3.0), matCastIron);
-    potRack.position.set(0.65, 2.1, -7.0);
-    group.add(potRack);
+    // Tiered Mirror Backed Display Shelving
+    const mirrorBack = new THREE.Mesh(
+      new THREE.BoxGeometry(0.02, 1.3, 4.0),
+      new THREE.MeshStandardMaterial({ color: 0xe0e8f0, roughness: 0.05, metalness: 0.9 })
+    );
+    mirrorBack.position.set(-0.32, 1.65, 0);
 
-    for (let pz = -8.2; pz <= -5.8; pz += 0.6) {
-      const pot = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.12, 0.16, 12), matCopper);
-      pot.position.set(0.65, 1.9, pz);
-      const handle = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.01, 0.22, 6), matCastIron);
-      handle.rotation.x = Math.PI / 2;
-      handle.position.set(0.65, 1.95, pz + 0.16);
-      group.add(pot, handle);
-    }
+    // Shelves with Crystal Decanters & Fine Wine Bottles
+    const wineColors = [0x771122, 0x442211, 0x996611, 0x224422];
+    [-1.2, 0, 1.2].forEach((bz, idx) => {
+      // Silver Samovar / Coffee Urn at center
+      if (idx === 1) {
+        const urn = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.1, 0.45, 12), matStainless);
+        urn.position.set(0, 1.25, bz);
+        const urnLid = new THREE.Mesh(new THREE.ConeGeometry(0.13, 0.1, 12), matBrass);
+        urnLid.position.set(0, 1.5, bz);
+        const urnSpigot = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.12, 6), matBrass);
+        urnSpigot.rotation.x = Math.PI / 2;
+        urnSpigot.position.set(0.12, 1.15, bz);
+        credenzaGroup.add(urn, urnLid, urnSpigot);
+      } else {
+        // Decanters with colored vintage liquor
+        const decanter = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.08, 0.08, 0.28, 8),
+          new THREE.MeshStandardMaterial({ color: wineColors[idx], transparent: true, opacity: 0.8, roughness: 0.2 })
+        );
+        decanter.position.set(0, 1.15, bz);
+        const stopper = new THREE.Mesh(new THREE.SphereGeometry(0.035, 8, 8), matBrass);
+        stopper.position.set(0, 1.32, bz);
+        credenzaGroup.add(decanter, stopper);
+      }
+    });
 
-    // Kitchen Overhead Utility Lamp
-    const kLight = new THREE.PointLight(0xfff0d0, 1.1, 6.0);
-    kLight.position.set(0, height - 0.3, -7.0);
-    group.add(kLight);
+    credenzaGroup.add(credenzaBody, credenzaTop, mirrorBack);
+    group.add(credenzaGroup);
+
+    // Right Side: Steward Service Station & Pastry Buffet (X = +1.05)
+    const buffetGroup = new THREE.Group();
+    buffetGroup.position.set(1.05, 0, -7.0);
+
+    const buffetBody = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.95, 4.2), matMahogany);
+    buffetBody.position.set(0, 0.475, 0);
+
+    const buffetTop = new THREE.Mesh(
+      new THREE.BoxGeometry(0.72, 0.06, 4.3),
+      new THREE.MeshStandardMaterial({ color: 0xefede8, roughness: 0.15, metalness: 0.1 })
+    );
+    buffetTop.position.set(0, 0.98, 0);
+
+    // Tiered Silver Pastry Stand & Champagne Chiller Bucket
+    const chiller = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.09, 0.22, 12), matBrass);
+    chiller.position.set(0, 1.12, -0.9);
+    const bottleNeck = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.03, 0.2, 8), new THREE.MeshStandardMaterial({ color: 0x113311 }));
+    bottleNeck.position.set(0, 1.25, -0.9);
+
+    const pastryTier1 = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 0.015, 16), matStainless);
+    pastryTier1.position.set(0, 1.10, 0.8);
+    const pastryTier2 = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.015, 16), matStainless);
+    pastryTier2.position.set(0, 1.24, 0.8);
+    const pastryStem = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.35, 8), matBrass);
+    pastryStem.position.set(0, 1.18, 0.8);
+
+    buffetGroup.add(buffetBody, buffetTop, chiller, bottleNeck, pastryTier1, pastryTier2, pastryStem);
+    group.add(buffetGroup);
+
+    // Warm Ambient Ceiling Chandeliers in Buffet Saloon
+    const buffetLight = new THREE.PointLight(0xffdfa0, 0.9, 5.0);
+    buffetLight.position.set(0, height - 0.4, -7.0);
+    group.add(buffetLight);
 
     return group;
   };

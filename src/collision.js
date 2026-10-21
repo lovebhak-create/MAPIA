@@ -220,10 +220,11 @@ const Collision = (() => {
       addBox(0.50, 1.35, tz - 0.8, tz + 0.8, 1.0, 2.2, `Car6_TableR_${idx}`);
     });
 
-    // Kitchen / Galley section (Z = -120.5 to -115.2)
-    addBox(-0.35, 1.4, -115.4, -115.0, 1.0, 4.0, 'Car6_KitchenWall');
-    addBox(0.45, 1.35, -120.5, -115.5, 1.0, 2.5, 'Car6_KitchenCounterR');
-    addBox(-1.35, -0.6, -120.5, -117.5, 1.0, 3.0, 'Car6_KitchenStove');
+    // Steward Buffet & Wine Servery section (Z = -120.2 to -115.1)
+    addBox(-1.45, -0.70, -115.3, -115.1, 1.0, 4.0, 'Car6_ArchPostL');
+    addBox(0.70, 1.45, -115.3, -115.1, 1.0, 4.0, 'Car6_ArchPostR');
+    addBox(-1.38, -0.70, -120.1, -115.9, 1.0, 2.2, 'Car6_CredenzaL');
+    addBox(0.70, 1.38, -120.1, -115.9, 1.0, 2.2, 'Car6_BuffetR');
 
     // ==========================================
     // 9. CAR 7: LOUNGE CAR (Z = -123.0 to -143.0, center = -133.0)
@@ -234,8 +235,13 @@ const Collision = (() => {
     addBox(-1.4, -0.55, -143.2, -142.8, 1.0, 4.0, 'Car7_BulkheadRear_L');
     addBox(0.55, 1.4, -143.2, -142.8, 1.0, 4.0, 'Car7_BulkheadRear_R');
 
-    // Cocktail Bar Counter (leaves 0.75m spacious bartender corridor behind counter!)
-    addBox(-0.45, 0.12, -129.2, -124.8, 1.0, 2.5, 'Car7_BarCounter');
+    // Cocktail Bar Counter (X: -0.72 to -0.32, leaves 0.62m behind and 1.25m wide walkway!)
+    addBox(-0.72, -0.32, -129.1, -124.9, 1.0, 2.5, 'Car7_BarCounter');
+
+    // 3 Solid Barstools (Centered at X = -0.05, cannot be walked through!)
+    [-128.3, -127.0, -125.7].forEach((bsz, idx) => {
+      addBox(-0.23, 0.13, bsz - 0.18, bsz + 0.18, 1.0, 2.0, `Car7_Barstool_${idx + 1}`);
+    });
 
     // Individual Club Armchairs (0.7m x 0.7m)
     addBox(0.50, 1.25, -131.4, -130.6, 1.0, 2.0, 'Car7_ChairR1');
