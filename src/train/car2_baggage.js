@@ -117,7 +117,7 @@ const Car2_Baggage = (() => {
     group.add(createBaggageSideWall(-1));
     group.add(createBaggageSideWall(1));
 
-    // End Bulkheads with Connecting Doors
+    // End Bulkheads with Connecting Doors & Sliding Crew Doors
     const createBulkhead = (zPos) => {
       const bh = new THREE.Group();
       bh.position.set(0, 0, zPos);
@@ -128,6 +128,29 @@ const Car2_Baggage = (() => {
       const transom = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.6, 0.12), matDarkWainscot);
       transom.position.set(0, height - 0.3, 0);
       bh.add(postL, postR, transom);
+
+      // Heavy sliding crew door
+      const crewDoor = new THREE.Mesh(new THREE.BoxGeometry(0.95, 2.05, 0.05), matDarkWainscot);
+      crewDoor.position.set(0, 1.025, 0);
+      const dWin = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.6, 0.06), transomMat);
+      dWin.position.set(0, 0.35, 0);
+      const dHandle = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.4, 8), matCastIron);
+      dHandle.position.set(0.38, 0, 0.04);
+      crewDoor.add(dWin, dHandle);
+      bh.add(crewDoor);
+
+      // Register interactive door with DoorManager
+      if (typeof DoorManager !== 'undefined') {
+        DoorManager.registerDoor({
+          mesh: crewDoor,
+          type: 'slide',
+          openOffset: 0.88,
+          x: 0,
+          z: -23.0 + zPos,
+          name: zPos > 0 ? '수하물차 앞문 (기관차 방면)' : '수하물차 뒷문 (3호차 객차 방면)'
+        });
+      }
+
       return bh;
     };
     group.add(createBulkhead(length / 2));
@@ -248,13 +271,23 @@ const Car2_Baggage = (() => {
     handleBar.position.set(0, 0.65, 0.75);
     trolleyGroup.add(bedWood, handleBar);
 
-    // Mail Pouches stacked on trolley
-    [-0.3, 0.2].forEach(pz => {
-      const bag = new THREE.Mesh(new THREE.SphereGeometry(0.24, 10, 10), matCanvasMail);
-      bag.scale.set(0.8, 1.3, 0.7);
-      bag.position.set(0, 0.50, pz);
-      trolleyGroup.add(bag);
+    // Authentic U.S. MAIL Burlap Canvas Sacks & Express Parcel (Tied with hemp rope - NO EGGS!)
+    [-0.32, 0.28].forEach((pz, idx) => {
+      const sack = new THREE.Mesh(new THREE.BoxGeometry(0.52, 0.22, 0.40), matCanvasMail);
+      sack.position.set(0, 0.42 + idx * 0.18, pz);
+      sack.rotation.y = idx * 0.2;
+      // Gathered neck & tied hemp rope
+      const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.11, 0.12, 8), matCanvasMail);
+      neck.position.set(0.16, 0.08, 0);
+      const rope = new THREE.Mesh(new THREE.TorusGeometry(0.08, 0.015, 6, 12), new THREE.MeshStandardMaterial({ color: 0x3d2719, roughness: 0.9 }));
+      rope.rotation.x = Math.PI / 2;
+      rope.position.set(0.16, 0.05, 0);
+      sack.add(neck, rope);
+      trolleyGroup.add(sack);
     });
+    const parcel = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.22, 0.32), matCrate);
+    parcel.position.set(0.06, 0.44, -0.05);
+    trolleyGroup.add(parcel);
     group.add(trolleyGroup);
 
     // 6. CARGO AREA (Rear Section Z = -1.0 to -9.0, From Photo 3)

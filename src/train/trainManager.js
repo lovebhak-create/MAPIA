@@ -13,47 +13,70 @@ const TrainManager = (() => {
   ];
 
   const createVestibule = (zCenter) => {
-    // Accordion rubber bellows & steel threshold between adjacent cars
+    // Accordion rubber bellows, heavy steel bridge plate, and Janney automatic knuckle coupler
     const vGroup = new THREE.Group();
     vGroup.position.set(0, 1.2, zCenter);
 
     const matBellows = new THREE.MeshStandardMaterial({
-      color: 0x111111,
+      color: 0x141414,
       roughness: 0.9,
       metalness: 0.1
     });
 
     const matFootplate = new THREE.MeshStandardMaterial({
       map: Textures.rivetedSteel,
-      roughness: 0.8,
-      metalness: 0.7
+      roughness: 0.7,
+      metalness: 0.8
     });
 
-    // Floor buffer footplate
-    const plate = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.06, 2.2), matFootplate);
-    plate.position.set(0, -0.03, 0);
+    const matCastIron = new THREE.MeshStandardMaterial({
+      color: 0x222428,
+      roughness: 0.8,
+      metalness: 0.6
+    });
+
+    // 1. Continuous Solid Buffer Footplate spanning the entire gap (width 1.25m, length 2.6m)
+    // Ensures you NEVER see an open hole down into the tracks between any cars!
+    const plate = new THREE.Mesh(new THREE.BoxGeometry(1.25, 0.08, 2.6), matFootplate);
+    plate.position.set(0, -0.04, 0);
+    plate.receiveShadow = true;
     vGroup.add(plate);
 
-    // Accordion Pleats (Hollow archway so the next car is directly visible!)
-    const numPleats = 5;
+    // 2. Heavy Janney Automatic Knuckle Coupler & Buffer Gear underneath the plate
+    const couplerShank = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.18, 2.4), matCastIron);
+    couplerShank.position.set(0, -0.22, 0);
+    const couplerHead = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.28, 0.4), matCastIron);
+    couplerHead.position.set(0, -0.22, 0);
+    vGroup.add(couplerShank, couplerHead);
+
+    // 3. Dual Flexible Air Brake Hoses
+    [-0.2, 0.2].forEach(hx => {
+      const hose = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 1.8, 8), matCastIron);
+      hose.rotation.x = Math.PI / 2;
+      hose.position.set(hx, -0.32, 0);
+      vGroup.add(hose);
+    });
+
+    // 4. Heavy Accordion Pleats (Enclosing top, left, right)
+    const numPleats = 7;
     for (let p = 0; p < numPleats; p++) {
-      const pz = -0.8 + (p / (numPleats - 1)) * 1.6;
+      const pz = -1.1 + (p / (numPleats - 1)) * 2.2;
       // Left pleat wall
-      const pleatL = new THREE.Mesh(new THREE.BoxGeometry(0.12, 2.5, 0.08), matBellows);
-      pleatL.position.set(-0.64, 1.25, pz);
+      const pleatL = new THREE.Mesh(new THREE.BoxGeometry(0.14, 2.6, 0.10), matBellows);
+      pleatL.position.set(-0.64, 1.3, pz);
       // Right pleat wall
-      const pleatR = new THREE.Mesh(new THREE.BoxGeometry(0.12, 2.5, 0.08), matBellows);
-      pleatR.position.set(0.64, 1.25, pz);
+      const pleatR = new THREE.Mesh(new THREE.BoxGeometry(0.14, 2.6, 0.10), matBellows);
+      pleatR.position.set(0.64, 1.3, pz);
       // Top pleat roof
-      const pleatTop = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.14, 0.08), matBellows);
-      pleatTop.position.set(0, 2.45, pz);
+      const pleatTop = new THREE.Mesh(new THREE.BoxGeometry(1.42, 0.16, 0.10), matBellows);
+      pleatTop.position.set(0, 2.55, pz);
       vGroup.add(pleatL, pleatR, pleatTop);
     }
 
     // Safety handrails inside vestibule
-    [-0.55, 0.55].forEach(hx => {
+    [-0.56, 0.56].forEach(hx => {
       const rail = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.02, 0.02, 2.0, 8),
+        new THREE.CylinderGeometry(0.02, 0.02, 2.2, 8),
         new THREE.MeshStandardMaterial({ color: 0xd4af37, roughness: 0.3, metalness: 0.85 })
       );
       rail.rotation.x = Math.PI / 2;
@@ -78,7 +101,9 @@ const TrainManager = (() => {
     scene.add(c1, c2, c3, c4, c5, c6, c7, c8);
     cars.push(c1, c2, c3, c4, c5, c6, c7, c8);
 
-    // 2. Add Vestibule Bellows between passenger cars
+    // 2. Add Vestibule Bellows & Couplers between ALL adjacent cars (Fixes all gaps!)
+    // Between Car 1 (Tender) and Car 2 (Baggage): Z = -12.0
+    scene.add(createVestibule(-12.0));
     // Between Car 2 and Car 3: Z = -34.0
     scene.add(createVestibule(-34.0));
     // Between Car 3 and Car 4: Z = -56.0

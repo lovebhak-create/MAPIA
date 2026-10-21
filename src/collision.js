@@ -81,7 +81,7 @@ const Collision = (() => {
     // Prevents player from walking through handrails/bellows out of the train!
     // Center footplate walkway is X: -0.48 to +0.48
     // ==========================================
-    const vestibuleCenters = [-34.0, -56.0, -78.0, -100.0, -122.0, -144.0];
+    const vestibuleCenters = [-12.0, -34.0, -56.0, -78.0, -100.0, -122.0, -144.0];
     vestibuleCenters.forEach((vz, idx) => {
       // Left side wall & handrail
       addBox(-1.5, -0.48, vz - 1.25, vz + 1.25, 0.5, 4.5, `Vestibule_L_${idx + 1}`);
@@ -137,16 +137,17 @@ const Collision = (() => {
     addBox(-1.4, -0.55, -55.2, -54.8, 1.0, 4.0, 'Car3_BulkheadRear_L');
     addBox(0.55, 1.4, -55.2, -54.8, 1.0, 4.0, 'Car3_BulkheadRear_R');
 
-    // 9 Individual pairs of seats on Left and Right sides!
-    // Each seat is 0.56m deep. Spacing between seats is 1.6m.
-    // The ~1.0m space between rows is completely OPEN for walking into!
-    for (let i = 0; i < 9; i++) {
-      const seatZ = -52.0 + i * 1.6;
+    // 7 Individual pairs of seats on Left and Right sides!
+    for (let i = 0; i < 7; i++) {
+      const seatZ = -45.0 + (7.5 - i * 1.9);
       // Left double seat (X: -1.35 to -0.50)
-      addBox(-1.35, -0.50, seatZ - 0.28, seatZ + 0.28, 1.0, 2.4, `Car3_SeatL_${i}`);
+      addBox(-1.35, -0.50, seatZ - 0.35, seatZ + 0.35, 1.0, 2.4, `Car3_SeatL_${i}`);
       // Right double seat (X: 0.50 to 1.35)
-      addBox(0.50, 1.35, seatZ - 0.28, seatZ + 0.28, 1.0, 2.4, `Car3_SeatR_${i}`);
+      addBox(0.50, 1.35, seatZ - 0.35, seatZ + 0.35, 1.0, 2.4, `Car3_SeatR_${i}`);
     }
+
+    // Car 3 Restroom Enclosure on Right Side (X: 0.20 to 1.40, Z: -54.8 to -51.8)
+    addBox(0.20, 1.40, -54.8, -51.8, 1.0, 4.0, 'Car3_RestroomWall');
 
     // ==========================================
     // 6. CAR 4: 1ST CLASS SLEEPER (Z = -57.0 to -77.0, center = -67.0)
@@ -156,9 +157,9 @@ const Collision = (() => {
     addBox(0.55, 1.4, -57.2, -56.8, 1.0, 4.0, 'Car4_BulkheadFront_R');
     addBox(-1.4, -0.55, -77.2, -76.8, 1.0, 4.0, 'Car4_BulkheadRear_L');
     addBox(0.55, 1.4, -77.2, -76.8, 1.0, 4.0, 'Car4_BulkheadRear_R');
-    // Foyer linen closets
+    // Foyer linen closets & Luxury Private Restroom
     addBox(0.40, 1.4, -59.5, -57.0, 1.0, 4.0, 'Car4_FrontCloset');
-    addBox(0.40, 1.4, -77.0, -74.5, 1.0, 4.0, 'Car4_RearCloset');
+    addBox(0.20, 1.4, -77.0, -74.5, 1.0, 4.0, 'Car4_RestroomWall');
     // Partition walls between suites
     addBox(-0.35, 1.4, -59.55, -59.45, 1.0, 4.0, 'Car4_PartitionFront');
     addBox(-0.35, 1.4, -64.55, -64.45, 1.0, 4.0, 'Car4_Partition1_2');
@@ -196,8 +197,8 @@ const Collision = (() => {
     addBox(0.55, 1.4, -79.2, -78.8, 1.0, 4.0, 'Car5_BulkheadFront_R');
     addBox(-1.4, -0.55, -99.2, -98.8, 1.0, 4.0, 'Car5_BulkheadRear_L');
     addBox(0.55, 1.4, -99.2, -98.8, 1.0, 4.0, 'Car5_BulkheadRear_R');
-    for (let s = 0; s < 7; s++) {
-      const bz = -96.5 + s * 2.2;
+    for (let s = 0; s < 6; s++) {
+      const bz = -93.0 + s * 2.2;
       // Left Lower Berth
       addBox(-1.35, -0.50, bz - 0.95, bz + 0.95, 1.0, 2.2, `Car5_BerthL_${s}`);
       // Right Lower Berth
@@ -206,6 +207,8 @@ const Collision = (() => {
       addBox(-1.35, -0.50, bz - 1.14, bz - 1.06, 1.0, 3.5, `Car5_DivL_${s}`);
       addBox(0.50, 1.35, bz - 1.14, bz - 1.06, 1.0, 3.5, `Car5_DivR_${s}`);
     }
+    // Car 5 Restroom Enclosure on Right Side (X: 0.20 to 1.40, Z: -98.8 to -95.8)
+    addBox(0.20, 1.40, -98.8, -95.8, 1.0, 4.0, 'Car5_RestroomWall');
 
     // ==========================================
     // 8. CAR 6: DINING CAR (Z = -101.0 to -121.0, center = -111.0)

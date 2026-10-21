@@ -151,7 +151,24 @@ const Car4_Sleeper1 = (() => {
       const topTransom = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.6, 0.12), matMahogany);
       topTransom.position.set(0, height - 0.3, 0);
 
-      bh.add(postL, postR, topTransom);
+      const sDoor = new THREE.Mesh(new THREE.BoxGeometry(0.95, 2.05, 0.05), matMahogany);
+      sDoor.position.set(0, 1.025, 0);
+      const dWin = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.7, 0.06), matGlass);
+      dWin.position.set(0, 0.35, 0);
+      sDoor.add(dWin);
+
+      if (typeof DoorManager !== 'undefined') {
+        DoorManager.registerDoor({
+          mesh: sDoor,
+          type: 'slide',
+          openOffset: 0.88,
+          x: 0,
+          z: -67.0 + zPos,
+          name: zPos > 0 ? '4호차 앞문' : '4호차 뒷문'
+        });
+      }
+
+      bh.add(postL, postR, topTransom, sDoor);
       return bh;
     };
     group.add(createCarEndBulkhead(length / 2));  // Front door (from Car 3)
@@ -169,12 +186,57 @@ const Car4_Sleeper1 = (() => {
     frontClosetCap.position.set(0.95, height / 2, 7.5);
     group.add(frontClosetWall, frontClosetCap);
 
-    // Rear Foyer right-side enclosed linen closet (Z = -10.0 to -7.5, X: 0.45 to 1.44)
-    const rearClosetWall = new THREE.Mesh(new THREE.BoxGeometry(0.1, height, 2.5), matMahogany);
-    rearClosetWall.position.set(0.45, height / 2, -8.75);
-    const rearClosetCap = new THREE.Mesh(new THREE.BoxGeometry(0.95, height, 0.1), matMahogany);
-    rearClosetCap.position.set(0.95, height / 2, -7.5);
-    group.add(rearClosetWall, rearClosetCap);
+    // Rear Foyer right-side: 1st Class Luxury Private Restroom (화장실 - Photo 5 Architecture)
+    // Enclosed on the right (Z = -10.0 to -7.5, X: 0.20 to 1.44), Corridor continues straight on the left!
+    const bathWallL = new THREE.Mesh(new THREE.BoxGeometry(0.08, height, 2.5), matMahogany);
+    bathWallL.position.set(0.20, height / 2, -8.75);
+    const bathWallFront = new THREE.Mesh(new THREE.BoxGeometry(0.5, height, 0.08), matMahogany);
+    bathWallFront.position.set(1.15, height / 2, -7.5);
+    const bathTransom = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.6, 0.08), matMahogany);
+    bathTransom.position.set(0.55, height - 0.3, -7.5);
+
+    // Luxury Restroom Door (Interactive sliding door)
+    const bathDoor = new THREE.Mesh(new THREE.BoxGeometry(0.68, 2.05, 0.04), matMahogany);
+    bathDoor.position.set(0.55, 1.025, -7.5);
+    const bathPlaque = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.08, 0.05), matBrass);
+    bathPlaque.position.set(0, 0.45, 0.03);
+    bathDoor.add(bathPlaque);
+
+    if (typeof DoorManager !== 'undefined') {
+      DoorManager.registerDoor({
+        mesh: bathDoor,
+        type: 'slide',
+        openOffset: 0.62,
+        x: 0.55,
+        z: -67.0 - 7.5,
+        name: '4호차 1등석 화장실 문'
+      });
+    }
+
+    // Inside 1st Class Luxury Lavatory Fixtures:
+    const matChrome = new THREE.MeshStandardMaterial({ color: 0xe0e5ea, roughness: 0.2, metalness: 0.9 });
+    const matMarble = new THREE.MeshStandardMaterial({ color: 0xedeae4, roughness: 0.2 });
+
+    const toilet = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.16, 0.42, 12), matPorcelain);
+    toilet.position.set(0.85, 0.21, -9.2);
+    const tSeat = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.04, 0.42), matMahogany);
+    tSeat.position.set(0.85, 0.44, -9.2);
+    const fPipe = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 1.4, 8), matChrome);
+    fPipe.position.set(0.85, 1.25, -9.6);
+    const fTank = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.26, 0.2), matPorcelain);
+    fTank.position.set(0.85, 1.95, -9.55);
+
+    // Marble Vanity with Inset Sink
+    const vanity = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.78, 0.55), matMarble);
+    vanity.position.set(0.85, 0.39, -8.0);
+    const faucet = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.14, 8), matGoldTrim);
+    faucet.position.set(0.85, 0.86, -7.8);
+    const vMirror = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.65, 0.02), matChrome);
+    vMirror.position.set(0.85, 1.4, -7.72);
+    const vLight = new THREE.PointLight(0xffdfaa, 0.75, 3.5);
+    vLight.position.set(0.85, height - 0.3, -8.5);
+
+    group.add(bathWallL, bathWallFront, bathTransom, bathDoor, toilet, tSeat, fPipe, fTank, vanity, faucet, vMirror, vLight);
 
     // ==========================================
     // 6. CONTINUOUS SIDE CORRIDOR (복도)
@@ -257,7 +319,19 @@ const Car4_Sleeper1 = (() => {
 
       // Open sliding mahogany door
       const suiteDoor = new THREE.Mesh(new THREE.BoxGeometry(0.05, 2.05, 1.0), matMahogany);
-      suiteDoor.position.set(corridorDividerX - 0.06, 1.025, sCenter + 0.5);
+      suiteDoor.position.set(corridorDividerX - 0.06, 1.025, sCenter);
+
+      // Register interactive suite door
+      if (typeof DoorManager !== 'undefined') {
+        DoorManager.registerDoor({
+          mesh: suiteDoor,
+          type: 'slide',
+          openOffset: 0.85,
+          x: corridorDividerX,
+          z: -67.0 + sCenter,
+          name: cfg.name + ' 문'
+        });
+      }
 
       // Brass Suite Nameplate
       const namePlate = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.14, 0.32), matBrass);

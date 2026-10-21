@@ -30,9 +30,9 @@ const Player = (() => {
     // Car 2: Baggage Guard Cot / Bed (Z = -15.8)
     seats.push({ x: -0.85, y: 1.70, z: -15.8, name: 'Baggage Guard Cot', isBed: true, standPos: { x: 0.0, y: 2.85, z: -15.8 } });
 
-    // Car 3: 9 pairs of Coach double seats (Eye height Y = 2.38m)
-    for (let i = 0; i < 9; i++) {
-      const sz = -52.0 + i * 1.6;
+    // Car 3: 7 pairs of Coach double seats (Eye height Y = 2.38m)
+    for (let i = 0; i < 7; i++) {
+      const sz = -45.0 + (7.5 - i * 1.9);
       seats.push({ x: -0.95, y: 2.38, z: sz, name: 'Coach Seat', standPos: { x: -0.25, y: 2.85, z: sz } });
       seats.push({ x: 0.95, y: 2.38, z: sz, name: 'Coach Seat', standPos: { x: 0.25, y: 2.85, z: sz } });
     }
@@ -47,10 +47,12 @@ const Player = (() => {
     seats.push({ x: 0.85, y: 1.74, z: -68.4, name: 'Suite 2 Bed', isBed: true, standPos: { x: 0.05, y: 2.85, z: -67.0 } });
     seats.push({ x: 0.85, y: 1.74, z: -73.4, name: 'Suite 3 Bed', isBed: true, standPos: { x: 0.05, y: 2.85, z: -72.0 } });
 
-    // Car 5: 2nd Class Sleeper Berths (Beds)
-    seats.push({ x: 0.85, y: 1.72, z: -83.5, name: 'Berth Bed 1', isBed: true, standPos: { x: 0.0, y: 2.85, z: -83.5 } });
-    seats.push({ x: -0.85, y: 1.72, z: -88.5, name: 'Berth Bed 2', isBed: true, standPos: { x: 0.0, y: 2.85, z: -88.5 } });
-    seats.push({ x: 0.85, y: 1.72, z: -93.5, name: 'Berth Bed 3', isBed: true, standPos: { x: 0.0, y: 2.85, z: -93.5 } });
+    // Car 5: 2nd Class Sleeper Berths (Beds in 6 sections)
+    for (let s = 0; s < 6; s++) {
+      const bz = -89.0 + (-4.0 + s * 2.2);
+      seats.push({ x: 0.95, y: 1.72, z: bz, name: `Berth Bed R${s + 1}`, isBed: true, standPos: { x: 0.0, y: 2.85, z: bz } });
+      seats.push({ x: -0.95, y: 1.72, z: bz, name: `Berth Bed L${s + 1}`, isBed: true, standPos: { x: 0.0, y: 2.85, z: bz } });
+    }
 
     // Car 6: Dining Car chairs (4 tables on each side)
     const dinerTableZ = [-113.5, -110.5, -107.5, -104.5];
@@ -79,6 +81,25 @@ const Player = (() => {
       seats.push({ x: -0.95, y: 2.35, z: cz, name: 'Observation Swivel Chair', standPos: { x: -0.20, y: 2.85, z: cz } });
       seats.push({ x: 0.95, y: 2.35, z: cz, name: 'Observation Swivel Chair', standPos: { x: 0.20, y: 2.85, z: cz } });
     });
+  };
+
+  const tryInteract = () => {
+    if (isSitting) {
+      standUp();
+      return;
+    }
+
+    // 1. Check for nearby interactive doors (within 2.2m)
+    if (typeof DoorManager !== 'undefined') {
+      const door = DoorManager.getNearestDoor(camera.position, 2.2);
+      if (door) {
+        DoorManager.toggleDoor(door);
+        return;
+      }
+    }
+
+    // 2. Check for chairs / beds
+    trySitOrStand();
   };
 
   const trySitOrStand = () => {
@@ -198,7 +219,7 @@ const Player = (() => {
           SoundManager.playWhistle();
           break;
         case 'KeyE':
-          trySitOrStand();
+          tryInteract();
           break;
         // Hotkeys 1 ~ 8 for instant car teleportation
         case 'Digit1':
@@ -256,24 +277,16 @@ const Player = (() => {
     document.addEventListener('keydown', onKeyDown);
     document.addEventListener('keyup', onKeyUp);
 
-    // Pointerdown and click listeners for mouse click when locked (triggers sitting/sleeping 100% reliably)
+    // Pointerdown and click listeners for mouse click when locked (triggers door toggle, sitting/sleeping reliably)
     document.addEventListener('pointerdown', (e) => {
       if (e.button === 0 && controls && controls.isLocked) {
-        if (isSitting) {
-          standUp();
-          return;
-        }
-        trySitOrStand();
+        tryInteract();
       }
     });
 
     domElement.addEventListener('click', () => {
       if (!controls || !controls.isLocked) return;
-      if (isSitting) {
-        standUp();
-        return;
-      }
-      trySitOrStand();
+      tryInteract();
     });
   };
 
@@ -358,6 +371,41 @@ const Player = (() => {
 
     // Continuous slide collision resolution for all furniture, walls, doors!
     Collision.move(camera.position, dx, dz, camera.position.y);
+
+    // Update Interaction HUD Prompt (Doors, Seats, Beds)
+    const prompt = document.getElementById('sit-prompt');
+    if (prompt) {
+      if (isSitting) {
+        prompt.textContent = '[Space] 키를 눌러 일어나기';
+        prompt.style.display = 'block';
+      } else {
+        let door = null;
+        if (typeof DoorManager !== 'undefined') {
+          door = DoorManager.getNearestDoor(camera.position, 2.2);
+        }
+        if (door) {
+          prompt.textContent = door.isOpen ? `[E / 클릭] ${door.name} 닫기` : `[E / 클릭] ${door.name} 열기`;
+          prompt.style.display = 'block';
+        } else {
+          let nearestSeat = null;
+          let minDist = 1.65;
+          for (let i = 0; i < seats.length; i++) {
+            const s = seats[i];
+            const dist = Math.hypot(camera.position.x - s.x, camera.position.z - s.z);
+            if (dist < minDist) {
+              minDist = dist;
+              nearestSeat = s;
+            }
+          }
+          if (nearestSeat) {
+            prompt.textContent = nearestSeat.isBed ? '[E / 클릭] 침대에 눕기' : '[E / 클릭] 의자에 앉기';
+            prompt.style.display = 'block';
+          } else {
+            prompt.style.display = 'none';
+          }
+        }
+      }
+    }
   };
 
   return {

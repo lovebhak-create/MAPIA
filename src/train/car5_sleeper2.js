@@ -1,5 +1,6 @@
 // Car 5: 2nd Class Section Sleeper Car (2등석 침대차 - Pullman Open Section Berth Car)
 // Central aisle flanked by upper and lower berths with privacy curtains
+// Rear end features an enclosed Lavatory (화장실) on the right side and diverted walkway on the left (Photo 5 Architecture)
 const Car5_Sleeper2 = (() => {
   const create = () => {
     const group = new THREE.Group();
@@ -67,15 +68,30 @@ const Car5_Sleeper2 = (() => {
       metalness: 0.4
     });
 
+    const matGlass = new THREE.MeshPhysicalMaterial({
+      color: 0xaaccdd,
+      transparent: true,
+      opacity: 0.3,
+      roughness: 0.1,
+      metalness: 0.1,
+      transmission: 0.8
+    });
+
     // 1. Floor & Central Carpet Runner
     const floor = new THREE.Mesh(new THREE.BoxGeometry(width, 0.15, length), matWoodFloor);
     floor.position.set(0, -0.075, 0);
     floor.receiveShadow = true;
     group.add(floor);
 
-    const aisleCarpet = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.01, length), matCarpet);
-    aisleCarpet.position.set(0, 0.01, 0);
+    // Carpet runner running down the central aisle and curving left towards rear exit
+    const aisleCarpet = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.01, 14.5), matCarpet);
+    aisleCarpet.position.set(0, 0.01, 1.25);
     group.add(aisleCarpet);
+
+    // Rear diverted carpet on the left side (passing by restroom)
+    const rearBypassCarpet = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.01, 4.0), matCarpet);
+    rearBypassCarpet.position.set(-0.45, 0.01, -7.8);
+    group.add(rearBypassCarpet);
 
     // 2. Ceiling
     const ceiling = new THREE.Mesh(
@@ -92,7 +108,7 @@ const Car5_Sleeper2 = (() => {
     wallR.position.set(width / 2 - 0.06, height / 2, 0);
     group.add(wallL, wallR);
 
-    // End Bulkheads
+    // End Bulkheads with Interactive Sliding Doors
     const createBulkhead = (zPos) => {
       const bh = new THREE.Group();
       bh.position.set(0, 0, zPos);
@@ -103,20 +119,40 @@ const Car5_Sleeper2 = (() => {
       const topTransom = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.6, 0.12), matMahogany);
       topTransom.position.set(0, height - 0.3, 0);
       bh.add(postL, postR, topTransom);
+
+      // Sliding Mahogany Door
+      const sDoor = new THREE.Mesh(new THREE.BoxGeometry(0.95, 2.05, 0.05), matMahogany);
+      sDoor.position.set(0, 1.025, 0);
+      const dWin = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.7, 0.06), matGlass);
+      dWin.position.set(0, 0.35, 0);
+      sDoor.add(dWin);
+      bh.add(sDoor);
+
+      if (typeof DoorManager !== 'undefined') {
+        DoorManager.registerDoor({
+          mesh: sDoor,
+          type: 'slide',
+          openOffset: 0.88,
+          x: 0,
+          z: -89.0 + zPos,
+          name: zPos > 0 ? '5호차 앞문' : '5호차 뒷문'
+        });
+      }
+
       return bh;
     };
     group.add(createBulkhead(length / 2));
     group.add(createBulkhead(-length / 2));
 
-    // 4. Berth Sections on both sides of central aisle
+    // 4. Berth Sections on both sides of central aisle (6 Sections, s=0..5)
     // Central aisle: -0.45 to +0.45 (width 0.9m)
     // Left berths: x = -1.45 to -0.45 (width 1.0m)
     // Right berths: x = +0.45 to +1.45 (width 1.0m)
     const sectionLength = 2.2;
-    const numSections = 7;
+    const numSections = 6;
 
     for (let s = 0; s < numSections; s++) {
-      const sz = -length / 2 + 2.5 + s * sectionLength;
+      const sz = -4.0 + s * sectionLength; // s=0: -4.0, s=5: 7.0 (leaves rear -6.5 ~ -10.0 open for Lavatory)
 
       // Divider partition between sections
       [-1, 1].forEach(side => {
@@ -187,7 +223,85 @@ const Car5_Sleeper2 = (() => {
       }
     }
 
-    // 5. Soft Night Lighting along Central Ceiling
+    // Front-most section end partition at sz = 7.0 + sectionLength/2 = 8.1
+    [-1, 1].forEach(side => {
+      const frontCap = new THREE.Mesh(new THREE.BoxGeometry(1.0, height, 0.08), matMahogany);
+      frontCap.position.set(side * 0.95, height / 2, 8.1);
+      group.add(frontCap);
+    });
+
+    // ==========================================
+    // 5. ENCLOSED RESTROOM (화장실 - Photo 5 Architecture)
+    // Placed at Rear Right: Local Z = -9.8 to -6.8 (Global Z = -98.8 to -95.8, X: 0.20 to 1.44)
+    // Diverted corridor on Left: X = -1.35 to 0.20 connects directly to rear exit door!
+    // ==========================================
+    const bathGroup = new THREE.Group();
+    bathGroup.position.set(0, 0, -8.3);
+
+    // Left wall of Restroom (facing corridor)
+    const bathWallL = new THREE.Mesh(new THREE.BoxGeometry(0.08, height, 3.0), matMahogany);
+    bathWallL.position.set(0.20, height / 2, 0);
+
+    // Front wall of Restroom (facing berth section)
+    const bathWallFront = new THREE.Mesh(new THREE.BoxGeometry(0.55, height, 0.08), matMahogany);
+    bathWallFront.position.set(1.12, height / 2, 1.5);
+
+    // Transom beam above restroom sliding door
+    const bathTransom = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.6, 0.08), matMahogany);
+    bathTransom.position.set(0.55, height - 0.3, 1.5);
+
+    // Interactive Sliding Restroom Door
+    const bathDoor = new THREE.Mesh(new THREE.BoxGeometry(0.72, 2.05, 0.04), matMahogany);
+    bathDoor.position.set(0.55, 1.025, 1.5);
+    const bathPlaque = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.08, 0.05), matBrass);
+    bathPlaque.position.set(0, 0.45, 0.03);
+    bathDoor.add(bathPlaque);
+
+    if (typeof DoorManager !== 'undefined') {
+      DoorManager.registerDoor({
+        mesh: bathDoor,
+        type: 'slide',
+        openOffset: 0.65,
+        x: 0.55,
+        z: -89.0 - 6.8,
+        name: '5호차 침대차 화장실 문'
+      });
+    }
+
+    // Inside Lavatory Fixtures:
+    const matPorcelain = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.15, metalness: 0.05 });
+    const matChrome = new THREE.MeshStandardMaterial({ color: 0xe0e5ea, roughness: 0.2, metalness: 0.9 });
+
+    // Porcelain flush toilet
+    const toiletBase = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.16, 0.42, 12), matPorcelain);
+    toiletBase.position.set(0.85, 0.21, -0.9);
+    const toiletSeat = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.04, 0.42), matMahogany);
+    toiletSeat.position.set(0.85, 0.44, -0.9);
+    const flushPipe = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 1.4, 8), matChrome);
+    flushPipe.position.set(0.85, 1.25, -1.3);
+    const flushTank = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.26, 0.2), matPorcelain);
+    flushTank.position.set(0.85, 1.95, -1.25);
+
+    // Washbasin / Sink
+    const sinkPedestal = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, 0.65, 10), matPorcelain);
+    sinkPedestal.position.set(0.85, 0.325, 0.4);
+    const sinkBowl = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.18, 0.38), matPorcelain);
+    sinkBowl.position.set(0.85, 0.74, 0.4);
+    const faucet = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.14, 8), matBrass);
+    faucet.position.set(0.85, 0.88, 0.52);
+
+    // Mirror
+    const mirror = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.55, 0.02), matChrome);
+    mirror.position.set(0.85, 1.35, 0.58);
+
+    // Warm restroom light
+    const bathLight = new THREE.PointLight(0xffdfaa, 0.75, 3.5);
+    bathLight.position.set(0.85, height - 0.3, 0);
+
+    bathGroup.add(bathWallL, bathWallFront, bathTransom, bathDoor, toiletBase, toiletSeat, flushPipe, flushTank, sinkPedestal, sinkBowl, faucet, mirror, bathLight);
+    group.add(bathGroup);
+
+    // 6. Soft Night Lighting along Central Ceiling
     for (let lz = -7.5; lz <= 7.5; lz += 3.8) {
       const lampGroup = new THREE.Group();
       lampGroup.position.set(0, height - 0.15, lz);

@@ -123,7 +123,7 @@ const Car3_Coach = (() => {
     group.add(createSideWall(-1));
     group.add(createSideWall(1));
 
-    // End Bulkheads with Doorways
+    // End Bulkheads with Doorways & Interactive Sliding Doors
     const createBulkhead = (zPos) => {
       const bh = new THREE.Group();
       bh.position.set(0, 0, zPos);
@@ -134,12 +134,32 @@ const Car3_Coach = (() => {
       const topTransom = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.6, 0.12), matMahogany);
       topTransom.position.set(0, height - 0.3, 0);
       bh.add(postL, postR, topTransom);
+
+      // Sliding Mahogany Door
+      const sDoor = new THREE.Mesh(new THREE.BoxGeometry(0.95, 2.05, 0.05), matMahogany);
+      sDoor.position.set(0, 1.025, 0);
+      const dWin = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.7, 0.06), matGlass);
+      dWin.position.set(0, 0.35, 0);
+      sDoor.add(dWin);
+      bh.add(sDoor);
+
+      if (typeof DoorManager !== 'undefined') {
+        DoorManager.registerDoor({
+          mesh: sDoor,
+          type: 'slide',
+          openOffset: 0.88,
+          x: 0,
+          z: -45.0 + zPos,
+          name: zPos > 0 ? '3호차 앞문' : '3호차 뒷문'
+        });
+      }
+
       return bh;
     };
     group.add(createBulkhead(length / 2));
     group.add(createBulkhead(-length / 2));
 
-    // 4. Passenger Seats (2x2 seating, velvet upholstery, cast iron legs)
+    // 4. Passenger Seats (7 pairs of 2x2 seating, leaving rear section for Lavatory & Side Corridor as in Photo 5)
     const createDoubleSeat = (xPos, zPos, faceDir = 1) => {
       const seatGroup = new THREE.Group();
       seatGroup.position.set(xPos, 0, zPos);
@@ -169,15 +189,80 @@ const Car3_Coach = (() => {
       return seatGroup;
     };
 
-    // 9 pairs of seats along each side of the aisle
+    // 7 pairs of seats (Z = -4.0 to +5.6 relative to car center)
     const seatSpacing = 1.6;
-    for (let i = 0; i < 9; i++) {
-      const sz = -length / 2 + 3.0 + i * seatSpacing;
-      // Left side seats (double)
+    for (let i = 0; i < 7; i++) {
+      const sz = -4.2 + i * seatSpacing;
       group.add(createDoubleSeat(-0.95, sz, 1));
-      // Right side seats (double)
       group.add(createDoubleSeat(0.95, sz, 1));
     }
+
+    // ==========================================
+    // 5. RESTROOM / LAVATORY (화장실 - Photo 5 Architecture)
+    // Enclosed on the Right (X: 0.20 to 1.40, Z: -9.8 to -6.8), Aisle diverts on the Left!
+    // ==========================================
+    const bathGroup = new THREE.Group();
+    bathGroup.position.set(0, 0, -8.3);
+
+    // Partition Wall separating Restroom from Central Aisle (at X = 0.20)
+    const bathWallL = new THREE.Mesh(new THREE.BoxGeometry(0.08, height, 3.0), matMahogany);
+    bathWallL.position.set(0.20, height / 2, 0);
+    // Front Partition Wall facing passenger seats (at Z = 1.5, with doorway)
+    const bathWallFront = new THREE.Mesh(new THREE.BoxGeometry(0.5, height, 0.08), matMahogany);
+    bathWallFront.position.set(1.15, height / 2, 1.5);
+    const bathTransom = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.6, 0.08), matMahogany);
+    bathTransom.position.set(0.55, height - 0.3, 1.5);
+
+    // Restroom Door with Frosted Window & Brass Plaque (Interactive Swing Door)
+    const bathDoor = new THREE.Mesh(new THREE.BoxGeometry(0.68, 2.05, 0.04), matMahogany);
+    bathDoor.position.set(0.55, 1.025, 1.5);
+    const bathPlaque = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.08, 0.05), matBrass);
+    bathPlaque.position.set(0, 0.45, 0.03);
+    bathDoor.add(bathPlaque);
+
+    if (typeof DoorManager !== 'undefined') {
+      DoorManager.registerDoor({
+        mesh: bathDoor,
+        type: 'slide',
+        openOffset: 0.65,
+        x: 0.55,
+        z: -45.0 - 6.8,
+        name: '3호차 화장실 문'
+      });
+    }
+
+    // Inside Lavatory Fixtures:
+    // White Porcelain Flush Toilet with dark wood seat and chrome pull-chain pipe
+    const matPorcelain = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.15, metalness: 0.05 });
+    const matChrome = new THREE.MeshStandardMaterial({ color: 0xe0e5ea, roughness: 0.2, metalness: 0.9 });
+
+    const toiletBase = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.16, 0.42, 12), matPorcelain);
+    toiletBase.position.set(0.85, 0.21, -0.9);
+    const toiletSeat = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.04, 0.42), matMahogany);
+    toiletSeat.position.set(0.85, 0.44, -0.9);
+    const flushPipe = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 1.4, 8), matChrome);
+    flushPipe.position.set(0.85, 1.25, -1.3);
+    const flushTank = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.26, 0.2), matPorcelain);
+    flushTank.position.set(0.85, 1.95, -1.25);
+
+    // Pedestal Washbasin / Sink
+    const sinkPedestal = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, 0.65, 10), matPorcelain);
+    sinkPedestal.position.set(0.85, 0.325, 0.4);
+    const sinkBowl = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.18, 0.38), matPorcelain);
+    sinkBowl.position.set(0.85, 0.74, 0.4);
+    const faucet = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.14, 8), matBrass);
+    faucet.position.set(0.85, 0.88, 0.52);
+
+    // Chrome Vanity Mirror
+    const mirror = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.55, 0.02), matChrome);
+    mirror.position.set(0.85, 1.35, 0.58);
+
+    // Warm Restroom Light
+    const bathLight = new THREE.PointLight(0xffdfaa, 0.75, 3.5);
+    bathLight.position.set(0.85, height - 0.3, 0);
+
+    bathGroup.add(bathWallL, bathWallFront, bathTransom, bathDoor, toiletBase, toiletSeat, flushPipe, flushTank, sinkPedestal, sinkBowl, faucet, mirror, bathLight);
+    group.add(bathGroup);
 
     // 5. Overhead Brass Luggage Racks
     [-0.95, 0.95].forEach(xSide => {
