@@ -4,7 +4,7 @@ const TrainManager = (() => {
   const carMetadata = [
     { id: 1, name: '1호차: 증기기관차 (운전실 & 탄수차)', spawn: { x: 0.0, y: 3.25, z: -0.2 }, bounds: [16, -11.5] },
     { id: 2, name: '2호차: 수하물차 (화물 및 물품 보관)', spawn: { x: 0.0, y: 2.85, z: -21.0 }, bounds: [-11.5, -34.0] },
-    { id: 3, name: '3호차: 일반 객차 (승객 좌석)', spawn: { x: 0.0, y: 2.85, z: -43.0 }, bounds: [-34.0, -56.0] },
+    { id: 3, name: '3호차: 일반 객차 (승객 좌석)', spawn: { x: 0.0, y: 2.85, z: -37.0 }, bounds: [-34.0, -56.0] },
     { id: 4, name: '4호차: 1등석 침대차 (고급 개인 침실)', spawn: { x: -0.9, y: 2.85, z: -65.0 }, bounds: [-56.0, -78.0] },
     { id: 5, name: '5호차: 2등석 침대차 (공용 침대 공간)', spawn: { x: 0.0, y: 2.85, z: -87.0 }, bounds: [-78.0, -100.0] },
     { id: 6, name: '6호차: 식당차 (식사와 조리)', spawn: { x: 0.0, y: 2.85, z: -108.0 }, bounds: [-100.0, -122.0] },
@@ -34,16 +34,20 @@ const TrainManager = (() => {
     plate.position.set(0, -0.03, 0);
     vGroup.add(plate);
 
-    // Accordion Pleats (5 folds)
+    // Accordion Pleats (Hollow archway so the next car is directly visible!)
     const numPleats = 5;
     for (let p = 0; p < numPleats; p++) {
       const pz = -0.8 + (p / (numPleats - 1)) * 1.6;
-      const pleat = new THREE.Mesh(
-        new THREE.BoxGeometry(1.4, 2.5, 0.08),
-        matBellows
-      );
-      pleat.position.set(0, 1.25, pz);
-      vGroup.add(pleat);
+      // Left pleat wall
+      const pleatL = new THREE.Mesh(new THREE.BoxGeometry(0.12, 2.5, 0.08), matBellows);
+      pleatL.position.set(-0.64, 1.25, pz);
+      // Right pleat wall
+      const pleatR = new THREE.Mesh(new THREE.BoxGeometry(0.12, 2.5, 0.08), matBellows);
+      pleatR.position.set(0.64, 1.25, pz);
+      // Top pleat roof
+      const pleatTop = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.14, 0.08), matBellows);
+      pleatTop.position.set(0, 2.45, pz);
+      vGroup.add(pleatL, pleatR, pleatTop);
     }
 
     // Safety handrails inside vestibule
