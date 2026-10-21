@@ -219,18 +219,21 @@ const Car4_Sleeper1 = (() => {
     const bathWallFrontR = new THREE.Mesh(new THREE.BoxGeometry(0.35, height, 0.08), matMahogany);
     bathWallFrontR.position.set(1.515, height / 2, -7.5);
 
-    const bathTransom = new THREE.Mesh(new THREE.BoxGeometry(0.79, height - 2.10, 0.08), matMahogany);
-    bathTransom.position.set(0.945, height - (height - 2.10) / 2, -7.5);
+    const bathTransom = new THREE.Mesh(new THREE.BoxGeometry(0.80, height - 2.04, 0.10), matMahogany);
+    bathTransom.position.set(0.945, height - (height - 2.04) / 2, -7.5);
 
-    const bathThreshold = new THREE.Mesh(new THREE.BoxGeometry(0.79, 0.025, 0.08), matBrass);
+    const bathDoorCasing = new THREE.Mesh(new THREE.BoxGeometry(0.82, 0.06, 0.14), matMahogany);
+    bathDoorCasing.position.set(0.945, 2.05, -7.5);
+
+    const bathThreshold = new THREE.Mesh(new THREE.BoxGeometry(0.80, 0.025, 0.10), matBrass);
     bathThreshold.position.set(0.945, 0.015, -7.5);
 
     // Luxury Restroom Door (Interactive swing door opening inward against left wall)
     const bathDoorPivot = new THREE.Group();
     bathDoorPivot.position.set(0.59, 0, -7.5);
 
-    const bathDoor = new THREE.Mesh(new THREE.BoxGeometry(0.73, 2.05, 0.04), matMahogany);
-    bathDoor.position.set(0.365, 1.025, 0);
+    const bathDoor = new THREE.Mesh(new THREE.BoxGeometry(0.74, 2.06, 0.04), matMahogany);
+    bathDoor.position.set(0.37, 1.03, 0);
     const bathDoorMirror = new THREE.Mesh(new THREE.BoxGeometry(0.35, 1.35, 0.02), matMirror);
     bathDoorMirror.position.set(0, 0.18, 0.02);
     const bathPlaque = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.07, 0.03), matGoldTrim);
@@ -426,7 +429,7 @@ const Car4_Sleeper1 = (() => {
     vLight.position.set(1.12, height - 0.25, -8.65);
 
     bathGroup.add(
-      bathWallRear, bathWallL, bathWallFrontR, bathTransom, bathThreshold,
+      bathWallRear, bathWallL, bathWallFrontR, bathTransom, bathDoorCasing, bathThreshold,
       vanityGroup, vMirror, vMirrorFrame,
       toilet, tSeat, tLid, flushPipe, flushTank, tpDispenser, towelRail, vLight
     );

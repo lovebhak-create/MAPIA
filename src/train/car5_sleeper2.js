@@ -273,18 +273,22 @@ const Car5_Sleeper2 = (() => {
     // Front wall of Restroom (facing berth section at Z = -7.5)
     const bathWallFrontR = new THREE.Mesh(new THREE.BoxGeometry(0.35, height, 0.08), matMahogany);
     bathWallFrontR.position.set(1.515, height / 2, -7.5);
-    const bathTransom = new THREE.Mesh(new THREE.BoxGeometry(0.79, height - 2.10, 0.08), matMahogany);
-    bathTransom.position.set(0.945, height - (height - 2.10) / 2, -7.5);
-    const bathThreshold = new THREE.Mesh(new THREE.BoxGeometry(0.79, 0.025, 0.08), matBrass);
+    const bathTransom = new THREE.Mesh(new THREE.BoxGeometry(0.80, height - 2.04, 0.10), matMahogany);
+    bathTransom.position.set(0.945, height - (height - 2.04) / 2, -7.5);
+
+    const bathDoorCasing = new THREE.Mesh(new THREE.BoxGeometry(0.82, 0.06, 0.14), matMahogany);
+    bathDoorCasing.position.set(0.945, 2.05, -7.5);
+
+    const bathThreshold = new THREE.Mesh(new THREE.BoxGeometry(0.80, 0.025, 0.10), matBrass);
     bathThreshold.position.set(0.945, 0.015, -7.5);
-    bathGroup.add(bathWallRear, bathWallL, bathWallFrontR, bathTransom, bathThreshold);
+    bathGroup.add(bathWallRear, bathWallL, bathWallFrontR, bathTransom, bathDoorCasing, bathThreshold);
 
     // Interactive Swing Restroom Door opening inward against left wall (Photo 1 & 3)
     const bathDoorPivot = new THREE.Group();
     bathDoorPivot.position.set(0.59, 0, -7.5);
 
-    const bathDoor = new THREE.Mesh(new THREE.BoxGeometry(0.73, 2.05, 0.04), matMahogany);
-    bathDoor.position.set(0.365, 1.025, 0);
+    const bathDoor = new THREE.Mesh(new THREE.BoxGeometry(0.74, 2.06, 0.04), matMahogany);
+    bathDoor.position.set(0.37, 1.03, 0);
 
     const doorGlass = new THREE.Mesh(new THREE.BoxGeometry(0.35, 1.25, 0.02), new THREE.MeshPhysicalMaterial({ color: 0xc8d8e6, roughness: 0.35, transmission: 0.6 }));
     doorGlass.position.set(0, 0.22, 0.02);

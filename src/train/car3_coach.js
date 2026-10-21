@@ -288,12 +288,16 @@ const Car3_Coach = (() => {
     const bathWallFrontR = new THREE.Mesh(new THREE.BoxGeometry(0.35, height, 0.08), matMahogany);
     bathWallFrontR.position.set(1.515, height / 2, -7.5);
 
-    const bathTransom = new THREE.Mesh(new THREE.BoxGeometry(0.79, height - 2.10, 0.08), matMahogany);
-    bathTransom.position.set(0.945, height - (height - 2.10) / 2, -7.5);
+    // Flawless zero-gap transom & header casing trim above restroom door
+    const bathTransom = new THREE.Mesh(new THREE.BoxGeometry(0.80, height - 2.04, 0.10), matMahogany);
+    bathTransom.position.set(0.945, height - (height - 2.04) / 2, -7.5);
 
-    const threshold = new THREE.Mesh(new THREE.BoxGeometry(0.79, 0.025, 0.08), matBrass);
+    const bathDoorCasing = new THREE.Mesh(new THREE.BoxGeometry(0.82, 0.06, 0.14), matMahogany);
+    bathDoorCasing.position.set(0.945, 2.05, -7.5);
+
+    const threshold = new THREE.Mesh(new THREE.BoxGeometry(0.80, 0.025, 0.10), matBrass);
     threshold.position.set(0.945, 0.015, -7.5);
-    bathGroup.add(bathWallRear, bathWallL, bathWallFrontR, bathTransom, threshold);
+    bathGroup.add(bathWallRear, bathWallL, bathWallFrontR, bathTransom, bathDoorCasing, threshold);
 
     // Inside Lavatory Materials (Panel ① & ②)
     const matPorcelain = new THREE.MeshStandardMaterial({ color: 0xfcfcfc, roughness: 0.15, metalness: 0.05 });
@@ -323,10 +327,11 @@ const Car3_Coach = (() => {
     const bathDoorPivot = new THREE.Group();
     bathDoorPivot.position.set(0.59, 0, -7.5);
 
-    const bathDoor = new THREE.Mesh(new THREE.BoxGeometry(0.73, 2.05, 0.04), matMahogany);
-    bathDoor.position.set(0.365, 1.025, 0);
+    // Height 2.06m overlaps smoothly with casing header at 2.05m - ZERO GAP!
+    const bathDoor = new THREE.Mesh(new THREE.BoxGeometry(0.74, 2.06, 0.04), matMahogany);
+    bathDoor.position.set(0.37, 1.03, 0);
 
-    const doorInnerCream = new THREE.Mesh(new THREE.BoxGeometry(0.70, 1.95, 0.01), matCreamEnamel);
+    const doorInnerCream = new THREE.Mesh(new THREE.BoxGeometry(0.70, 1.96, 0.01), matCreamEnamel);
     doorInnerCream.position.set(0, 0, -0.02);
     const doorPlaqueBrass = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.07, 0.02), matBrass);
     doorPlaqueBrass.position.set(0, 0.45, 0.025);
@@ -533,24 +538,30 @@ const Car3_Coach = (() => {
     group.add(bathGroup);
 
     // 5. Overhead Brass Luggage Racks (좌석 위 짐 선반 - Photo 1, 3, 4)
+    // Strictly terminated before the restroom partition wall at Z = -7.5 - NEVER enters the bathroom!
     const matSuitcaseBrown = new THREE.MeshStandardMaterial({ color: 0x4a2c16, roughness: 0.65 });
     const matSuitcaseTan = new THREE.MeshStandardMaterial({ color: 0x8a6338, roughness: 0.6 });
     const matHatFelt = new THREE.MeshStandardMaterial({ color: 0xdfdcd2, roughness: 0.9 });
     const matShawlWool = new THREE.MeshStandardMaterial({ color: 0x2b3846, roughness: 0.95 });
 
+    // Passenger seat area spans Z = -4.2 to +5.4. Rack spans Z = -6.4 to +6.6 (Length 13.0m, Center Z = 0.1)
+    // Firmly stops 1.1m before bathroom front wall (Z = -7.5)!
+    const rackLen = 13.0;
+    const rackCenterZ = 0.1;
+
     [-1.20, 1.20].forEach((xSide, sideIdx) => {
-      const rack = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.04, length - 5.0), matBrass);
-      rack.position.set(xSide, 2.1, -0.5);
+      const rack = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.04, rackLen), matBrass);
+      rack.position.set(xSide, 2.1, rackCenterZ);
       group.add(rack);
 
-      // Brass support brackets
-      for (let bz = -length / 2 + 3.0; bz <= length / 2 - 3.0; bz += 2.2) {
+      // Brass support brackets spaced safely over passenger seats
+      for (let bz = -5.8; bz <= 6.0; bz += 2.0) {
         const bracket = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.25, 0.25), matBrass);
         bracket.position.set(xSide * 1.3, 2.0, bz);
         group.add(bracket);
       }
 
-      // Authentic Vintage Luggage Placed on Racks (Photo 1 & 3)
+      // Authentic Vintage Luggage Placed on Racks over seats (Photo 1 & 3)
       // Leather Suitcase 1
       const bag1 = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.18, 0.65), sideIdx === 0 ? matSuitcaseBrown : matSuitcaseTan);
       bag1.position.set(xSide, 2.22, 2.0);

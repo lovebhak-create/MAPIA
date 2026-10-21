@@ -29,22 +29,22 @@ const Characters = (() => {
 
   // 16 Character Design Specs with exact sprite aspect ratios and physical heights
   const characterRatios = {
-    arthur: 0.596,
-    bram: 0.507,
-    cade: 0.813,
-    clara: 0.568,
-    elias: 0.538,
-    felix: 0.449,
-    gail: 0.566,
-    harlan: 0.562,
-    ida: 0.551,
-    jude: 0.602,
-    lulu: 0.571,
-    mabel: 0.605,
-    nell: 0.447,
-    nurse_k: 0.754,
-    rose: 0.538,
-    ward: 0.591
+    arthur: 0.494,
+    bram: 0.333,
+    cade: 0.753,
+    clara: 0.438,
+    elias: 0.421,
+    felix: 0.434,
+    gail: 0.510,
+    harlan: 0.487,
+    ida: 0.521,
+    jude: 0.556,
+    lulu: 0.541,
+    mabel: 0.539,
+    nell: 0.453,
+    nurse_k: 0.696,
+    rose: 0.558,
+    ward: 0.489
   };
 
   // 16 Characters Definition with authentic train positions
@@ -56,9 +56,9 @@ const Characters = (() => {
     { id: 2, key: 'ward', name: '워드 / 형사 (Ward)', h: 1.85, pos: { x: 0.0, y: 1.2, z: -20.5 }, rotY: 0 },
 
     // 3. Car 3: Coach Car (4 passengers)
-    { id: 3, key: 'bram', name: '브람 / 대학생 (Bram)', h: 1.76, pos: { x: -0.95, y: 1.2, z: -38.8 }, rotY: 0 },
+    { id: 3, key: 'bram', name: '브람 / 대학생 (Bram)', h: 1.76, pos: { x: -0.95, y: 1.2, z: -40.4 }, rotY: 0 },
     { id: 4, key: 'nell', name: '넬 / 재봉사 (Nell)', h: 1.72, pos: { x: 0.95, y: 1.2, z: -42.0 }, rotY: 0 },
-    { id: 5, key: 'nurse_k', name: '케이 / 간호사 (K)', h: 1.74, pos: { x: -0.32, y: 1.2, z: -45.5 }, rotY: 0.15 },
+    { id: 5, key: 'nurse_k', name: '케이 / 간호사 (K)', h: 1.74, pos: { x: 0.0, y: 1.2, z: -45.2 }, rotY: 0.15 },
     { id: 6, key: 'elias', name: '엘리아스 / 기자 (Elias)', h: 1.80, pos: { x: 0.95, y: 1.2, z: -48.5 }, rotY: -Math.PI / 2 },
 
     // 4. Car 4: 1st Class Sleeper (3 passengers in Luxury Suites)
@@ -94,17 +94,22 @@ const Characters = (() => {
     frontTex.colorSpace = THREE.SRGBColorSpace;
     frontTex.generateMipmaps = true;
     frontTex.minFilter = THREE.LinearMipmapLinearFilter;
+    frontTex.magFilter = THREE.LinearFilter;
+    frontTex.anisotropy = 8;
 
     const backTex = textureLoader.load(`assets/characters/${d.key}_back.png`);
     backTex.colorSpace = THREE.SRGBColorSpace;
     backTex.generateMipmaps = true;
     backTex.minFilter = THREE.LinearMipmapLinearFilter;
+    backTex.magFilter = THREE.LinearFilter;
+    backTex.anisotropy = 8;
 
     // Materials react naturally to train lighting
     const matFront = new THREE.MeshStandardMaterial({
       map: frontTex,
       transparent: true,
       alphaTest: 0.15,
+      depthWrite: true,
       roughness: 0.65,
       metalness: 0.05,
       side: THREE.DoubleSide
@@ -114,6 +119,7 @@ const Characters = (() => {
       map: backTex,
       transparent: true,
       alphaTest: 0.15,
+      depthWrite: true,
       roughness: 0.65,
       metalness: 0.05,
       side: THREE.DoubleSide
@@ -123,16 +129,16 @@ const Characters = (() => {
     const visualGroup = new THREE.Group();
     visualGroup.position.set(0, 0, 0);
 
-    // Front Face Mesh
+    // Front Face Mesh (raised 2cm so shoe soles rest cleanly on top of carpet pile)
     const frontMesh = new THREE.Mesh(new THREE.PlaneGeometry(W, H), matFront);
-    frontMesh.position.set(0, H / 2, 0);
+    frontMesh.position.set(0, H / 2 + 0.02, 0);
     frontMesh.castShadow = true;
     frontMesh.receiveShadow = true;
     visualGroup.add(frontMesh);
 
     // Back Face Mesh (same orientation, toggled via visibility based on viewing angle)
     const backMesh = new THREE.Mesh(new THREE.PlaneGeometry(W, H), matBack);
-    backMesh.position.set(0, H / 2, 0);
+    backMesh.position.set(0, H / 2 + 0.02, 0);
     backMesh.castShadow = true;
     backMesh.receiveShadow = true;
     backMesh.visible = false;
