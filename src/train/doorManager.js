@@ -5,10 +5,11 @@ const DoorManager = (() => {
 
   const registerDoor = (doorObj) => {
     // Required fields:
-    // mesh, type ('swing' | 'slide'), openAngle, openOffset, x, z, name
+    // mesh, type ('swing' | 'slide'), axis ('x' | 'z'), openAngle, openOffset, x, z, name
     const d = {
       mesh: doorObj.mesh,
       type: doorObj.type || 'swing',
+      axis: doorObj.axis || 'x',
       isOpen: doorObj.isOpen || false,
       openAngle: doorObj.openAngle !== undefined ? doorObj.openAngle : Math.PI / 2,
       openOffset: doorObj.openOffset !== undefined ? doorObj.openOffset : 0.85,
@@ -56,7 +57,11 @@ const DoorManager = (() => {
         if (d.type === 'swing') {
           d.mesh.rotation.y = d.baseRotY + d.currentVal * d.openAngle;
         } else if (d.type === 'slide') {
-          d.mesh.position.x = d.basePosX + d.currentVal * d.openOffset;
+          if (d.axis === 'z') {
+            d.mesh.position.z = d.basePosZ + d.currentVal * d.openOffset;
+          } else {
+            d.mesh.position.x = d.basePosX + d.currentVal * d.openOffset;
+          }
         }
       }
     }
