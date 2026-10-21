@@ -179,6 +179,11 @@ const Car4_Sleeper1 = (() => {
     // Front Foyer (Z = +7.5 to +10.0)
     // Rear Foyer (Z = -10.0 to -7.5)
     // ==========================================
+    // ==========================================
+    // 5. ENTRANCE FOYERS & COMPLETE WALL FINISH (마감 완비)
+    // Front Foyer (Z = +7.5 to +10.0)
+    // Rear Foyer (Z = -10.0 to -7.5)
+    // ==========================================
     // Front Foyer right-side enclosed linen closet (Z = 7.5 to 10.0, X: 0.45 to 1.44)
     const frontClosetWall = new THREE.Mesh(new THREE.BoxGeometry(0.1, height, 2.5), matMahogany);
     frontClosetWall.position.set(0.45, height / 2, 8.75);
@@ -186,8 +191,27 @@ const Car4_Sleeper1 = (() => {
     frontClosetCap.position.set(0.95, height / 2, 7.5);
     group.add(frontClosetWall, frontClosetCap);
 
-    // Rear Foyer right-side: 1st Class Luxury Private Restroom (화장실 - Photo 5 Architecture)
+    // Rear Foyer right-side: 1st Class Luxury Private Restroom (화장실 - Photo 4 Art Deco Masterpiece)
     // Enclosed on the right (Z = -10.0 to -7.5, X: 0.20 to 1.44), Corridor continues straight on the left!
+    const bathGroup = new THREE.Group();
+
+    // Mosaic Luxury Floor (Photo 4)
+    const matMosaicFloor = new THREE.MeshStandardMaterial({
+      map: Textures.artDecoMosaic,
+      roughness: 0.3,
+      metalness: 0.1
+    });
+    const bathFloor = new THREE.Mesh(new THREE.BoxGeometry(1.22, 0.02, 2.45), matMosaicFloor);
+    bathFloor.position.set(0.82, 0.01, -8.75);
+    bathFloor.receiveShadow = true;
+    bathGroup.add(bathFloor);
+
+    // Brass doorway threshold
+    const bathThreshold = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.025, 0.08), matBrass);
+    bathThreshold.position.set(0.55, 0.015, -7.52);
+    bathGroup.add(bathThreshold);
+
+    // Enclosing Partition Walls
     const bathWallL = new THREE.Mesh(new THREE.BoxGeometry(0.08, height, 2.5), matMahogany);
     bathWallL.position.set(0.20, height / 2, -8.75);
     const bathWallFront = new THREE.Mesh(new THREE.BoxGeometry(0.5, height, 0.08), matMahogany);
@@ -195,12 +219,14 @@ const Car4_Sleeper1 = (() => {
     const bathTransom = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.6, 0.08), matMahogany);
     bathTransom.position.set(0.55, height - 0.3, -7.5);
 
-    // Luxury Restroom Door (Interactive sliding door)
+    // Luxury Restroom Door (Interactive sliding door with full-length mirror panel)
     const bathDoor = new THREE.Mesh(new THREE.BoxGeometry(0.68, 2.05, 0.04), matMahogany);
     bathDoor.position.set(0.55, 1.025, -7.5);
-    const bathPlaque = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.08, 0.05), matBrass);
-    bathPlaque.position.set(0, 0.45, 0.03);
-    bathDoor.add(bathPlaque);
+    const bathDoorMirror = new THREE.Mesh(new THREE.BoxGeometry(0.32, 1.35, 0.02), matMirror);
+    bathDoorMirror.position.set(0, 0.18, 0.02);
+    const bathPlaque = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.08, 0.05), matGoldTrim);
+    bathPlaque.position.set(0, 0.95, 0.025);
+    bathDoor.add(bathDoorMirror, bathPlaque);
 
     if (typeof DoorManager !== 'undefined') {
       DoorManager.registerDoor({
@@ -213,30 +239,125 @@ const Car4_Sleeper1 = (() => {
       });
     }
 
-    // Inside 1st Class Luxury Lavatory Fixtures:
-    const matChrome = new THREE.MeshStandardMaterial({ color: 0xe0e5ea, roughness: 0.2, metalness: 0.9 });
-    const matMarble = new THREE.MeshStandardMaterial({ color: 0xedeae4, roughness: 0.2 });
+    // Inside 1st Class Luxury Lavatory Fixtures (Photo 4):
+    const matChrome = new THREE.MeshStandardMaterial({ color: 0xe0e5ea, roughness: 0.15, metalness: 0.95 });
+    const matDarkMarble = new THREE.MeshStandardMaterial({ color: 0x141816, roughness: 0.15, metalness: 0.15 });
+    const matDarkRosewood = new THREE.MeshStandardMaterial({ color: 0x2b130e, roughness: 0.35, metalness: 0.1 });
 
-    const toilet = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.16, 0.42, 12), matPorcelain);
-    toilet.position.set(0.85, 0.21, -9.2);
-    const tSeat = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.04, 0.42), matMahogany);
-    tSeat.position.set(0.85, 0.44, -9.2);
-    const fPipe = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 1.4, 8), matChrome);
-    fPipe.position.set(0.85, 1.25, -9.6);
-    const fTank = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.26, 0.2), matPorcelain);
-    fTank.position.set(0.85, 1.95, -9.55);
+    // 1. Oval Art Deco Stained Glass Window with Ruby Red Diamond (Photo 4)
+    const stainedGlassMesh = new THREE.Mesh(
+      new THREE.BoxGeometry(0.04, 0.85, 0.58),
+      new THREE.MeshStandardMaterial({
+        map: Textures.stainedGlass,
+        roughness: 0.1,
+        metalness: 0.05,
+        emissive: 0x8a241c,
+        emissiveIntensity: 0.28
+      })
+    );
+    stainedGlassMesh.position.set(width / 2 - 0.07, 1.62, -8.75);
 
-    // Marble Vanity with Inset Sink
-    const vanity = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.78, 0.55), matMarble);
-    vanity.position.set(0.85, 0.39, -8.0);
-    const faucet = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.14, 8), matGoldTrim);
-    faucet.position.set(0.85, 0.86, -7.8);
-    const vMirror = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.65, 0.02), matChrome);
-    vMirror.position.set(0.85, 1.4, -7.72);
-    const vLight = new THREE.PointLight(0xffdfaa, 0.75, 3.5);
-    vLight.position.set(0.85, height - 0.3, -8.5);
+    // Stained glass oval wooden frame with brass trim
+    const sgFrame = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.92, 0.65), matMahogany);
+    sgFrame.position.set(width / 2 - 0.06, 1.62, -8.75);
+    const sgGlow = new THREE.PointLight(0xff5533, 0.45, 2.5);
+    sgGlow.position.set(width / 2 - 0.2, 1.62, -8.75);
+    bathGroup.add(stainedGlassMesh, sgFrame, sgGlow);
 
-    group.add(bathWallL, bathWallFront, bathTransom, bathDoor, toilet, tSeat, fPipe, fTank, vanity, faucet, vMirror, vLight);
+    // 2. Curved Black/Dark Marble Vanity Countertop & Cabinet (Photo 4)
+    const vanityGroup = new THREE.Group();
+    vanityGroup.position.set(0.85, 0, -8.0);
+
+    const vBaseCabinet = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.78, 0.62), matMahogany);
+    vBaseCabinet.position.set(0, 0.39, 0);
+    const vTopMarble = new THREE.Mesh(new THREE.BoxGeometry(0.76, 0.06, 0.66), matDarkMarble);
+    vTopMarble.position.set(0, 0.80, 0);
+
+    // Undermount Oval White Porcelain Sink Basin
+    const basin = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.15, 0.14, 16), matPorcelain);
+    basin.position.set(0, 0.78, 0.04);
+
+    // Polished Chrome/Gold Gooseneck Faucet & Mixer Knobs (Photo 4)
+    const faucetArch = new THREE.Mesh(new THREE.TorusGeometry(0.05, 0.012, 8, 16, Math.PI), matGoldTrim);
+    faucetArch.position.set(0, 0.94, -0.12);
+    faucetArch.rotation.y = Math.PI / 2;
+    const knobL = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.03, 8), matGoldTrim);
+    knobL.position.set(-0.09, 0.85, -0.12);
+    const knobR = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.03, 8), matGoldTrim);
+    knobR.position.set(0.09, 0.85, -0.12);
+
+    // Luxury Amenities on the Marble Vanity Counter (Photo 4):
+    // A. White Orchid Plant in Black Ceramic Pot
+    const pot = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.03, 0.08, 12), new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.3 }));
+    pot.position.set(-0.24, 0.87, 0.12);
+    const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.004, 0.004, 0.22, 6), new THREE.MeshStandardMaterial({ color: 0x224418 }));
+    stem.position.set(-0.24, 0.98, 0.12);
+    const orchidPetals = new THREE.Mesh(new THREE.SphereGeometry(0.035, 8, 8), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9 }));
+    orchidPetals.position.set(-0.24, 1.08, 0.12);
+    pot.add(stem, orchidPetals);
+
+    // B. Glass Fragrance Reed Diffuser with Wooden Sticks
+    const diffuserBottle = new THREE.Mesh(new THREE.BoxGeometry(0.035, 0.05, 0.035), new THREE.MeshPhysicalMaterial({ color: 0x996633, transmission: 0.8 }));
+    diffuserBottle.position.set(-0.24, 0.86, -0.14);
+    for (let r = 0; r < 4; r++) {
+      const reedStick = new THREE.Mesh(new THREE.CylinderGeometry(0.002, 0.002, 0.16, 4), new THREE.MeshStandardMaterial({ color: 0xcca878 }));
+      reedStick.position.set(-0.24 + (r - 1.5) * 0.008, 0.94, -0.14);
+      reedStick.rotation.z = (r - 1.5) * 0.15;
+      vanityGroup.add(reedStick);
+    }
+
+    // C. Twin Amber Glass Pump Dispenser Bottles on Wall Bracket
+    const pumpBracket = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.03, 0.14), matGoldTrim);
+    pumpBracket.position.set(0.34, 1.15, -0.05);
+    const pumpBottle1 = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.09, 10), new THREE.MeshPhysicalMaterial({ color: 0x7a431d, transmission: 0.7 }));
+    pumpBottle1.position.set(0.34, 1.22, -0.09);
+    const pumpBottle2 = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.09, 10), new THREE.MeshPhysicalMaterial({ color: 0x7a431d, transmission: 0.7 }));
+    pumpBottle2.position.set(0.34, 1.22, -0.01);
+
+    // D. Black Lacquer Tray with Folded White Luxury Hand Towels
+    const tray = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.015, 0.14), new THREE.MeshStandardMaterial({ color: 0x080808, roughness: 0.1 }));
+    tray.position.set(0.22, 0.84, 0.16);
+    const towelFold1 = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.03, 0.05), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9 }));
+    towelFold1.position.set(0.22, 0.86, 0.13);
+    const towelFold2 = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.03, 0.05), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9 }));
+    towelFold2.position.set(0.22, 0.86, 0.19);
+
+    vanityGroup.add(vBaseCabinet, vTopMarble, basin, faucetArch, knobL, knobR, pot, diffuserBottle, pumpBracket, pumpBottle1, pumpBottle2, tray, towelFold1, towelFold2);
+
+    // 3. Large Beveled Vanity Mirror with Brass Bezel (Photo 4)
+    const vMirror = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.78, 0.52), matMirror);
+    vMirror.position.set(0.85, 1.45, -7.55);
+    const vMirrorFrame = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.82, 0.56), matGoldTrim);
+    vMirrorFrame.position.set(0.85, 1.45, -7.55);
+
+    // 4. Luxury Porcelain Toilet with Dark Rosewood/Mahogany Seat & Lid (Photo 4)
+    const toilet = new THREE.Mesh(new THREE.CylinderGeometry(0.19, 0.17, 0.44, 16), matPorcelain);
+    toilet.position.set(0.85, 0.22, -9.25);
+    const tSeat = new THREE.Mesh(new THREE.CylinderGeometry(0.23, 0.23, 0.04, 16), matDarkRosewood);
+    tSeat.position.set(0.85, 0.45, -9.25);
+    const tLid = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.46, 0.03), matDarkRosewood);
+    tLid.position.set(0.85, 0.70, -9.48);
+    tLid.rotation.x = -0.15;
+
+    // Brass Toilet Paper Dispenser with Roll
+    const tpDispenser = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.12, 12), new THREE.MeshStandardMaterial({ color: 0xf5f3ee, roughness: 0.85 }));
+    tpDispenser.rotation.z = Math.PI / 2;
+    tpDispenser.position.set(0.55, 0.55, -9.0);
+
+    // Brass Towel Rail mounted under window
+    const towelRail = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.48, 8), matGoldTrim);
+    towelRail.position.set(width / 2 - 0.12, 1.05, -8.75);
+
+    // Warm Ambient Light Fixture
+    const vLight = new THREE.PointLight(0xffeedd, 0.85, 4.0);
+    vLight.position.set(0.85, height - 0.25, -8.5);
+
+    bathGroup.add(
+      bathWallL, bathWallFront, bathTransom, bathDoor,
+      vanityGroup, vMirror, vMirrorFrame,
+      toilet, tSeat, tLid, tpDispenser, towelRail, vLight
+    );
+    group.add(bathGroup);
 
     // ==========================================
     // 6. CONTINUOUS SIDE CORRIDOR (복도)

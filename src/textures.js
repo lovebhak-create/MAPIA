@@ -476,6 +476,195 @@ const Textures = (() => {
     return new THREE.CanvasTexture(canvas);
   };
 
+  const createBlueWhiteTile = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 256;
+    const ctx = canvas.getContext('2d');
+
+    // Base off-white porcelain ceramic tile
+    ctx.fillStyle = '#f2f4f7';
+    ctx.fillRect(0, 0, 256, 256);
+
+    const tileSize = 32;
+    // Octagonal white tiles with deep cobalt blue diamond corner cabochons (Photo 5)
+    for (let y = 0; y < 256; y += tileSize) {
+      for (let x = 0; x < 256; x += tileSize) {
+        // Subtle tile surface gradient
+        ctx.strokeStyle = '#c5ccd6';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(x + 1, y + 1, tileSize - 2, tileSize - 2);
+
+        // Cobalt blue diamond in the corner
+        ctx.fillStyle = '#1c4278';
+        ctx.beginPath();
+        ctx.moveTo(x, y - 5);
+        ctx.lineTo(x + 5, y);
+        ctx.lineTo(x, y + 5);
+        ctx.lineTo(x - 5, y);
+        ctx.closePath();
+        ctx.fill();
+
+        // Delftware floral center accent on every other tile
+        if ((x / tileSize + y / tileSize) % 2 === 0) {
+          ctx.fillStyle = 'rgba(28, 66, 120, 0.45)';
+          ctx.beginPath();
+          ctx.arc(x + tileSize / 2, y + tileSize / 2, 2.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    }
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.wrapS = THREE.RepeatWrapping;
+    tex.wrapT = THREE.RepeatWrapping;
+    return tex;
+  };
+
+  const createArtDecoMosaic = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 256;
+    const ctx = canvas.getContext('2d');
+
+    // Rich dark charcoal / black marble base
+    ctx.fillStyle = '#121417';
+    ctx.fillRect(0, 0, 256, 256);
+
+    // Intricate gold & ivory mosaic tesserae (Photo 4)
+    ctx.strokeStyle = '#c69a42';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(8, 8, 240, 240);
+    ctx.strokeRect(18, 18, 220, 220);
+
+    // Concentric diamond fans
+    const drawFan = (cx, cy) => {
+      for (let r = 12; r <= 48; r += 12) {
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.strokeStyle = r % 24 === 0 ? 'rgba(198, 154, 66, 0.65)' : 'rgba(235, 230, 218, 0.45)';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+    };
+    drawFan(64, 64);
+    drawFan(192, 64);
+    drawFan(64, 192);
+    drawFan(192, 192);
+    drawFan(128, 128);
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.wrapS = THREE.RepeatWrapping;
+    tex.wrapT = THREE.RepeatWrapping;
+    return tex;
+  };
+
+  const createStainedGlass = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 384;
+    const ctx = canvas.getContext('2d');
+
+    // Translucent opal cream glass background
+    ctx.fillStyle = '#e5dec8';
+    ctx.fillRect(0, 0, 256, 384);
+
+    // Outer border lead came
+    ctx.strokeStyle = '#22201d';
+    ctx.lineWidth = 8;
+    ctx.beginPath();
+    ctx.ellipse(128, 192, 118, 180, 0, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Cobalt blue outer ring segments
+    ctx.fillStyle = '#1a3c75';
+    ctx.beginPath();
+    ctx.ellipse(128, 192, 110, 172, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Inner opal field
+    ctx.fillStyle = '#f0ebd8';
+    ctx.beginPath();
+    ctx.ellipse(128, 192, 88, 145, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Brilliant Ruby Red central diamond (Photo 4)
+    ctx.fillStyle = '#a61224';
+    ctx.beginPath();
+    ctx.moveTo(128, 70);
+    ctx.lineTo(200, 192);
+    ctx.lineTo(128, 314);
+    ctx.lineTo(56, 192);
+    ctx.closePath();
+    ctx.fill();
+
+    // Inner gold lozenge
+    ctx.fillStyle = '#d49b28';
+    ctx.beginPath();
+    ctx.moveTo(128, 120);
+    ctx.lineTo(172, 192);
+    ctx.lineTo(128, 264);
+    ctx.lineTo(84, 192);
+    ctx.closePath();
+    ctx.fill();
+
+    // Dark Lead came outlines
+    ctx.strokeStyle = '#22201d';
+    ctx.lineWidth = 5;
+    ctx.stroke();
+
+    // Radiating lead lines
+    ctx.beginPath();
+    ctx.moveTo(128, 12);
+    ctx.lineTo(128, 372);
+    ctx.moveTo(10, 192);
+    ctx.lineTo(246, 192);
+    ctx.moveTo(38, 72);
+    ctx.lineTo(218, 312);
+    ctx.moveTo(218, 72);
+    ctx.lineTo(38, 312);
+    ctx.stroke();
+
+    return new THREE.CanvasTexture(canvas);
+  };
+
+  const createGreenGrating = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 256;
+    const ctx = canvas.getContext('2d');
+
+    // Pullman forest green slatted wood base (Photo 7)
+    ctx.fillStyle = '#1b3d2b';
+    ctx.fillRect(0, 0, 256, 256);
+
+    const slotSize = 16;
+    const holeSize = 7;
+    // Square drain holes in duckboard
+    for (let y = 0; y < 256; y += slotSize) {
+      // Wood slat edge highlight
+      ctx.strokeStyle = '#2d5a42';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(0, y, 256, slotSize);
+
+      for (let x = 0; x < 256; x += slotSize) {
+        // Deep shadow inside drainage holes
+        ctx.fillStyle = '#0a140e';
+        ctx.fillRect(x + 4, y + 4, holeSize, holeSize);
+
+        // Highlight rim on hole edge
+        ctx.strokeStyle = '#142a1d';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(x + 4, y + 4, holeSize, holeSize);
+      }
+    }
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.wrapS = THREE.RepeatWrapping;
+    tex.wrapT = THREE.RepeatWrapping;
+    return tex;
+  };
+
   return {
     rivetedSteel: createRivetedSteel(),
     boilerIron: createBoilerIron(),
@@ -489,6 +678,10 @@ const Textures = (() => {
     fireTexture: createFireTexture(),
     coal: createCoalTexture(),
     exteriorGreen: createExteriorGreen(),
-    crate: createCrateTexture()
+    crate: createCrateTexture(),
+    blueWhiteTile: createBlueWhiteTile(),
+    artDecoMosaic: createArtDecoMosaic(),
+    stainedGlass: createStainedGlass(),
+    greenGrating: createGreenGrating()
   };
 })();
