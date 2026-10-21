@@ -29,63 +29,6 @@
       left: 0;
     }
 
-    /* Minimalist Art Deco Top Bar */
-    #top-bar {
-      position: absolute;
-      top: 15px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(14, 20, 28, 0.82);
-      border: 1px solid rgba(212, 175, 55, 0.4);
-      border-radius: 8px;
-      padding: 6px 14px;
-      backdrop-filter: blur(8px);
-      z-index: 10;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
-    }
-
-    .car-buttons {
-      display: flex;
-      gap: 5px;
-    }
-
-    .btn-car {
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(212, 175, 55, 0.3);
-      color: #e6dfcf;
-      padding: 4px 10px;
-      border-radius: 4px;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .btn-car:hover {
-      background: #dfb142;
-      color: #121820;
-      border-color: #dfb142;
-    }
-
-    .tool-btn {
-      background: transparent;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      color: #ccc;
-      padding: 4px 10px;
-      border-radius: 4px;
-      font-size: 12px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .tool-btn:hover {
-      background: rgba(255, 255, 255, 0.15);
-      color: #fff;
-    }
-
     /* Subtle Crosshair */
     #crosshair {
       position: absolute;
@@ -100,6 +43,27 @@
       z-index: 5;
     }
 
+    /* Sitting Toast Notification */
+    #sit-prompt {
+      display: none;
+      position: absolute;
+      bottom: 75px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(14, 20, 28, 0.9);
+      border: 1px solid #dfb142;
+      color: #dfb142;
+      padding: 6px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      pointer-events: none;
+      z-index: 15;
+      letter-spacing: 0.5px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+    }
+  </style>
+
   </style>
 
   <!-- Libraries -->
@@ -109,22 +73,7 @@
 <body>
   <div id="canvas-container"></div>
   <div id="crosshair"></div>
-
-  <!-- Top Navigation Bar -->
-  <div id="top-bar">
-    <div class="car-buttons">
-      <button class="btn-car" id="btn-car-1" title="1호차">1</button>
-      <button class="btn-car" id="btn-car-2" title="2호차">2</button>
-      <button class="btn-car" id="btn-car-3" title="3호차">3</button>
-      <button class="btn-car" id="btn-car-4" title="4호차">4</button>
-      <button class="btn-car" id="btn-car-5" title="5호차">5</button>
-      <button class="btn-car" id="btn-car-6" title="6호차">6</button>
-      <button class="btn-car" id="btn-car-7" title="7호차">7</button>
-      <button class="btn-car" id="btn-car-8" title="8호차">8</button>
-    </div>
-    <button class="tool-btn" id="btn-light" title="손전등 (F키)">🔦</button>
-    <button class="tool-btn" id="btn-audio" title="사운드">🔊</button>
-  </div>
+  <div id="sit-prompt">[Space] 키를 눌러 일어나기</div>
 
   <!-- Character Inspection Nameplate -->
   <div id="char-nameplate" style="display:none; position:absolute; bottom:35px; left:50%; transform:translateX(-50%); background:rgba(14,20,28,0.88); border:1px solid #dfb142; color:#dfb142; padding:6px 18px; border-radius:6px; font-weight:600; font-size:14px; pointer-events:none; z-index:15; letter-spacing:0.5px; box-shadow:0 4px 15px rgba(0,0,0,0.6);"></div>

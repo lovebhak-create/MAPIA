@@ -54,36 +54,6 @@ window.addEventListener('DOMContentLoaded', () => {
   const screenCenter = new THREE.Vector2(0, 0);
   const nameplate = document.getElementById('char-nameplate');
 
-  // Hotkey Buttons 1 ~ 8 in Top Bar
-  for (let i = 1; i <= 8; i++) {
-    const btn = document.getElementById(`btn-car-${i}`);
-    if (btn) {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        Player.teleportToCar(i);
-      });
-    }
-  }
-
-  // Audio Mute Toggle Button
-  const btnAudio = document.getElementById('btn-audio');
-  if (btnAudio) {
-    btnAudio.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const muted = SoundManager.toggleMute();
-      btnAudio.textContent = muted ? '🔇 소리 켜기' : '🔊 사운드';
-    });
-  }
-
-  // Flashlight Button
-  const btnLight = document.getElementById('btn-light');
-  if (btnLight) {
-    btnLight.addEventListener('click', (e) => {
-      e.stopPropagation();
-      Player.toggleFlashlight();
-    });
-  }
-
   // 5. Firebox Flicker Animation
   const fireLight = scene.getObjectByName('FireLight');
 
@@ -99,6 +69,9 @@ window.addEventListener('DOMContentLoaded', () => {
 
     // Update Player movement & physics
     Player.update(delta);
+
+    // Update Characters (Push physics: player pushes characters smoothly out of the way!)
+    Characters.update(delta, camera.position);
 
     // Update Environment (track parallax, moving telegraph poles, smokestack steam particles)
     Environment.update(delta, 22.0);

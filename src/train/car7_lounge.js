@@ -139,27 +139,42 @@ const Car7_Lounge = (() => {
     group.add(createBulkhead(-length / 2));
 
     // ==========================================
-    // 4. ART DECO COCKTAIL BAR (Z = 4.0 to 8.5)
+    // 4. LUXURIOUS ART DECO COCKTAIL BAR (Z = 4.0 to 8.5)
+    // Spacious bartender corridor (0.75m), illuminated 3-tier backbar, crystal decanters
     // ==========================================
     const barGroup = new THREE.Group();
     barGroup.position.set(0, 0, 6.0);
 
-    // Curved Bar Counter (L-shaped along Left Wall)
-    const barCounter = new THREE.Mesh(new THREE.BoxGeometry(0.7, 1.05, 4.0), matMahogany);
-    barCounter.position.set(-width / 2 + 0.8, 0.52, 0);
-    const barTop = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.08, 4.1), matMahogany);
-    barTop.position.set(-width / 2 + 0.8, 1.06, 0);
+    // Rich Art Deco Bar Counter (X: -0.45 to +0.10, length 4.4m)
+    // Front counter body
+    const barCounter = new THREE.Mesh(new THREE.BoxGeometry(0.55, 1.08, 4.4), matMahogany);
+    barCounter.position.set(-0.175, 0.54, 0);
 
-    // Brass Footrail along the bar bottom
-    const footrail = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 4.0, 8), matBrass);
+    // Polished Countertop with curved ends and brass edge trim
+    const barTop = new THREE.Mesh(
+      new THREE.BoxGeometry(0.65, 0.08, 4.5),
+      new THREE.MeshStandardMaterial({ color: 0x221711, roughness: 0.2, metalness: 0.1 })
+    );
+    barTop.position.set(-0.175, 1.10, 0);
+
+    const barTrim = new THREE.Mesh(new THREE.BoxGeometry(0.67, 0.03, 4.52), matBrass);
+    barTrim.position.set(-0.175, 1.06, 0);
+
+    // Warm Under-counter Art Deco ambient glow
+    const barGlow = new THREE.PointLight(0xffbe6b, 0.85, 3.5);
+    barGlow.position.set(0.15, 0.95, 0);
+
+    // Brass Footrail for seated patrons
+    const footrail = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 4.2, 8), matBrass);
     footrail.rotation.x = Math.PI / 2;
-    footrail.position.set(-width / 2 + 1.25, 0.18, 0);
-    barGroup.add(barCounter, barTop, footrail);
+    footrail.position.set(0.25, 0.18, 0);
+
+    barGroup.add(barCounter, barTop, barTrim, barGlow, footrail);
 
     // Swivel Barstools (3 Stools with Brass pedestal and Leather seat)
     for (let bsz = -1.3; bsz <= 1.3; bsz += 1.3) {
       const stool = new THREE.Group();
-      stool.position.set(-width / 2 + 1.45, 0, bsz);
+      stool.position.set(0.48, 0, bsz);
 
       const base = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.22, 0.04, 12), matBrass);
       base.position.set(0, 0.02, 0);
@@ -172,28 +187,69 @@ const Car7_Lounge = (() => {
       barGroup.add(stool);
     }
 
-    // Mirrored Back Bar Shelves on Left Wall
-    const backBarMirror = new THREE.Mesh(new THREE.BoxGeometry(0.04, 1.4, 3.8), matMirror);
-    backBarMirror.position.set(-width / 2 + 0.14, 1.6, 0);
-    const barShelf = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.04, 3.8), matMahogany);
-    barShelf.position.set(-width / 2 + 0.25, 1.3, 0);
-    barGroup.add(backBarMirror, barShelf);
+    // --- ILLUMINATED ART DECO BACKBAR (Along Left Wall X = -1.42) ---
+    // Warm lit mirror with golden frame
+    const backBarFrame = new THREE.Mesh(new THREE.BoxGeometry(0.06, 1.6, 4.2), matMahogany);
+    backBarFrame.position.set(-1.42, 1.6, 0);
 
-    // Bottles & Shaker on Shelf
-    for (let bz = -1.6; bz <= 1.6; bz += 0.4) {
-      const bottle = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.04, 0.04, 0.28, 8),
-        new THREE.MeshStandardMaterial({ color: 0x224422, roughness: 0.2, transparent: true, opacity: 0.8 })
+    const backBarMirror = new THREE.Mesh(
+      new THREE.BoxGeometry(0.02, 1.5, 4.0),
+      new THREE.MeshStandardMaterial({ color: 0xe8e0d5, roughness: 0.1, metalness: 0.9 })
+    );
+    backBarMirror.position.set(-1.38, 1.6, 0);
+
+    const backBarLight = new THREE.PointLight(0xffdd99, 1.0, 4.0);
+    backBarLight.position.set(-1.15, 1.7, 0);
+
+    barGroup.add(backBarFrame, backBarMirror, backBarLight);
+
+    // 3 Tiers of Glass Shelves & Bottles
+    const bottleColors = [0x994411, 0x225522, 0x882222, 0xddaa33, 0x113355];
+    [1.15, 1.55, 1.95].forEach((sy, tier) => {
+      // Glass shelf
+      const shelf = new THREE.Mesh(
+        new THREE.BoxGeometry(0.2, 0.03, 3.8),
+        new THREE.MeshPhysicalMaterial({ color: 0xccddff, transparent: true, opacity: 0.6, roughness: 0.1, transmission: 0.8 })
       );
-      bottle.position.set(-width / 2 + 0.25, 1.46, bz);
-      barGroup.add(bottle);
-    }
+      shelf.position.set(-1.3, sy, 0);
+      barGroup.add(shelf);
 
-    // Cocktail Shaker
-    const shaker = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.04, 0.24, 12), matBrass);
-    shaker.position.set(-width / 2 + 0.8, 1.18, 0.8);
-    barGroup.add(shaker);
+      // Decanters & Bottles on each tier
+      for (let bz = -1.6; bz <= 1.6; bz += 0.45) {
+        const col = bottleColors[Math.abs(Math.floor(bz * 7 + tier)) % bottleColors.length];
+        const bottleMat = new THREE.MeshStandardMaterial({ color: col, roughness: 0.2, transparent: true, opacity: 0.85 });
+        
+        // Bottle body
+        const bottle = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.26, 10), bottleMat);
+        bottle.position.set(-1.3, sy + 0.14, bz);
 
+        // Bottle neck & brass stopper
+        const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.02, 0.08, 8), bottleMat);
+        neck.position.set(-1.3, sy + 0.28, bz);
+        const stopper = new THREE.Mesh(new THREE.SphereGeometry(0.02, 8, 8), matGold);
+        stopper.position.set(-1.3, sy + 0.33, bz);
+
+        barGroup.add(bottle, neck, stopper);
+      }
+    });
+
+    // Bar Counter Accessories (Cocktail Shaker, Ice Bucket, Coupe Glasses)
+    const shaker = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.035, 0.24, 12), matBrass);
+    shaker.position.set(-0.15, 1.24, 0.8);
+
+    const iceBucket = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.06, 0.15, 12), matBrass);
+    iceBucket.position.set(-0.15, 1.20, -0.9);
+
+    [-0.3, 0.1, 0.4].forEach(gz => {
+      const glass = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.04, 0.01, 0.1, 10),
+        new THREE.MeshPhysicalMaterial({ color: 0xffffff, transparent: true, opacity: 0.5, roughness: 0.1, transmission: 0.9 })
+      );
+      glass.position.set(0.05, 1.18, gz);
+      barGroup.add(glass);
+    });
+
+    barGroup.add(shaker, iceBucket);
     group.add(barGroup);
 
     // ==========================================

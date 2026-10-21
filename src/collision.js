@@ -234,8 +234,8 @@ const Collision = (() => {
     addBox(-1.4, -0.55, -143.2, -142.8, 1.0, 4.0, 'Car7_BulkheadRear_L');
     addBox(0.55, 1.4, -143.2, -142.8, 1.0, 4.0, 'Car7_BulkheadRear_R');
 
-    // Cocktail Bar Counter
-    addBox(-1.35, -0.65, -129.2, -125.0, 1.0, 2.5, 'Car7_BarCounter');
+    // Cocktail Bar Counter (leaves 0.75m spacious bartender corridor behind counter!)
+    addBox(-0.45, 0.12, -129.2, -124.8, 1.0, 2.5, 'Car7_BarCounter');
 
     // Individual Club Armchairs (0.7m x 0.7m)
     addBox(0.50, 1.25, -131.4, -130.6, 1.0, 2.0, 'Car7_ChairR1');
