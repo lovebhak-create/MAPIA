@@ -45,22 +45,10 @@ const Characters = (() => {
     mabel: { suit: 0x1c382c, trouser: 0x162e24, shoe: 0x101a14, hair: 0x302018, skin: 0xf2ddce, hat: 'aristocrat', isSkirt: true, prop: null }
   };
 
-  // Helper to crop texture region from loaded Image onto a CanvasTexture
-  const cropToTexture = (img, sy0, sy1) => {
-    const canvas = document.createElement('canvas');
-    canvas.width = 512;
-    canvas.height = 512;
-    const ctx = canvas.getContext('2d');
-    const sy = sy0 * img.height;
-    const sh = (sy1 - sy0) * img.height;
-    ctx.drawImage(img, 0, sy, img.width, sh, 0, 0, 512, 512);
-    const tex = new THREE.CanvasTexture(canvas);
-    tex.minFilter = THREE.LinearFilter;
-    tex.magFilter = THREE.LinearFilter;
-    return tex;
-  };
+  // Texture Loader for clean character front/back turnaround art
+  const textureLoader = new THREE.TextureLoader();
 
-  // Helper to build 3D Hats
+  // Helper to build 3D Vintage Hats with true 3D volume, brims, crowns, and ribbons
   const createHat = (hatType, hairColor, suitColor) => {
     const hatGroup = new THREE.Group();
     const matFelt = new THREE.MeshStandardMaterial({ color: suitColor, roughness: 0.7 });
@@ -139,8 +127,8 @@ const Characters = (() => {
     return hatGroup;
   };
 
-  // Helper to build 3D Props
-  const createProp = (propType, skinColor) => {
+  // Helper to build 3D Period Props
+  const createProp = (propType) => {
     const propGroup = new THREE.Group();
 
     if (propType === 'camera') {
@@ -177,7 +165,7 @@ const Characters = (() => {
       pommel.position.set(0, 0.10, 0);
       propGroup.add(shaft, pommel);
     } else if (propType === 'glass') {
-      // Lulu's Vintage Champagne / Cocktail Coupe Glass
+      // Lulu's Vintage Champagne Coupe Glass
       const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.004, 0.004, 0.08, 8), new THREE.MeshPhysicalMaterial({ color: 0xffffff, transmission: 0.95, roughness: 0.1 }));
       const bowl = new THREE.Mesh(new THREE.ConeGeometry(0.035, 0.03, 10), new THREE.MeshPhysicalMaterial({ color: 0xffffff, transmission: 0.95, roughness: 0.1 }));
       bowl.position.set(0, 0.045, 0);
@@ -200,246 +188,128 @@ const Characters = (() => {
     return propGroup;
   };
 
-  // Build Complete 3D Humanoid Character Model with full 360-degree volume, depth, and side profile
+  // Build Volumetric Stylized 3D Character Model:
+  // Pristine front & back turnaround art with 0.18m volumetric depth, full 3D side profile, 3D boots, and 3D hats.
+  // NO geometric block monster collage, NO black boxes, NO paper-thin flattening!
   const createCharacterModel = (d) => {
     const group = new THREE.Group();
-    const H = d.h; // total height (e.g. 1.76m ~ 1.84m)
+    const H = d.h; // total height (e.g. 1.76m ~ 1.85m)
+    const W = d.w * 0.94; // proportional width
+    const depth = 0.18; // 3D human torso depth (from Z: -0.09 to +0.09)
     const pal = characterPalettes[d.key] || characterPalettes.ward;
 
-    // Body dimensions scaled to character height
-    const scale = H / 1.80;
-    const torsoW = 0.42 * scale;
-    const torsoH = 0.56 * scale;
-    const torsoD = 0.24 * scale;
+    // Load authentic, crystal-clear turnaround art
+    const frontTex = textureLoader.load(`assets/characters/${d.key}_front.png`);
+    frontTex.colorSpace = THREE.SRGBColorSpace;
+    const backTex = textureLoader.load(`assets/characters/${d.key}_back.png`);
+    backTex.colorSpace = THREE.SRGBColorSpace;
 
-    const headW = 0.21 * scale;
-    const headH = 0.25 * scale;
-    const headD = 0.22 * scale;
+    // 1. FRONT FACE (Z = +0.09m) - Displays user's complete, unblemished front turnaround art
+    const matFront = new THREE.MeshStandardMaterial({
+      map: frontTex,
+      transparent: true,
+      alphaTest: 0.12,
+      roughness: 0.70,
+      metalness: 0.05,
+      side: THREE.FrontSide
+    });
+    const frontMesh = new THREE.Mesh(new THREE.PlaneGeometry(W, H), matFront);
+    frontMesh.position.set(0, H / 2, depth / 2);
+    frontMesh.castShadow = true;
+    group.add(frontMesh);
 
-    const legH = 0.72 * scale;
-    const legW = 0.15 * scale;
-    const legD = 0.18 * scale;
+    // 2. BACK FACE (Z = -0.09m) - Displays user's complete, unblemished back turnaround art
+    const matBack = new THREE.MeshStandardMaterial({
+      map: backTex,
+      transparent: true,
+      alphaTest: 0.12,
+      roughness: 0.70,
+      metalness: 0.05,
+      side: THREE.FrontSide
+    });
+    const backMesh = new THREE.Mesh(new THREE.PlaneGeometry(W, H), matBack);
+    backMesh.position.set(0, H / 2, -depth / 2);
+    backMesh.rotation.y = Math.PI;
+    backMesh.castShadow = true;
+    group.add(backMesh);
 
-    // Base Materials
-    const matSuitSide = new THREE.MeshStandardMaterial({ color: pal.suit, roughness: 0.75, metalness: 0.05 });
-    const matTrouserSide = new THREE.MeshStandardMaterial({ color: pal.trouser, roughness: 0.8, metalness: 0.05 });
-    const matHairSide = new THREE.MeshStandardMaterial({ color: pal.hair, roughness: 0.85, metalness: 0.05 });
+    // 3. 3D VOLUMETRIC SIDE PROFILE ("옆태") - Bridges front and back seamlessly with 0.18m thickness
+    const matSuit = new THREE.MeshStandardMaterial({ color: pal.suit, roughness: 0.65, metalness: 0.08 });
+    const matTrouser = new THREE.MeshStandardMaterial({ color: pal.trouser, roughness: 0.75, metalness: 0.05 });
+    const matHair = new THREE.MeshStandardMaterial({ color: pal.hair, roughness: 0.85, metalness: 0.05 });
     const matSkin = new THREE.MeshStandardMaterial({ color: pal.skin, roughness: 0.65, metalness: 0.05 });
     const matShoe = new THREE.MeshStandardMaterial({ color: pal.shoe, roughness: 0.35, metalness: 0.2 });
 
-    // Front/Back Canvas Textures (initialized with solid color, populated when PNG loads)
-    const createPlaceholderTex = (color) => {
-      const c = document.createElement('canvas');
-      c.width = 64; c.height = 64;
-      const ctx = c.getContext('2d');
-      ctx.fillStyle = '#' + new THREE.Color(color).getHexString();
-      ctx.fillRect(0, 0, 64, 64);
-      return new THREE.CanvasTexture(c);
-    };
+    // A. Torso / Coat Volumetric Core (fills middle depth between front and back)
+    const torsoCore = new THREE.Mesh(new THREE.BoxGeometry(W * 0.44, H * 0.46, depth * 0.94), matSuit);
+    torsoCore.position.set(0, H * 0.54, 0);
+    torsoCore.castShadow = true;
+    group.add(torsoCore);
 
-    const matHeadFront = new THREE.MeshStandardMaterial({ map: createPlaceholderTex(pal.skin), roughness: 0.65 });
-    const matHeadBack = new THREE.MeshStandardMaterial({ map: createPlaceholderTex(pal.hair), roughness: 0.75 });
+    // B. Left & Right Side Profile Plates (visible from 90-degree side profile down aisle)
+    [-W * 0.22, W * 0.22].forEach(sideX => {
+      const sideTorso = new THREE.Mesh(new THREE.BoxGeometry(0.02, H * 0.44, depth * 0.92), matSuit);
+      sideTorso.position.set(sideX, H * 0.54, 0);
+      sideTorso.castShadow = true;
+      group.add(sideTorso);
+    });
 
-    const matTorsoFront = new THREE.MeshStandardMaterial({ map: createPlaceholderTex(pal.suit), roughness: 0.7 });
-    const matTorsoBack = new THREE.MeshStandardMaterial({ map: createPlaceholderTex(pal.suit), roughness: 0.7 });
+    // C. Lower Body / Trousers / Skirt Core
+    const lowerCore = new THREE.Mesh(new THREE.BoxGeometry(W * 0.38, H * 0.36, depth * 0.88), pal.isSkirt ? matSuit : matTrouser);
+    lowerCore.position.set(0, H * 0.24, 0);
+    lowerCore.castShadow = true;
+    group.add(lowerCore);
 
-    const matLegsFront = new THREE.MeshStandardMaterial({ map: createPlaceholderTex(pal.trouser), roughness: 0.75 });
-    const matLegsBack = new THREE.MeshStandardMaterial({ map: createPlaceholderTex(pal.trouser), roughness: 0.75 });
+    // D. Head / Neck Profile Core
+    const headCore = new THREE.Mesh(new THREE.BoxGeometry(W * 0.22, H * 0.16, depth * 0.82), matHair);
+    headCore.position.set(0, H * 0.86, 0);
+    group.add(headCore);
 
-    // Asynchronously load user's authentic turnaround artwork and crop into body sections
-    const imgFront = new Image();
-    imgFront.src = `assets/characters/${d.key}_front.png`;
-    imgFront.onload = () => {
-      matHeadFront.map = cropToTexture(imgFront, 0.0, 0.28);
-      matHeadFront.needsUpdate = true;
+    // E. 3D Rounded Shoulder Caps bridging front to back
+    [-W * 0.22, W * 0.22].forEach(sx => {
+      const shoulderCap = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.055, depth * 0.94, 8), matSuit);
+      shoulderCap.rotation.x = Math.PI / 2;
+      shoulderCap.position.set(sx, H * 0.74, 0);
+      group.add(shoulderCap);
+    });
 
-      matTorsoFront.map = cropToTexture(imgFront, 0.28, 0.63);
-      matTorsoFront.needsUpdate = true;
-
-      matLegsFront.map = cropToTexture(imgFront, 0.63, 1.0);
-      matLegsFront.needsUpdate = true;
-    };
-
-    const imgBack = new Image();
-    imgBack.src = `assets/characters/${d.key}_back.png`;
-    imgBack.onload = () => {
-      matHeadBack.map = cropToTexture(imgBack, 0.0, 0.28);
-      matHeadBack.needsUpdate = true;
-
-      matTorsoBack.map = cropToTexture(imgBack, 0.28, 0.63);
-      matTorsoBack.needsUpdate = true;
-
-      matLegsBack.map = cropToTexture(imgBack, 0.63, 1.0);
-      matLegsBack.needsUpdate = true;
-    };
-
-    // ==========================================
-    // 1. SHOES (Y = 0.0 to 0.08m) - 3D Leather Oxford Shoes / Heels
-    // ==========================================
-    const shoesGroup = new THREE.Group();
+    // 4. 3D SCULPTED VINTAGE LEATHER BOOTS / SHOES (Y = 0 to 0.10m)
+    // Anchors character to floor with solid 3D depth, soles, and leather highlights
+    const scale = H / 1.80;
     [-0.10 * scale, 0.10 * scale].forEach(sx => {
-      const shoeMesh = new THREE.Mesh(new THREE.BoxGeometry(0.12 * scale, 0.075 * scale, 0.24 * scale), matShoe);
-      shoeMesh.position.set(sx, 0.038 * scale, 0.03 * scale);
-      shoeMesh.castShadow = true;
+      const boot = new THREE.Mesh(new THREE.BoxGeometry(0.12 * scale, 0.08 * scale, 0.24 * scale), matShoe);
+      boot.position.set(sx, 0.04 * scale, 0.01 * scale);
+      boot.castShadow = true;
 
-      // Heel lift & sole rim
-      const sole = new THREE.Mesh(new THREE.BoxGeometry(0.125 * scale, 0.02 * scale, 0.25 * scale), new THREE.MeshStandardMaterial({ color: 0x080808, roughness: 0.8 }));
-      sole.position.set(sx, 0.01 * scale, 0.03 * scale);
+      const sole = new THREE.Mesh(new THREE.BoxGeometry(0.126 * scale, 0.02 * scale, 0.25 * scale), new THREE.MeshStandardMaterial({ color: 0x0a0a0a, roughness: 0.8 }));
+      sole.position.set(sx, 0.01 * scale, 0.01 * scale);
 
-      shoesGroup.add(shoeMesh, sole);
-    });
-    group.add(shoesGroup);
-
-    // ==========================================
-    // 2. LOWER BODY (Y = 0.08 to 0.80m) - 3D Trousers / Tailored Skirt
-    // ==========================================
-    const lowerBodyGroup = new THREE.Group();
-    if (pal.isSkirt) {
-      // 3D Tailored Pencil / Flared Skirt with depth and side profile
-      const skirtMatArray = [matTrouserSide, matTrouserSide, matTrouserSide, matTrouserSide, matLegsFront, matLegsBack];
-      const skirtMesh = new THREE.Mesh(new THREE.BoxGeometry(torsoW * 0.92, legH * 0.95, torsoD * 0.95), skirtMatArray);
-      skirtMesh.position.set(0, 0.08 * scale + (legH * 0.95) / 2, 0);
-      skirtMesh.castShadow = true;
-
-      // Calves in stockings between skirt and shoes
-      [-0.09 * scale, 0.09 * scale].forEach(cx => {
-        const calf = new THREE.Mesh(new THREE.CylinderGeometry(0.045 * scale, 0.04 * scale, 0.16 * scale, 8), matSkin);
-        calf.position.set(cx, 0.14 * scale, 0);
-        lowerBodyGroup.add(calf);
-      });
-
-      lowerBodyGroup.add(skirtMesh);
-    } else {
-      // Two distinct 3D Trouser Legs with creases, volume, and side profiles
-      const legMatArray = [matTrouserSide, matTrouserSide, matTrouserSide, matTrouserSide, matLegsFront, matLegsBack];
-      [-0.10 * scale, 0.10 * scale].forEach(lx => {
-        const legMesh = new THREE.Mesh(new THREE.BoxGeometry(legW, legH, legD), legMatArray);
-        legMesh.position.set(lx, 0.08 * scale + legH / 2, 0);
-        legMesh.castShadow = true;
-        lowerBodyGroup.add(legMesh);
-      });
-    }
-    group.add(lowerBodyGroup);
-
-    // ==========================================
-    // 3. TORSO (Y = 0.80 to 1.36m) - 3D Chest, Waist, Suit Jacket & Lapels
-    // ==========================================
-    const torsoGroup = new THREE.Group();
-    const torsoCenterY = 0.80 * scale + torsoH / 2;
-
-    // Six-sided BoxGeometry: [Right, Left, Top, Bottom, Front, Back]
-    const torsoMatArray = [matSuitSide, matSuitSide, matSuitSide, matSuitSide, matTorsoFront, matTorsoBack];
-    const torsoMesh = new THREE.Mesh(new THREE.BoxGeometry(torsoW, torsoH, torsoD), torsoMatArray);
-    torsoMesh.position.set(0, torsoCenterY, 0);
-    torsoMesh.castShadow = true;
-    torsoGroup.add(torsoMesh);
-
-    // Raised 3D Collar Lapels framing chest
-    const lapelL = new THREE.Mesh(new THREE.BoxGeometry(0.06 * scale, 0.24 * scale, 0.02 * scale), matSuitSide);
-    lapelL.position.set(-0.08 * scale, torsoCenterY + 0.14 * scale, torsoD / 2 + 0.01 * scale);
-    lapelL.rotation.z = -0.15;
-    const lapelR = new THREE.Mesh(new THREE.BoxGeometry(0.06 * scale, 0.24 * scale, 0.02 * scale), matSuitSide);
-    lapelR.position.set(0.08 * scale, torsoCenterY + 0.14 * scale, torsoD / 2 + 0.01 * scale);
-    lapelR.rotation.z = 0.15;
-    torsoGroup.add(lapelL, lapelR);
-
-    // Stethoscope around doctor's neck
-    if (pal.prop === 'stethoscope') {
-      const stethTube = new THREE.Mesh(new THREE.TorusGeometry(0.12 * scale, 0.01 * scale, 6, 12, Math.PI), new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.4 }));
-      stethTube.position.set(0, torsoCenterY + 0.22 * scale, torsoD / 2 + 0.02 * scale);
-      const stethDisc = new THREE.Mesh(new THREE.CylinderGeometry(0.022 * scale, 0.022 * scale, 0.008 * scale, 12), new THREE.MeshStandardMaterial({ color: 0xcccccc, metalness: 0.9 }));
-      stethDisc.rotation.x = Math.PI / 2;
-      stethDisc.position.set(0, torsoCenterY + 0.05 * scale, torsoD / 2 + 0.025 * scale);
-      torsoGroup.add(stethTube, stethDisc);
-    }
-
-    group.add(torsoGroup);
-
-    // ==========================================
-    // 4. ARMS & HANDS (Left & Right 3D Articulated Limbs with Props)
-    // ==========================================
-    const armsGroup = new THREE.Group();
-    const shoulderY = torsoCenterY + torsoH * 0.38;
-
-    // Left Arm
-    const armL = new THREE.Group();
-    armL.position.set(-torsoW / 2 - 0.05 * scale, shoulderY, 0);
-    const sleeveL = new THREE.Mesh(new THREE.CylinderGeometry(0.055 * scale, 0.048 * scale, 0.48 * scale, 10), matSuitSide);
-    sleeveL.position.set(0, -0.22 * scale, 0.02 * scale);
-    sleeveL.rotation.z = 0.08;
-    sleeveL.rotation.x = 0.10;
-    sleeveL.castShadow = true;
-    const handL = new THREE.Mesh(new THREE.BoxGeometry(0.045 * scale, 0.08 * scale, 0.035 * scale), matSkin);
-    handL.position.set(0, -0.46 * scale, 0.05 * scale);
-    armL.add(sleeveL, handL);
-
-    // Right Arm
-    const armR = new THREE.Group();
-    armR.position.set(torsoW / 2 + 0.05 * scale, shoulderY, 0);
-    const sleeveR = new THREE.Mesh(new THREE.CylinderGeometry(0.055 * scale, 0.048 * scale, 0.48 * scale, 10), matSuitSide);
-    sleeveR.position.set(0, -0.22 * scale, 0.02 * scale);
-    sleeveR.rotation.z = -0.08;
-    sleeveR.rotation.x = 0.10;
-    sleeveR.castShadow = true;
-    const handR = new THREE.Mesh(new THREE.BoxGeometry(0.045 * scale, 0.08 * scale, 0.035 * scale), matSkin);
-    handR.position.set(0, -0.46 * scale, 0.05 * scale);
-    armR.add(sleeveR, handR);
-
-    // Attach Character Prop to Right or Left Hand
-    if (pal.prop && pal.prop !== 'stethoscope') {
-      const propObj = createProp(pal.prop, pal.skin);
-      if (pal.prop === 'camera' || pal.prop === 'clipboard') {
-        // Held two-handed at chest
-        propObj.position.set(0, torsoCenterY + 0.05 * scale, torsoD / 2 + 0.08 * scale);
-        group.add(propObj);
-      } else {
-        propObj.position.set(0, -0.02 * scale, 0.04 * scale);
-        armR.add(propObj);
-      }
-    }
-
-    armsGroup.add(armL, armR);
-    group.add(armsGroup);
-
-    // ==========================================
-    // 5. NECK & HEAD (Y = 1.36 to 1.76m) - 3D Sculpted Head with Hair & Hat
-    // ==========================================
-    const headGroup = new THREE.Group();
-    const neckY = torsoCenterY + torsoH / 2 + 0.04 * scale;
-    const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.065 * scale, 0.075 * scale, 0.09 * scale, 10), matSkin);
-    neck.position.set(0, neckY, 0);
-    headGroup.add(neck);
-
-    const headCenterY = neckY + 0.045 * scale + headH / 2;
-
-    // Six-sided Head Box: [Right, Left, Top, Bottom, Front, Back]
-    const headMatArray = [matHairSide, matHairSide, matHairSide, matSkin, matHeadFront, matHeadBack];
-    const headMesh = new THREE.Mesh(new THREE.BoxGeometry(headW, headH, headD), headMatArray);
-    headMesh.position.set(0, headCenterY, 0);
-    headMesh.castShadow = true;
-    headGroup.add(headMesh);
-
-    // 3D Ears on left and right sides
-    [-headW / 2 - 0.008 * scale, headW / 2 + 0.008 * scale].forEach(ex => {
-      const ear = new THREE.Mesh(new THREE.BoxGeometry(0.015 * scale, 0.055 * scale, 0.035 * scale), matSkin);
-      ear.position.set(ex, headCenterY, -0.01 * scale);
-      headGroup.add(ear);
+      group.add(boot, sole);
     });
 
-    // 3D Hat atop head (if character wears a hat)
+    // 5. 3D VINTAGE HAT (if character wears a hat)
     if (pal.hat) {
       const hat = createHat(pal.hat, pal.hair, pal.suit);
-      hat.position.set(0, headCenterY + headH * 0.48, 0);
-      headGroup.add(hat);
+      hat.position.set(0, H * 0.94, 0);
+      group.add(hat);
     }
 
-    group.add(headGroup);
+    // 6. 3D CHARACTER PERIOD PROP (held at hand/chest level)
+    if (pal.prop) {
+      const propObj = createProp(pal.prop);
+      if (pal.prop === 'camera' || pal.prop === 'clipboard') {
+        propObj.position.set(0, H * 0.58, depth / 2 + 0.04);
+      } else if (pal.prop === 'cane') {
+        propObj.position.set(W * 0.24, H * 0.45, depth / 2 + 0.02);
+      } else {
+        propObj.position.set(W * 0.24, H * 0.48, depth / 2 + 0.02);
+      }
+      group.add(propObj);
+    }
 
-    // ==========================================
-    // 6. SOFT REALISTIC GROUND CONTACT SHADOW
-    // ==========================================
+    // 7. SOFT GROUND CONTACT RADIAL SHADOW
     const shadowMesh = new THREE.Mesh(
-      new THREE.PlaneGeometry(0.70 * scale, 0.70 * scale),
+      new THREE.PlaneGeometry(0.75 * scale, 0.75 * scale),
       new THREE.MeshBasicMaterial({ map: contactShadowTex, transparent: true, opacity: 0.75, depthWrite: false })
     );
     shadowMesh.rotation.x = -Math.PI / 2;

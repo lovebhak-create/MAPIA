@@ -204,11 +204,21 @@ const SinkManager = (() => {
   };
 
   const update = (delta) => {
+    const t = Date.now() * 0.012;
     for (let i = 0; i < sinks.length; i++) {
       const s = sinks[i];
-      if (s.isRunning && s.waterStream) {
-        s.waterStream.scale.x = 0.85 + Math.sin(Date.now() * 0.015) * 0.15;
-        s.waterStream.scale.z = 0.85 + Math.cos(Date.now() * 0.015) * 0.15;
+      if (s.isRunning) {
+        if (s.waterStream) {
+          s.waterStream.scale.x = 0.90 + Math.sin(t * 1.8) * 0.12;
+          s.waterStream.scale.z = 0.90 + Math.cos(t * 2.1) * 0.12;
+          if (s.waterStream.material) {
+            s.waterStream.material.opacity = 0.82 + Math.sin(t * 3.0) * 0.08;
+          }
+        }
+        if (s.waterPuddle) {
+          s.waterPuddle.scale.x = 1.0 + Math.sin(t * 1.2) * 0.06;
+          s.waterPuddle.scale.z = 1.0 + Math.cos(t * 1.4) * 0.06;
+        }
       }
     }
   };

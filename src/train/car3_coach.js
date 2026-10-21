@@ -412,35 +412,68 @@ const Car3_Coach = (() => {
     const marineRim = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.02, 0.76), matStainlessSteel);
     marineRim.position.set(-0.23, 0.83, 0);
 
-    // Inset White Ceramic Washbasin (Panel ②)
-    const ceramicBasin = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.13, 0.12, 16), matPorcelain);
-    ceramicBasin.position.set(0, 0.78, 0.02);
+    // Inset Concave White Ceramic Washbasin Bowl with Polished Chrome Drain (Panel ②)
+    // Authentic sunken hollow bowl allowing water to collect/drain!
+    const basinRim = new THREE.Mesh(new THREE.TorusGeometry(0.16, 0.02, 8, 20), matPorcelain);
+    basinRim.rotation.x = Math.PI / 2;
+    basinRim.position.set(0, 0.81, 0.02);
 
-    // 3-Hole Chrome Faucet Mixer: Center Spout + Left/Right Cross Handles (Panel ②)
-    const vFaucetSpout = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.14, 8), matChrome);
-    vFaucetSpout.position.set(0.14, 0.90, 0.02);
+    const basinCavity = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.155, 0.08, 0.12, 16, 1, true),
+      new THREE.MeshStandardMaterial({ color: 0xfcfcfc, roughness: 0.15, side: THREE.DoubleSide })
+    );
+    basinCavity.position.set(0, 0.75, 0.02);
+
+    const basinBottom = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.01, 16), matPorcelain);
+    basinBottom.position.set(0, 0.69, 0.02);
+
+    const drainChrome = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.032, 0.012, 12), matChrome);
+    drainChrome.position.set(0, 0.695, 0.02);
+    const drainHole = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.016, 0.014, 8), matDarkBakelite);
+    drainHole.position.set(0, 0.696, 0.02);
+
+    // 3-Hole Chrome Gooseneck Faucet Mixer extending over bowl center
+    const vRiser = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.14, 8), matChrome);
+    vRiser.position.set(0.13, 0.88, 0.02);
+    const vArch = new THREE.Mesh(new THREE.CylinderGeometry(0.010, 0.010, 0.12, 8), matChrome);
+    vArch.rotation.z = Math.PI / 2.8;
+    vArch.position.set(0.08, 0.94, 0.02);
+    const vNozzle = new THREE.Mesh(new THREE.CylinderGeometry(0.011, 0.011, 0.025, 8), matChrome);
+    vNozzle.position.set(0.03, 0.92, 0.02);
+
     const vHandleL = new THREE.Mesh(new THREE.BoxGeometry(0.015, 0.015, 0.06), matChrome);
-    vHandleL.position.set(0.14, 0.84, -0.10);
+    vHandleL.position.set(0.13, 0.84, -0.09);
     const vHandleR = new THREE.Mesh(new THREE.BoxGeometry(0.015, 0.015, 0.06), matChrome);
-    vHandleR.position.set(0.14, 0.84, 0.10);
+    vHandleR.position.set(0.13, 0.84, 0.09);
 
-    vanityGroup.add(vanityCabinet, steelTop, marineRim, ceramicBasin, vFaucetSpout, vHandleL, vHandleR);
+    vanityGroup.add(
+      vanityCabinet, steelTop, marineRim,
+      basinRim, basinCavity, basinBottom, drainChrome, drainHole,
+      vRiser, vArch, vNozzle, vHandleL, vHandleR
+    );
 
-    // Animated Flowing Water Stream & Puddle (interactive on E/click)
-    const matWater = new THREE.MeshPhysicalMaterial({
-      color: 0x88ddff,
-      transmission: 0.92,
-      opacity: 0.85,
+    // Highly Visible Animated Glowing Flowing Water Stream & Basin Pool (interactive on E/click)
+    const matWaterStream = new THREE.MeshStandardMaterial({
+      color: 0x66ccff,
+      emissive: 0x3399ee,
+      emissiveIntensity: 0.65,
       transparent: true,
-      roughness: 0.05,
-      ior: 1.33
+      opacity: 0.88,
+      roughness: 0.1
     });
-    const waterStream = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.016, 0.16, 8), matWater);
-    waterStream.position.set(0.14, 0.82, 0.02);
+    const waterStream = new THREE.Mesh(new THREE.CylinderGeometry(0.010, 0.016, 0.21, 10), matWaterStream);
+    waterStream.position.set(0.03, 0.805, 0.02);
     waterStream.visible = false;
 
-    const waterPuddle = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.01, 12), matWater);
-    waterPuddle.position.set(0, 0.73, 0.02);
+    const matWaterPuddle = new THREE.MeshStandardMaterial({
+      color: 0x55bbff,
+      emissive: 0x2288dd,
+      emissiveIntensity: 0.55,
+      transparent: true,
+      opacity: 0.82
+    });
+    const waterPuddle = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.075, 0.012, 14), matWaterPuddle);
+    waterPuddle.position.set(0.01, 0.702, 0.02);
     waterPuddle.visible = false;
 
     vanityGroup.add(waterStream, waterPuddle);

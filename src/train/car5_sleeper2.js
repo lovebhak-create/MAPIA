@@ -337,36 +337,68 @@ const Car5_Sleeper2 = (() => {
     nicheArch.rotation.z = Math.PI / 2;
     nicheArch.position.set(0.16, 0.64, 0);
 
-    // Round Nickel Metal Washbasin Sink (Photo 2 & 7)
-    const nickelBasin = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.13, 0.12, 16), matNickelSilver);
-    nickelBasin.position.set(0, 0, 0);
-    const basinSupport = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.04, 0.46), matMahogany);
-    basinSupport.position.set(0.02, -0.06, 0);
+    // Round Sunken Nickel Metal Washbasin Sink (Photo 2 & 7)
+    // Deep concave recessed bowl with drain
+    const basinRim = new THREE.Mesh(new THREE.TorusGeometry(0.16, 0.02, 8, 20), matNickelSilver);
+    basinRim.rotation.x = Math.PI / 2;
+    basinRim.position.set(0, 0.02, 0);
 
-    // Vintage nickel twist spout & soap niche (Photo 7)
-    const nickelSpout = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 0.12, 8), matNickelSilver);
-    nickelSpout.position.set(0.06, 0.16, 0);
+    const basinCavity = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.155, 0.08, 0.12, 16, 1, true),
+      new THREE.MeshStandardMaterial({ color: 0xc8cbd0, roughness: 0.25, metalness: 0.85, side: THREE.DoubleSide })
+    );
+    basinCavity.position.set(0, -0.04, 0);
+
+    const basinBottom = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.01, 16), matNickelSilver);
+    basinBottom.position.set(0, -0.10, 0);
+
+    const drainNickel = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.032, 0.012, 12), matNickelSilver);
+    drainNickel.position.set(0, -0.095, 0);
+    const drainHole = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.016, 0.014, 8), new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.5 }));
+    drainHole.position.set(0, -0.094, 0);
+
+    const basinSupport = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.04, 0.46), matMahogany);
+    basinSupport.position.set(0.02, -0.12, 0);
+
+    // Vintage nickel arched spout & soap niche (Photo 7)
+    const nickelSpout = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.12, 8), matNickelSilver);
+    nickelSpout.position.set(0.08, 0.12, 0);
+    const spoutNozzle = new THREE.Mesh(new THREE.CylinderGeometry(0.010, 0.010, 0.08, 8), matNickelSilver);
+    spoutNozzle.rotation.z = Math.PI / 3.0;
+    spoutNozzle.position.set(0.04, 0.15, 0);
+
     const soapNiche = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.04, 0.12), matNickelSilver);
     soapNiche.position.set(0.14, 0.32, 0);
 
-    // Animated Flowing Water Stream & Puddle (interactive on E/click)
-    const matWater = new THREE.MeshPhysicalMaterial({
-      color: 0x88ddff,
-      transmission: 0.92,
-      opacity: 0.85,
+    // Highly Visible Animated Glowing Flowing Water Stream & Basin Pool (interactive on E/click)
+    const matWaterStream = new THREE.MeshStandardMaterial({
+      color: 0x66ccff,
+      emissive: 0x3399ee,
+      emissiveIntensity: 0.65,
       transparent: true,
-      roughness: 0.05,
-      ior: 1.33
+      opacity: 0.88,
+      roughness: 0.1
     });
-    const waterStream = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.016, 0.14, 8), matWater);
-    waterStream.position.set(0.04, 0.06, 0);
+    const waterStream = new THREE.Mesh(new THREE.CylinderGeometry(0.010, 0.016, 0.22, 10), matWaterStream);
+    waterStream.position.set(0.01, 0.02, 0);
     waterStream.visible = false;
 
-    const waterPuddle = new THREE.Mesh(new THREE.CylinderGeometry(0.10, 0.10, 0.01, 12), matWater);
-    waterPuddle.position.set(0, -0.04, 0);
+    const matWaterPuddle = new THREE.MeshStandardMaterial({
+      color: 0x55bbff,
+      emissive: 0x2288dd,
+      emissiveIntensity: 0.55,
+      transparent: true,
+      opacity: 0.82
+    });
+    const waterPuddle = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.075, 0.012, 14), matWaterPuddle);
+    waterPuddle.position.set(0, -0.09, 0);
     waterPuddle.visible = false;
 
-    washNicheGroup.add(nicheBackplate, nicheArch, nickelBasin, basinSupport, nickelSpout, soapNiche, waterStream, waterPuddle);
+    washNicheGroup.add(
+      nicheBackplate, nicheArch,
+      basinRim, basinCavity, basinBottom, drainNickel, drainHole,
+      basinSupport, nickelSpout, spoutNozzle, soapNiche, waterStream, waterPuddle
+    );
 
     if (typeof SinkManager !== 'undefined') {
       SinkManager.registerSink({

@@ -87,13 +87,14 @@ const Player = (() => {
     });
 
     // Restroom Toilets (Cars 3, 4, 5) - Sit on toilet with safe forward stand-up spots!
+    // standPos at X: 0.88, Z: -53.85 / -75.85 / -97.85 leaves 0.28m+ clearance from vanity and walls!
     seats.push({
       x: 1.12,
       y: 2.15,
       z: -54.5,
       name: '3호차 화장실 변기',
       isToilet: true,
-      standPos: { x: 1.12, y: 2.85, z: -53.4 }
+      standPos: { x: 0.88, y: 2.85, z: -53.85 }
     });
     seats.push({
       x: 1.12,
@@ -101,7 +102,7 @@ const Player = (() => {
       z: -76.5,
       name: '4호차 1등석 화장실 변기',
       isToilet: true,
-      standPos: { x: 1.12, y: 2.85, z: -75.4 }
+      standPos: { x: 0.88, y: 2.85, z: -75.85 }
     });
     seats.push({
       x: 1.12,
@@ -109,12 +110,75 @@ const Player = (() => {
       z: -98.5,
       name: '5호차 침대차 화장실 변기',
       isToilet: true,
-      standPos: { x: 1.12, y: 2.85, z: -97.4 }
+      standPos: { x: 0.88, y: 2.85, z: -97.85 }
     });
   };
 
-  // Close interaction radius: Only interact when directly in front of the object (코앞 거리)!
-  const INTERACT_DIST = 1.25;
+  // Interactive Aim Detection:
+  // Only display prompt and interact when crosshair is directly aimed at the object (gaze angle <= 31.8°) AND close (<= 1.55m)!
+  const MAX_INTERACT_3D_DIST = 1.55;
+  const MIN_AIM_DOT = 0.85;
+
+  const findAimedInteractiveItem = () => {
+    if (!camera) return null;
+
+    const camPos = camera.position;
+    const camDir = new THREE.Vector3();
+    camera.getWorldDirection(camDir);
+
+    let bestItem = null;
+    let bestType = null;
+    let bestScore = -1;
+
+    const evaluate = (type, item, targetX, targetY, targetZ) => {
+      const dx = targetX - camPos.x;
+      const dy = targetY - camPos.y;
+      const dz = targetZ - camPos.z;
+      const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+      if (dist > MAX_INTERACT_3D_DIST || dist < 0.05) return;
+
+      const invDist = 1.0 / dist;
+      const dot = (dx * camDir.x + dy * camDir.y + dz * camDir.z) * invDist;
+      if (dot < MIN_AIM_DOT) return;
+
+      const score = dot * 2.0 - (dist / MAX_INTERACT_3D_DIST);
+      if (score > bestScore) {
+        bestScore = score;
+        bestType = type;
+        bestItem = item;
+      }
+    };
+
+    // 1. Doors (aiming at door center Y = 2.1)
+    if (typeof DoorManager !== 'undefined' && DoorManager.getDoors) {
+      const doors = DoorManager.getDoors();
+      for (let i = 0; i < doors.length; i++) {
+        const d = doors[i];
+        evaluate('door', d, d.x, 2.1, d.z);
+      }
+    }
+
+    // 2. Sinks (aiming at basin/faucet Y = 1.95)
+    if (typeof SinkManager !== 'undefined' && SinkManager.getSinks) {
+      const sinks = SinkManager.getSinks();
+      for (let i = 0; i < sinks.length; i++) {
+        const s = sinks[i];
+        evaluate('sink', s, s.x, 1.95, s.z);
+      }
+    }
+
+    // 3. Seats / Beds / Toilets (aiming at cushion/mattress/seat)
+    for (let i = 0; i < seats.length; i++) {
+      const s = seats[i];
+      const targetY = s.isBed ? 1.55 : (s.isToilet ? 1.60 : 1.75);
+      evaluate('seat', s, s.x, targetY, s.z);
+    }
+
+    if (bestItem) {
+      return { type: bestType, item: bestItem };
+    }
+    return null;
+  };
 
   const tryInteract = () => {
     if (isSitting) {
@@ -122,55 +186,15 @@ const Player = (() => {
       return;
     }
 
-    // Check all interactive items within tight 1.25m arm's reach
-    let closestType = null;
-    let closestItem = null;
-    let minDist = INTERACT_DIST;
+    const aimed = findAimedInteractiveItem();
+    if (!aimed) return;
 
-    // 1. Check Door
-    if (typeof DoorManager !== 'undefined') {
-      const door = DoorManager.getNearestDoor(camera.position, INTERACT_DIST);
-      if (door) {
-        const d = Math.hypot(camera.position.x - door.x, camera.position.z - door.z);
-        if (d < minDist) {
-          minDist = d;
-          closestType = 'door';
-          closestItem = door;
-        }
-      }
-    }
-
-    // 2. Check Sink
-    if (typeof SinkManager !== 'undefined') {
-      const sink = SinkManager.getNearestSink(camera.position, INTERACT_DIST);
-      if (sink) {
-        const d = Math.hypot(camera.position.x - sink.x, camera.position.z - sink.z);
-        if (d < minDist) {
-          minDist = d;
-          closestType = 'sink';
-          closestItem = sink;
-        }
-      }
-    }
-
-    // 3. Check Chair / Bed / Toilet
-    for (let i = 0; i < seats.length; i++) {
-      const s = seats[i];
-      const d = Math.hypot(camera.position.x - s.x, camera.position.z - s.z);
-      if (d < minDist) {
-        minDist = d;
-        closestType = 'seat';
-        closestItem = s;
-      }
-    }
-
-    // Execute closest item
-    if (closestType === 'door') {
-      DoorManager.toggleDoor(closestItem);
-    } else if (closestType === 'sink') {
-      SinkManager.toggleSink(closestItem);
-    } else if (closestType === 'seat') {
-      sitOnItem(closestItem);
+    if (aimed.type === 'door') {
+      DoorManager.toggleDoor(aimed.item);
+    } else if (aimed.type === 'sink') {
+      SinkManager.toggleSink(aimed.item);
+    } else if (aimed.type === 'seat') {
+      sitOnItem(aimed.item);
     }
   };
 
@@ -438,67 +462,27 @@ const Player = (() => {
     Collision.move(camera.position, dx, dz, camera.position.y);
 
     // Update Interaction HUD Prompt (Doors, Sinks, Seats, Beds, Toilets)
-    // ONLY displays when within close arm's reach (코앞 거리 <= 1.25m)!
+    // ONLY displays when crosshair is directly aimed at the object AND close (코앞 거리 & 시선 일치)!
     const prompt = document.getElementById('sit-prompt');
     if (prompt) {
       if (isSitting) {
         prompt.textContent = '[Space] 키를 눌러 일어나기';
         prompt.style.display = 'block';
       } else {
-        let closestType = null;
-        let closestItem = null;
-        let minDist = INTERACT_DIST;
-
-        // 1. Check Door
-        if (typeof DoorManager !== 'undefined') {
-          const door = DoorManager.getNearestDoor(camera.position, INTERACT_DIST);
-          if (door) {
-            const d = Math.hypot(camera.position.x - door.x, camera.position.z - door.z);
-            if (d < minDist) {
-              minDist = d;
-              closestType = 'door';
-              closestItem = door;
+        const aimed = findAimedInteractiveItem();
+        if (aimed) {
+          if (aimed.type === 'door') {
+            prompt.textContent = aimed.item.isOpen ? `[E / 클릭] ${aimed.item.name} 닫기` : `[E / 클릭] ${aimed.item.name} 열기`;
+          } else if (aimed.type === 'sink') {
+            prompt.textContent = aimed.item.isRunning ? `[E / 클릭] ${aimed.item.name} 물 잠그기` : `[E / 클릭] ${aimed.item.name} 물 틀기`;
+          } else if (aimed.type === 'seat') {
+            if (aimed.item.isToilet) {
+              prompt.textContent = '[E / 클릭] 변기에 앉기';
+            } else if (aimed.item.isBed) {
+              prompt.textContent = '[E / 클릭] 침대에 눕기';
+            } else {
+              prompt.textContent = '[E / 클릭] 의자에 앉기';
             }
-          }
-        }
-
-        // 2. Check Sink
-        if (typeof SinkManager !== 'undefined') {
-          const sink = SinkManager.getNearestSink(camera.position, INTERACT_DIST);
-          if (sink) {
-            const d = Math.hypot(camera.position.x - sink.x, camera.position.z - sink.z);
-            if (d < minDist) {
-              minDist = d;
-              closestType = 'sink';
-              closestItem = sink;
-            }
-          }
-        }
-
-        // 3. Check Chair / Bed / Toilet
-        for (let i = 0; i < seats.length; i++) {
-          const s = seats[i];
-          const d = Math.hypot(camera.position.x - s.x, camera.position.z - s.z);
-          if (d < minDist) {
-            minDist = d;
-            closestType = 'seat';
-            closestItem = s;
-          }
-        }
-
-        if (closestType === 'door') {
-          prompt.textContent = closestItem.isOpen ? `[E / 클릭] ${closestItem.name} 닫기` : `[E / 클릭] ${closestItem.name} 열기`;
-          prompt.style.display = 'block';
-        } else if (closestType === 'sink') {
-          prompt.textContent = closestItem.isRunning ? `[E / 클릭] ${closestItem.name} 물 잠그기` : `[E / 클릭] ${closestItem.name} 물 틀기`;
-          prompt.style.display = 'block';
-        } else if (closestType === 'seat') {
-          if (closestItem.isToilet) {
-            prompt.textContent = '[E / 클릭] 변기에 앉기';
-          } else if (closestItem.isBed) {
-            prompt.textContent = '[E / 클릭] 침대에 눕기';
-          } else {
-            prompt.textContent = '[E / 클릭] 의자에 앉기';
           }
           prompt.style.display = 'block';
         } else {

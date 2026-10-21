@@ -283,13 +283,29 @@ const Car4_Sleeper1 = (() => {
     const vTopMarble = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.06, 0.74), matDarkMarble);
     vTopMarble.position.set(0, 0.80, 0);
 
-    // Undermount Oval White Porcelain Sink Basin
-    const basin = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.13, 0.14, 16), matPorcelain);
-    basin.position.set(0, 0.78, 0.04);
+    // Undermount Oval White Porcelain Sink Basin with Inset Drain (Photo 4)
+    // Deep concave recessed bowl
+    const basinRim = new THREE.Mesh(new THREE.TorusGeometry(0.16, 0.02, 8, 20), matPorcelain);
+    basinRim.rotation.x = Math.PI / 2;
+    basinRim.position.set(0, 0.81, 0.04);
+
+    const basinCavity = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.155, 0.08, 0.12, 16, 1, true),
+      new THREE.MeshStandardMaterial({ color: 0xfcfcfc, roughness: 0.15, side: THREE.DoubleSide })
+    );
+    basinCavity.position.set(0, 0.75, 0.04);
+
+    const basinBottom = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.01, 16), matPorcelain);
+    basinBottom.position.set(0, 0.69, 0.04);
+
+    const drainGold = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.032, 0.012, 12), matGoldTrim);
+    drainGold.position.set(0, 0.695, 0.04);
+    const drainHole = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.016, 0.014, 8), matDarkMarble);
+    drainHole.position.set(0, 0.696, 0.04);
 
     // Polished Chrome/Gold Gooseneck Faucet & Mixer Knobs (Photo 4)
-    const faucetArch = new THREE.Mesh(new THREE.TorusGeometry(0.05, 0.012, 8, 16, Math.PI), matGoldTrim);
-    faucetArch.position.set(0.14, 0.94, 0.04);
+    const faucetArch = new THREE.Mesh(new THREE.TorusGeometry(0.06, 0.012, 8, 16, Math.PI), matGoldTrim);
+    faucetArch.position.set(0.08, 0.94, 0.04);
     faucetArch.rotation.y = 0;
     const knobL = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.03, 8), matGoldTrim);
     knobL.position.set(0.14, 0.85, -0.05);
@@ -332,23 +348,34 @@ const Car4_Sleeper1 = (() => {
     const towelFold2 = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.03, 0.05), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9 }));
     towelFold2.position.set(-0.12, 0.86, -0.02);
 
-    vanityGroup.add(vBaseCabinet, vTopMarble, basin, faucetArch, knobL, knobR, pot, diffuserBottle, pumpBracket, pumpBottle1, pumpBottle2, tray, towelFold1, towelFold2);
+    vanityGroup.add(
+      vBaseCabinet, vTopMarble,
+      basinRim, basinCavity, basinBottom, drainGold, drainHole,
+      faucetArch, knobL, knobR, pot, diffuserBottle, pumpBracket, pumpBottle1, pumpBottle2, tray, towelFold1, towelFold2
+    );
 
-    // Animated Flowing Water Stream & Puddle (interactive on E/click)
-    const matWater = new THREE.MeshPhysicalMaterial({
-      color: 0x88ddff,
-      transmission: 0.92,
-      opacity: 0.85,
+    // Highly Visible Animated Glowing Flowing Water Stream & Basin Pool (interactive on E/click)
+    const matWaterStream = new THREE.MeshStandardMaterial({
+      color: 0x66ccff,
+      emissive: 0x3399ee,
+      emissiveIntensity: 0.65,
       transparent: true,
-      roughness: 0.05,
-      ior: 1.33
+      opacity: 0.88,
+      roughness: 0.1
     });
-    const waterStream = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.016, 0.16, 8), matWater);
-    waterStream.position.set(0.14, 0.82, 0.04);
+    const waterStream = new THREE.Mesh(new THREE.CylinderGeometry(0.010, 0.016, 0.21, 10), matWaterStream);
+    waterStream.position.set(0.02, 0.805, 0.04);
     waterStream.visible = false;
 
-    const waterPuddle = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.01, 12), matWater);
-    waterPuddle.position.set(0, 0.73, 0.04);
+    const matWaterPuddle = new THREE.MeshStandardMaterial({
+      color: 0x55bbff,
+      emissive: 0x2288dd,
+      emissiveIntensity: 0.55,
+      transparent: true,
+      opacity: 0.82
+    });
+    const waterPuddle = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.075, 0.012, 14), matWaterPuddle);
+    waterPuddle.position.set(0, 0.702, 0.04);
     waterPuddle.visible = false;
 
     vanityGroup.add(waterStream, waterPuddle);
