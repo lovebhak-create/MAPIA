@@ -182,22 +182,22 @@ const Player = (() => {
       velocity.x -= direction.x * speed * 12.0 * delta;
     }
 
-    controls.moveRight(-velocity.x * delta);
-    controls.moveForward(-velocity.z * delta);
+    // Calculate world displacement vectors from camera rotation
+    const right = new THREE.Vector3();
+    right.setFromMatrixColumn(camera.matrix, 0);
+    right.y = 0;
+    right.normalize();
 
-    // Train Car Interior Collision Bounds
-    // Width clamp: Keep within car walls (X: -1.30 to +1.30)
-    // On the Tender catwalk (Z between -1.5 and -11.5), walkway is on left side (-1.35 to -0.6)
-    if (camera.position.z > -11.5 && camera.position.z < -1.5) {
-      // On Tender catwalk
-      camera.position.x = Math.max(-1.3, Math.min(-0.65, camera.position.x));
-    } else {
-      // General car width
-      camera.position.x = Math.max(-1.32, Math.min(1.32, camera.position.x));
-    }
+    const forward = new THREE.Vector3();
+    forward.crossVectors(camera.up, right);
+    forward.y = 0;
+    forward.normalize();
 
-    // Length clamp: From front boiler backhead (Z = 1.0) to rear observation gate (Z = -165.2)
-    camera.position.z = Math.max(-165.2, Math.min(1.0, camera.position.z));
+    const dx = right.x * (-velocity.x * delta) + forward.x * (-velocity.z * delta);
+    const dz = right.z * (-velocity.x * delta) + forward.z * (-velocity.z * delta);
+
+    // Continuous slide collision resolution for all furniture, walls, doors, characters!
+    Collision.move(camera.position, dx, dz, camera.position.y);
 
     updateUI();
   };

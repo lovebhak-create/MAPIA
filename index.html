@@ -111,62 +111,6 @@
       z-index: 5;
     }
 
-    /* Start / Pause Blocker Overlay */
-    #blocker {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      background-color: transparent;
-      display: flex;
-      justify-content: center;
-      align-items: flex-end;
-      padding-bottom: 35px;
-      z-index: 20;
-      pointer-events: none;
-    }
-
-    #instructions {
-      text-align: center;
-      background: rgba(14, 20, 28, 0.9);
-      border: 1px solid #dfb142;
-      padding: 14px 32px;
-      border-radius: 8px;
-      cursor: pointer;
-      box-shadow: 0 6px 25px rgba(0, 0, 0, 0.7);
-      pointer-events: auto;
-      backdrop-filter: blur(6px);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    #instructions:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 30px rgba(223, 177, 66, 0.3);
-    }
-
-    #instructions h1 {
-      font-size: 16px;
-      color: #dfb142;
-      margin-bottom: 6px;
-      font-weight: 600;
-      letter-spacing: 0.8px;
-    }
-
-    #instructions p {
-      font-size: 13px;
-      line-height: 1.5;
-      color: #cfd4dc;
-    }
-
-    .click-prompt {
-      margin-top: 8px;
-      display: inline-block;
-      padding: 5px 16px;
-      background: #c59b27;
-      color: #0b1118;
-      font-weight: bold;
-      border-radius: 4px;
-      font-size: 13px;
-    }
   </style>
 
   <!-- Libraries -->
@@ -179,7 +123,7 @@
 
   <!-- Top Navigation Bar -->
   <div id="top-bar">
-    <div id="car-title">3호차: 일반 객차 (승객 좌석)</div>
+    <div id="car-title">3호차: 일반 객차</div>
     <div class="car-buttons">
       <button class="btn-car" id="btn-car-1" title="1호차 증기기관차">1 기관차</button>
       <button class="btn-car" id="btn-car-2" title="2호차 수하물차">2 수하물</button>
@@ -190,24 +134,17 @@
       <button class="btn-car" id="btn-car-7" title="7호차 라운지차">7 라운지</button>
       <button class="btn-car" id="btn-car-8" title="8호차 전망차">8 전망차</button>
     </div>
-    <button class="tool-btn" id="btn-light" title="손전등 켜기/끄기 (F키)">🔦 랜턴</button>
-    <button class="tool-btn" id="btn-audio" title="사운드 음소거/켜기">🔊 사운드</button>
+    <button class="tool-btn" id="btn-light" title="손전등 (F키)">🔦</button>
+    <button class="tool-btn" id="btn-audio" title="사운드">🔊</button>
   </div>
 
-  <!-- Initial Click Overlay -->
-  <div id="blocker">
-    <div id="instructions">
-      <h1>1930s PACIFIC EXPRESS</h1>
-      <p>실제 크기 8칸 열차 1인칭 탐색</p>
-      <p><strong>WASD</strong>: 이동 &nbsp;|&nbsp; <strong>마우스</strong>: 시선 &nbsp;|&nbsp; <strong>Shift</strong>: 달리기</p>
-      <p><strong>숫자키 1~8</strong>: 칸 순간이동 &nbsp;|&nbsp; <strong>H / 클릭</strong>: 증기 경적(기적) &nbsp;|&nbsp; <strong>F</strong>: 손전등</p>
-      <div class="click-prompt">화면을 클릭하여 탑승</div>
-    </div>
-  </div>
+  <!-- Character Inspection Nameplate -->
+  <div id="char-nameplate" style="display:none; position:absolute; bottom:35px; left:50%; transform:translateX(-50%); background:rgba(14,20,28,0.88); border:1px solid #dfb142; color:#dfb142; padding:6px 18px; border-radius:6px; font-weight:600; font-size:14px; pointer-events:none; z-index:15; letter-spacing:0.5px; box-shadow:0 4px 15px rgba(0,0,0,0.6);"></div>
 
   <!-- Source Scripts -->
   <script src="src/textures.js"></script>
   <script src="src/audio.js"></script>
+  <script src="src/collision.js"></script>
   <script src="src/environment.js"></script>
   <script src="src/train/car1_locomotive.js"></script>
   <script src="src/train/car2_baggage.js"></script>
@@ -218,6 +155,7 @@
   <script src="src/train/car7_lounge.js"></script>
   <script src="src/train/car8_observation.js"></script>
   <script src="src/train/trainManager.js"></script>
+  <script src="src/characters.js"></script>
   <script src="src/player.js"></script>
   <script src="src/main.js"></script>
 </body>

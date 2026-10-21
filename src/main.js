@@ -19,6 +19,8 @@ window.addEventListener('DOMContentLoaded', () => {
   // 3. Initialize Subsystems
   Environment.init(scene);
   TrainManager.init(scene);
+  Collision.initTrainObstacles();
+  Characters.init(scene);
   Player.init(camera, renderer.domElement);
 
   // Check URL param ?px=&py=&pz= or ?car=1..8 (default: 3호차 일반 객차)
@@ -37,31 +39,20 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // 4. PointerLock Overlay & UI Interaction
-  const blocker = document.getElementById('blocker');
-  const instructions = document.getElementById('instructions');
+  // 4. PointerLock & Clean Click to Play
   const controls = Player.getControls();
-
-  instructions.addEventListener('click', () => {
-    controls.lock();
-  });
 
   container.addEventListener('click', () => {
     if (!controls.isLocked) {
       controls.lock();
+      SoundManager.startAmbient();
     }
   });
 
-  controls.addEventListener('lock', () => {
-    instructions.style.display = 'none';
-    blocker.style.display = 'none';
-    SoundManager.startAmbient();
-  });
-
-  controls.addEventListener('unlock', () => {
-    blocker.style.display = 'flex';
-    instructions.style.display = 'block';
-  });
+  // Character Detection Raycaster & Nameplate
+  const raycaster = new THREE.Raycaster();
+  const screenCenter = new THREE.Vector2(0, 0);
+  const nameplate = document.getElementById('char-nameplate');
 
   // Hotkey Buttons 1 ~ 8 in Top Bar
   for (let i = 1; i <= 8; i++) {
@@ -115,6 +106,18 @@ window.addEventListener('DOMContentLoaded', () => {
     // Dynamic firebox flame pulsation in Locomotive Cab
     if (fireLight) {
       fireLight.intensity = 2.4 + Math.sin(timeElapsed * 15.0) * 0.6 + Math.cos(timeElapsed * 23.0) * 0.4;
+    }
+
+    // Character Raycast for subtle nameplate display
+    if (nameplate) {
+      raycaster.setFromCamera(screenCenter, camera);
+      const hits = raycaster.intersectObjects(Characters.getList(), true);
+      if (hits.length > 0 && hits[0].distance < 4.0 && hits[0].object.userData.characterName) {
+        nameplate.textContent = hits[0].object.userData.characterName;
+        nameplate.style.display = 'block';
+      } else {
+        nameplate.style.display = 'none';
+      }
     }
 
     renderer.render(scene, camera);
