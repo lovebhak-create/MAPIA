@@ -360,19 +360,45 @@ const Car4_Sleeper1 = (() => {
     group.add(bathGroup);
 
     // ==========================================
-    // 6. CONTINUOUS SIDE CORRIDOR (복도)
+    // 6. CONTINUOUS SIDE CORRIDOR (복도 - Photo 1 & 2 Pullman Hallway)
     // Left side: X = -1.44 to -0.35 (width ~1.1m)
     // Corridor Divider Wall: X = -0.35
     // ==========================================
     const corridorDividerX = -0.35;
 
-    // Brass Handrail along Corridor Left Wall
+    // Brass Handrail along Corridor Left Wall (Photo 1)
     const handrail = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, length - 1.0, 8), matBrass);
     handrail.rotation.x = Math.PI / 2;
     handrail.position.set(-width / 2 + 0.18, 1.0, 0);
     group.add(handrail);
 
-    // Corridor Ceiling Art Deco Globe Lamps
+    // Wall-mounted wire magazine / newspaper pouches on window posts (Photo 1)
+    const matWire = new THREE.MeshStandardMaterial({ color: 0x9a8e7e, roughness: 0.5, metalness: 0.8 });
+    for (let wz = -6.0; wz <= 6.0; wz += 3.0) {
+      const magPouch = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.32, 0.22), matWire);
+      magPouch.position.set(-width / 2 + 0.12, 1.15, wz);
+      group.add(magPouch);
+    }
+
+    // Iconic Pullman "QUIET" Cast-Iron Plaque (Photo 2)
+    const matQuietSign = new THREE.MeshStandardMaterial({
+      map: Textures.quietSign,
+      roughness: 0.4,
+      metalness: 0.1
+    });
+    const quietPlaque = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.18, 0.36), matQuietSign);
+    quietPlaque.position.set(corridorDividerX - 0.06, 1.80, 6.4);
+
+    // Metal Mailbox / Ticket Holder underneath the QUIET sign (Photo 2)
+    const ticketBox = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.14, 0.24), matBrass);
+    ticketBox.position.set(corridorDividerX - 0.07, 1.55, 6.4);
+
+    // Vintage Bakelite toggle switches on corridor wall (Photo 2)
+    const switchPlate = new THREE.Mesh(new THREE.BoxGeometry(0.015, 0.16, 0.08), new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.3 }));
+    switchPlate.position.set(corridorDividerX - 0.06, 1.35, 6.4);
+    group.add(quietPlaque, ticketBox, switchPlate);
+
+    // Corridor Ceiling Art Deco Flush Lamps (Photo 1 & 2)
     for (let cz = -8.0; cz <= 8.0; cz += 4.0) {
       const lampGroup = new THREE.Group();
       lampGroup.position.set(-0.9, height - 0.15, cz);
@@ -391,15 +417,15 @@ const Car4_Sleeper1 = (() => {
     }
 
     // ==========================================
-    // 7. THREE LUXURY BEDROOM SUITES (방 3개)
-    // Suite 1: Z = +5.0 (Z = +2.5 to +7.5)
-    // Suite 2: Z =  0.0 (Z = -2.5 to +2.5)
-    // Suite 3: Z = -5.0 (Z = -7.5 to -2.5)
+    // 7. THREE LUXURY BEDROOM SUITES (방 3개 - Photo 1 & 3 Drawing Room & Compartment)
+    // Suite 1: Z = +5.0 (Z = +2.5 to +7.5) - Drawing Room (드로잉 룸)
+    // Suite 2: Z =  0.0 (Z = -2.5 to +2.5) - Pullman Stateroom (풀먼 스테이트룸)
+    // Suite 3: Z = -5.0 (Z = -7.5 to -2.5) - Compartment (컴파트먼트)
     // ==========================================
     const suiteConfigs = [
-      { zCenter: 5.0, name: 'Suite 1 - Drawing Room' },
-      { zCenter: 0.0, name: 'Suite 2 - Pullman Stateroom' },
-      { zCenter: -5.0, name: 'Suite 3 - Master Bedroom' }
+      { zCenter: 5.0, roman: 'I', name: 'Suite I — Drawing Room' },
+      { zCenter: 0.0, roman: 'II', name: 'Suite II — Pullman Stateroom' },
+      { zCenter: -5.0, roman: 'III', name: 'Suite III — Compartment' }
     ];
 
     const partitionWidth = (width / 2 - 0.06) - corridorDividerX; // 1.44 - (-0.35) = 1.79m
@@ -419,12 +445,9 @@ const Car4_Sleeper1 = (() => {
       const sCenter = cfg.zCenter;
 
       // Corridor Wall along X = corridorDividerX (-0.35)
-      // Perfectly spans Z = sCenter - 2.5 to sCenter + 2.5 with NO GAPS!
-      // Wall segment 1: length 1.95m from sCenter - 2.5 to sCenter - 0.55
       const wallP1 = new THREE.Mesh(new THREE.BoxGeometry(0.1, height, 1.95), matMahogany);
       wallP1.position.set(corridorDividerX, height / 2, sCenter - 1.525);
 
-      // Wall segment 2: length 1.95m from sCenter + 0.55 to sCenter + 2.5
       const wallP2 = new THREE.Mesh(new THREE.BoxGeometry(0.1, height, 1.95), matMahogany);
       wallP2.position.set(corridorDividerX, height / 2, sCenter + 1.525);
 
@@ -438,9 +461,12 @@ const Car4_Sleeper1 = (() => {
       const dPostR = new THREE.Mesh(new THREE.BoxGeometry(0.12, height, 0.06), matMahogany);
       dPostR.position.set(corridorDividerX, height / 2, sCenter + 0.55);
 
-      // Open sliding mahogany door
+      // Open sliding mahogany door with long vertical handle (Photo 1)
       const suiteDoor = new THREE.Mesh(new THREE.BoxGeometry(0.05, 2.05, 1.0), matMahogany);
       suiteDoor.position.set(corridorDividerX - 0.06, 1.025, sCenter);
+      const doorLongHandle = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.45, 8), matBrass);
+      doorLongHandle.position.set(-0.04, 0, -0.42);
+      suiteDoor.add(doorLongHandle);
 
       // Register interactive suite door
       if (typeof DoorManager !== 'undefined') {
@@ -454,14 +480,16 @@ const Car4_Sleeper1 = (() => {
         });
       }
 
-      // Brass Suite Nameplate
-      const namePlate = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.14, 0.32), matBrass);
-      namePlate.position.set(corridorDividerX - 0.07, 1.55, sCenter - 0.65);
+      // Roman Numeral Room Badge next to door (Photo 1: VII, VI, I, II, III)
+      const romanPlate = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.14, 0.18), new THREE.MeshStandardMaterial({ color: 0xefede8, roughness: 0.2, metalness: 0.1 }));
+      romanPlate.position.set(corridorDividerX - 0.07, 1.65, sCenter + 0.72);
+      const namePlate = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.08, 0.32), matBrass);
+      namePlate.position.set(corridorDividerX - 0.07, 1.45, sCenter + 0.72);
 
-      group.add(wallP1, wallP2, transom, dPostL, dPostR, suiteDoor, namePlate);
+      group.add(wallP1, wallP2, transom, dPostL, dPostR, suiteDoor, romanPlate, namePlate);
 
       // ==========================================
-      // SUITE INTERIOR FURNITURE (NO OVERLAPS!)
+      // SUITE INTERIOR FURNITURE (Photo 3 Drawing Room Plan)
       // Room Bounds: X: -0.30 to +1.40, Z: sCenter - 2.40 to sCenter + 2.40
       // ==========================================
       const roomGroup = new THREE.Group();
@@ -512,7 +540,25 @@ const Car4_Sleeper1 = (() => {
       bedGroup.add(bedFrame, headboard, headboardCrest, footboard, mattress, bedSheetTurn, quilt, goldRunner, pillow1, pillow2);
       roomGroup.add(bedGroup);
 
-      // --- 2. BEDSIDE NIGHTSTAND (Separated from bed: X: -0.10, z: -2.15) ---
+      // --- 2. CONVERTIBLE DRAWING ROOM SOFA / DAY COUCH (Photo 3 Diagram "DAY" configuration) ---
+      const sofaGroup = new THREE.Group();
+      sofaGroup.position.set(0.95, 0, 0.7);
+      const sofaBase = new THREE.Mesh(new THREE.BoxGeometry(0.58, 0.38, 1.1), matMahogany);
+      sofaBase.position.set(0, 0.19, 0);
+      const sofaCushion = new THREE.Mesh(new THREE.BoxGeometry(0.56, 0.14, 1.06), matBedQuilt);
+      sofaCushion.position.set(0, 0.45, 0);
+      const sofaBack = new THREE.Mesh(new THREE.BoxGeometry(0.10, 0.48, 1.06), matBedQuilt);
+      sofaBack.position.set(0.24, 0.65, 0);
+      const bolster1 = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.50, 12), matBedQuilt);
+      bolster1.rotation.z = Math.PI / 2;
+      bolster1.position.set(0, 0.54, -0.45);
+      const bolster2 = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.50, 12), matBedQuilt);
+      bolster2.rotation.z = Math.PI / 2;
+      bolster2.position.set(0, 0.54, 0.45);
+      sofaGroup.add(sofaBase, sofaCushion, sofaBack, bolster1, bolster2);
+      roomGroup.add(sofaGroup);
+
+      // --- 3. BEDSIDE NIGHTSTAND (Separated from bed: X: -0.10, z: -2.15) ---
       const nightstand = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.65, 0.35), matMahogany);
       nightstand.position.set(0.05, 0.325, -2.15);
 
@@ -530,7 +576,7 @@ const Car4_Sleeper1 = (() => {
 
       roomGroup.add(nightstand, lampBase, lampStem, lampShade, lampLight);
 
-      // --- 3. WARDROBE / ARMOIRE (Front corridor corner: X: -0.05, z: +2.05) ---
+      // --- 4. WARDROBE / ARMOIRE & LUGGAGE LOCKER (Front corridor corner: X: -0.05, z: +2.05) ---
       const wardrobe = new THREE.Mesh(new THREE.BoxGeometry(0.45, 2.1, 0.65), matMahogany);
       wardrobe.position.set(-0.05, 1.05, 2.0);
       const wHandle1 = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.01, 0.1, 8), matBrass);
@@ -539,7 +585,7 @@ const Car4_Sleeper1 = (() => {
       wHandle2.position.set(0.18, 1.05, 2.05);
       roomGroup.add(wardrobe, wHandle1, wHandle2);
 
-      // --- 4. VANITY DESK WITH SINK & OVAL MIRROR (Front window corner: X: 1.05, z: +2.0) ---
+      // --- 5. VANITY DESK WITH SINK & OVAL MIRROR (Front window corner: X: 1.05, z: +2.0) ---
       const vanityGroup = new THREE.Group();
       vanityGroup.position.set(1.05, 0, 2.0);
 
@@ -560,17 +606,17 @@ const Car4_Sleeper1 = (() => {
       vanityGroup.add(vTable, basin, faucet, mirror, mirrorFrame);
       roomGroup.add(vanityGroup);
 
-      // --- 5. UPHOLSTERED ARMCHAIR (Window side: X: 0.95, z: +0.6) ---
+      // --- 6. UPHOLSTERED PARLOR ARMCHAIR (Photo 3 Diagram) ---
       const armchair = new THREE.Group();
-      armchair.position.set(0.95, 0, 0.65);
-      const seatCushion = new THREE.Mesh(new THREE.BoxGeometry(0.52, 0.38, 0.52), matBedQuilt);
-      seatCushion.position.set(0, 0.24, 0);
-      const seatBack = new THREE.Mesh(new THREE.BoxGeometry(0.52, 0.45, 0.1), matBedQuilt);
-      seatBack.position.set(0, 0.55, 0.22);
+      armchair.position.set(0.15, 0, 1.25);
+      const seatCushion = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.35, 0.48), matBedQuilt);
+      seatCushion.position.set(0, 0.22, 0);
+      const seatBack = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.44, 0.1), matBedQuilt);
+      seatBack.position.set(0, 0.55, 0.20);
       armchair.add(seatCushion, seatBack);
       roomGroup.add(armchair);
 
-      // --- 6. VELVET WINDOW DRAPERIES (Window side) ---
+      // --- 7. VELVET WINDOW DRAPERIES (Window side) ---
       const curtainL = new THREE.Mesh(new THREE.BoxGeometry(0.08, 1.3, 0.25), matBedQuilt);
       curtainL.position.set(width / 2 - 0.15, 1.5, -0.8);
       const curtainR = new THREE.Mesh(new THREE.BoxGeometry(0.08, 1.3, 0.25), matBedQuilt);

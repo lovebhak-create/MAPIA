@@ -176,6 +176,10 @@ const Collision = (() => {
     addBox(0.38, 1.35, -64.35, -62.45, 1.0, 2.5, 'Car4_BedSuite1');
     addBox(0.38, 1.35, -69.35, -67.45, 1.0, 2.5, 'Car4_BedSuite2');
     addBox(0.38, 1.35, -74.35, -72.45, 1.0, 2.5, 'Car4_BedSuite3');
+    // Drawing Room Sofas (Photo 3 Diagram)
+    addBox(0.65, 1.35, -61.85, -60.75, 1.0, 2.2, 'Car4_Sofa1');
+    addBox(0.65, 1.35, -66.85, -65.75, 1.0, 2.2, 'Car4_Sofa2');
+    addBox(0.65, 1.35, -71.85, -70.75, 1.0, 2.2, 'Car4_Sofa3');
     // Bedside Nightstands
     addBox(-0.15, 0.25, -64.35, -63.95, 1.0, 2.0, 'Car4_Nightstand1');
     addBox(-0.15, 0.25, -69.35, -68.95, 1.0, 2.0, 'Car4_Nightstand2');

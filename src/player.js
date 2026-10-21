@@ -37,11 +37,15 @@ const Player = (() => {
       seats.push({ x: 0.95, y: 2.38, z: sz, name: 'Coach Seat', standPos: { x: 0.25, y: 2.85, z: sz } });
     }
 
-    // Car 4: 1st Class Luxury Suites - Armchairs & Beds
+    // Car 4: 1st Class Luxury Suites - Drawing Room Sofas, Armchairs & Beds (Photo 3)
     // Armchairs
-    seats.push({ x: 0.95, y: 2.32, z: -61.35, name: 'Suite 1 Armchair', standPos: { x: 0.35, y: 2.85, z: -61.35 } });
-    seats.push({ x: 0.95, y: 2.32, z: -66.35, name: 'Suite 2 Armchair', standPos: { x: 0.35, y: 2.85, z: -66.35 } });
-    seats.push({ x: 0.95, y: 2.32, z: -71.35, name: 'Suite 3 Armchair', standPos: { x: 0.35, y: 2.85, z: -71.35 } });
+    seats.push({ x: 0.15, y: 2.32, z: -60.75, name: 'Suite 1 Parlor Armchair', standPos: { x: 0.15, y: 2.85, z: -62.0 } });
+    seats.push({ x: 0.15, y: 2.32, z: -65.75, name: 'Suite 2 Parlor Armchair', standPos: { x: 0.15, y: 2.85, z: -67.0 } });
+    seats.push({ x: 0.15, y: 2.32, z: -70.75, name: 'Suite 3 Parlor Armchair', standPos: { x: 0.15, y: 2.85, z: -72.0 } });
+    // Drawing Room Sofas (Photo 3 Day configuration)
+    seats.push({ x: 0.95, y: 2.30, z: -61.30, name: 'Suite 1 Drawing Room Sofa', standPos: { x: 0.15, y: 2.85, z: -62.0 } });
+    seats.push({ x: 0.95, y: 2.30, z: -66.30, name: 'Suite 2 Drawing Room Sofa', standPos: { x: 0.15, y: 2.85, z: -67.0 } });
+    seats.push({ x: 0.95, y: 2.30, z: -71.30, name: 'Suite 3 Drawing Room Sofa', standPos: { x: 0.15, y: 2.85, z: -72.0 } });
     // Luxury Double Beds (Mattress at X: 0.85, Z: sCenter - 1.4, standPos safely in open suite entrance X: 0.05, Z: sCenter)
     seats.push({ x: 0.85, y: 1.74, z: -63.4, name: 'Suite 1 Bed', isBed: true, standPos: { x: 0.05, y: 2.85, z: -62.0 } });
     seats.push({ x: 0.85, y: 1.74, z: -68.4, name: 'Suite 2 Bed', isBed: true, standPos: { x: 0.05, y: 2.85, z: -67.0 } });

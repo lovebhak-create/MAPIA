@@ -665,6 +665,29 @@ const Textures = (() => {
     return tex;
   };
 
+  const createQuietSign = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 128;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#1c1f24';
+    ctx.fillRect(0, 0, 256, 128);
+    ctx.strokeStyle = '#e0ded8';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(6, 6, 244, 116);
+    ctx.font = 'bold 36px serif';
+    ctx.fillStyle = '#f5f4ef';
+    ctx.textAlign = 'center';
+    ctx.fillText('QUIET', 128, 48);
+    ctx.font = 'bold 10px sans-serif';
+    ctx.fillStyle = '#cfcdc6';
+    ctx.fillText('IS REQUESTED FOR THE BENEFIT', 128, 72);
+    ctx.fillText('OF THOSE WHO HAVE RETIRED', 128, 88);
+    ctx.font = '9px serif';
+    ctx.fillText('THE PULLMAN COMPANY', 128, 108);
+    return new THREE.CanvasTexture(canvas);
+  };
+
   return {
     rivetedSteel: createRivetedSteel(),
     boilerIron: createBoilerIron(),
@@ -682,6 +705,7 @@ const Textures = (() => {
     blueWhiteTile: createBlueWhiteTile(),
     artDecoMosaic: createArtDecoMosaic(),
     stainedGlass: createStainedGlass(),
-    greenGrating: createGreenGrating()
+    greenGrating: createGreenGrating(),
+    quietSign: createQuietSign()
   };
 })();
