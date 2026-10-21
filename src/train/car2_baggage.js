@@ -17,8 +17,8 @@ const Car2_Baggage = (() => {
     group.position.set(0, 1.2, -23.0);
 
     const length = 20.0;
-    const width = 3.0;
-    const height = 2.7;
+    const width = 3.5;
+    const height = 2.85;
 
     // Materials
     const matWoodFloor = new THREE.MeshStandardMaterial({
@@ -121,16 +121,16 @@ const Car2_Baggage = (() => {
     const createBulkhead = (zPos) => {
       const bh = new THREE.Group();
       bh.position.set(0, 0, zPos);
-      const postL = new THREE.Mesh(new THREE.BoxGeometry(0.95, height, 0.12), matDarkWainscot);
-      postL.position.set(-1.0, height / 2, 0);
-      const postR = new THREE.Mesh(new THREE.BoxGeometry(0.95, height, 0.12), matDarkWainscot);
-      postR.position.set(1.0, height / 2, 0);
-      const transom = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.6, 0.12), matDarkWainscot);
+      const postL = new THREE.Mesh(new THREE.BoxGeometry(1.25, height, 0.12), matDarkWainscot);
+      postL.position.set(-1.125, height / 2, 0);
+      const postR = new THREE.Mesh(new THREE.BoxGeometry(1.25, height, 0.12), matDarkWainscot);
+      postR.position.set(1.125, height / 2, 0);
+      const transom = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.6, 0.12), matDarkWainscot);
       transom.position.set(0, height - 0.3, 0);
       bh.add(postL, postR, transom);
 
       // Heavy sliding crew door
-      const crewDoor = new THREE.Mesh(new THREE.BoxGeometry(0.95, 2.05, 0.05), matDarkWainscot);
+      const crewDoor = new THREE.Mesh(new THREE.BoxGeometry(0.98, 2.05, 0.05), matDarkWainscot);
       crewDoor.position.set(0, 1.025, 0);
       const dWin = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.6, 0.06), transomMat);
       dWin.position.set(0, 0.35, 0);
@@ -144,7 +144,7 @@ const Car2_Baggage = (() => {
         DoorManager.registerDoor({
           mesh: crewDoor,
           type: 'slide',
-          openOffset: 0.88,
+          openOffset: 0.92,
           x: 0,
           z: -23.0 + zPos,
           name: zPos > 0 ? '수하물차 앞문 (기관차 방면)' : '수하물차 뒷문 (3호차 객차 방면)'

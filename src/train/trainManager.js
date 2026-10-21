@@ -35,9 +35,9 @@ const TrainManager = (() => {
       metalness: 0.6
     });
 
-    // 1. Continuous Solid Buffer Footplate spanning the entire gap (width 1.25m, length 2.6m)
+    // 1. Continuous Solid Buffer Footplate spanning the entire gap (width 1.50m, length 2.6m)
     // Ensures you NEVER see an open hole down into the tracks between any cars!
-    const plate = new THREE.Mesh(new THREE.BoxGeometry(1.25, 0.08, 2.6), matFootplate);
+    const plate = new THREE.Mesh(new THREE.BoxGeometry(1.50, 0.08, 2.6), matFootplate);
     plate.position.set(0, -0.04, 0);
     plate.receiveShadow = true;
     vGroup.add(plate);
@@ -62,19 +62,19 @@ const TrainManager = (() => {
     for (let p = 0; p < numPleats; p++) {
       const pz = -1.1 + (p / (numPleats - 1)) * 2.2;
       // Left pleat wall
-      const pleatL = new THREE.Mesh(new THREE.BoxGeometry(0.14, 2.6, 0.10), matBellows);
-      pleatL.position.set(-0.64, 1.3, pz);
+      const pleatL = new THREE.Mesh(new THREE.BoxGeometry(0.14, 2.75, 0.10), matBellows);
+      pleatL.position.set(-0.75, 1.35, pz);
       // Right pleat wall
-      const pleatR = new THREE.Mesh(new THREE.BoxGeometry(0.14, 2.6, 0.10), matBellows);
-      pleatR.position.set(0.64, 1.3, pz);
+      const pleatR = new THREE.Mesh(new THREE.BoxGeometry(0.14, 2.75, 0.10), matBellows);
+      pleatR.position.set(0.75, 1.35, pz);
       // Top pleat roof
-      const pleatTop = new THREE.Mesh(new THREE.BoxGeometry(1.42, 0.16, 0.10), matBellows);
-      pleatTop.position.set(0, 2.55, pz);
+      const pleatTop = new THREE.Mesh(new THREE.BoxGeometry(1.64, 0.16, 0.10), matBellows);
+      pleatTop.position.set(0, 2.70, pz);
       vGroup.add(pleatL, pleatR, pleatTop);
     }
 
     // Safety handrails inside vestibule
-    [-0.56, 0.56].forEach(hx => {
+    [-0.68, 0.68].forEach(hx => {
       const rail = new THREE.Mesh(
         new THREE.CylinderGeometry(0.02, 0.02, 2.2, 8),
         new THREE.MeshStandardMaterial({ color: 0xd4af37, roughness: 0.3, metalness: 0.85 })

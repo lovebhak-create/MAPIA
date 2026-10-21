@@ -10,8 +10,8 @@ const Car3_Coach = (() => {
     group.position.set(0, 1.2, -45.0);
 
     const length = 20.0;
-    const width = 3.0;
-    const height = 2.7;
+    const width = 3.5;
+    const height = 2.85;
 
     const matWoodFloor = new THREE.MeshStandardMaterial({
       map: Textures.woodFloor,
@@ -99,7 +99,7 @@ const Car3_Coach = (() => {
     group.add(floor);
 
     // Central aisle carpet runner
-    const aisleCarpet = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.01, length), matCarpetAisle);
+    const aisleCarpet = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.01, length), matCarpetAisle);
     aisleCarpet.position.set(0, 0.01, 0);
     group.add(aisleCarpet);
 
@@ -161,16 +161,16 @@ const Car3_Coach = (() => {
     const createBulkhead = (zPos) => {
       const bh = new THREE.Group();
       bh.position.set(0, 0, zPos);
-      const postL = new THREE.Mesh(new THREE.BoxGeometry(1.0, height, 0.12), matMahogany);
-      postL.position.set(-1.0, height / 2, 0);
-      const postR = new THREE.Mesh(new THREE.BoxGeometry(1.0, height, 0.12), matMahogany);
-      postR.position.set(1.0, height / 2, 0);
+      const postL = new THREE.Mesh(new THREE.BoxGeometry(1.25, height, 0.12), matMahogany);
+      postL.position.set(-1.125, height / 2, 0);
+      const postR = new THREE.Mesh(new THREE.BoxGeometry(1.25, height, 0.12), matMahogany);
+      postR.position.set(1.125, height / 2, 0);
       const topTransom = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.6, 0.12), matMahogany);
       topTransom.position.set(0, height - 0.3, 0);
       bh.add(postL, postR, topTransom);
 
       // Sliding Mahogany Door
-      const sDoor = new THREE.Mesh(new THREE.BoxGeometry(0.95, 2.05, 0.05), matMahogany);
+      const sDoor = new THREE.Mesh(new THREE.BoxGeometry(0.98, 2.05, 0.05), matMahogany);
       sDoor.position.set(0, 1.025, 0);
       const dWin = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.7, 0.06), matGlass);
       dWin.position.set(0, 0.35, 0);
@@ -181,7 +181,7 @@ const Car3_Coach = (() => {
         DoorManager.registerDoor({
           mesh: sDoor,
           type: 'slide',
-          openOffset: 0.88,
+          openOffset: 0.92,
           x: 0,
           z: -45.0 + zPos,
           name: zPos > 0 ? '3호차 앞문' : '3호차 뒷문'
@@ -239,13 +239,13 @@ const Car3_Coach = (() => {
     const seatSpacing = 1.6;
     for (let i = 0; i < 7; i++) {
       const sz = -4.2 + i * seatSpacing;
-      group.add(createDoubleSeat(-0.95, sz, 1));
-      group.add(createDoubleSeat(0.95, sz, 1));
+      group.add(createDoubleSeat(-1.12, sz, 1));
+      group.add(createDoubleSeat(1.12, sz, 1));
     }
 
     // ==========================================
     // 5. RESTROOM / LAVATORY (화장실 - 1930s 미국 열차 객차 끝 화장실 예시 ①, ②, ③ 완벽 구현)
-    // Enclosed on the Right (X: 0.20 to 1.40, Z: -9.8 to -6.8), Unobstructed Corridor on the Left!
+    // Enclosed on the Right (X: -0.26 to 1.69, Z: -9.85 to -6.8), Unobstructed 1.35m Corridor on the Left!
     // ==========================================
     const bathGroup = new THREE.Group();
     bathGroup.position.set(0, 0, -8.3);
@@ -256,31 +256,32 @@ const Car3_Coach = (() => {
       roughness: 0.7,
       metalness: 0.2
     });
-    const bathFloor = new THREE.Mesh(new THREE.BoxGeometry(1.22, 0.02, 2.95), matBathFloor);
-    bathFloor.position.set(0.82, 0.01, 0);
+    const bathFloor = new THREE.Mesh(new THREE.BoxGeometry(1.95, 0.02, 3.05), matBathFloor);
+    bathFloor.position.set(0.715, 0.01, -0.025);
     bathFloor.receiveShadow = true;
     bathGroup.add(bathFloor);
 
     // Brass doorway threshold strip (Panel ③)
-    const threshold = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.025, 0.08), matBrass);
-    threshold.position.set(0.55, 0.015, 1.48);
+    const threshold = new THREE.Mesh(new THREE.BoxGeometry(0.86, 0.025, 0.08), matBrass);
+    threshold.position.set(0.17, 0.015, 1.48);
     bathGroup.add(threshold);
 
     // Outer Corridor Partition Wall: Rich polished mahogany facing the corridor (Panel ③)
-    const bathWallL = new THREE.Mesh(new THREE.BoxGeometry(0.08, height, 3.0), matMahogany);
-    bathWallL.position.set(0.20, height / 2, 0);
+    const bathWallL = new THREE.Mesh(new THREE.BoxGeometry(0.08, height, 3.05), matMahogany);
+    bathWallL.position.set(-0.30, height / 2, -0.025);
 
     // Inner Enamel Metal Lining: Cream/light gray enameled metal panels with rivet trim (Panel ① & ②)
     const matCreamEnamel = new THREE.MeshStandardMaterial({ color: 0xeeebe1, roughness: 0.32, metalness: 0.1 });
-    const innerLiningL = new THREE.Mesh(new THREE.BoxGeometry(0.02, height - 0.1, 2.92), matCreamEnamel);
-    innerLiningL.position.set(0.24, height / 2, 0);
+    const innerLiningL = new THREE.Mesh(new THREE.BoxGeometry(0.02, height - 0.1, 3.01), matCreamEnamel);
+    innerLiningL.position.set(-0.25, height / 2, -0.025);
     bathGroup.add(innerLiningL);
 
     // Front Partition Wall facing passenger seats (at Z = 1.5, with doorway)
-    const bathWallFront = new THREE.Mesh(new THREE.BoxGeometry(0.5, height, 0.08), matMahogany);
-    bathWallFront.position.set(1.15, height / 2, 1.5);
-    const bathTransom = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.6, 0.08), matMahogany);
-    bathTransom.position.set(0.55, height - 0.3, 1.5);
+    // Doorway opening spans X: -0.26 to +0.60 (clear width 0.86m!)
+    const bathWallFront = new THREE.Mesh(new THREE.BoxGeometry(1.09, height, 0.08), matMahogany);
+    bathWallFront.position.set(1.145, height / 2, 1.5);
+    const bathTransom = new THREE.Mesh(new THREE.BoxGeometry(0.86, height - 2.10, 0.08), matMahogany);
+    bathTransom.position.set(0.17, height - (height - 2.10) / 2, 1.5);
 
     // Inside Lavatory Materials (Panel ① & ②)
     const matPorcelain = new THREE.MeshStandardMaterial({ color: 0xfcfcfc, roughness: 0.15, metalness: 0.05 });
@@ -290,41 +291,40 @@ const Car3_Coach = (() => {
 
     // Ceiling Flush Dome Light in Corridor Foyer outside the toilet (Panel ③)
     const foyerLampBase = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.14, 0.04, 12), matChrome);
-    foyerLampBase.position.set(-0.25, height - 0.05, 1.5);
+    foyerLampBase.position.set(-0.90, height - 0.05, 1.5);
     const foyerGlobe = new THREE.Mesh(new THREE.SphereGeometry(0.10, 12, 12), new THREE.MeshBasicMaterial({ color: 0xfff6dd }));
-    foyerGlobe.position.set(-0.25, height - 0.10, 1.5);
+    foyerGlobe.position.set(-0.90, height - 0.10, 1.5);
     const foyerLight = new THREE.PointLight(0xffdfaa, 0.7, 3.5);
-    foyerLight.position.set(-0.25, height - 0.15, 1.5);
+    foyerLight.position.set(-0.90, height - 0.15, 1.5);
     bathGroup.add(foyerLampBase, foyerGlobe, foyerLight);
 
     // "TOILET" Brass Plaque on Corridor Wall / Door Header (Panel ③)
     const matToiletSign = new THREE.MeshStandardMaterial({ color: 0x141618, roughness: 0.4 });
     const signBox = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.10, 0.03), matToiletSign);
-    signBox.position.set(0.55, height - 0.22, 1.54);
+    signBox.position.set(0.17, height - 0.22, 1.54);
     const signPlaque = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.06, 0.01), matBrass);
     signPlaque.position.set(0, 0, 0.02);
     signBox.add(signPlaque);
     bathGroup.add(signBox);
 
-    // Restroom Door: Slides cleanly into wall so it NEVER blocks the corridor! (Panel ③)
-    // "화장실 문은 완전히 통로를 막지 않아 지나가는 데 불편함이 없었습니다."
-    const bathDoor = new THREE.Mesh(new THREE.BoxGeometry(0.68, 2.05, 0.04), matMahogany);
-    bathDoor.position.set(0.55, 1.025, 1.5);
+    // Restroom Door: Slides cleanly into wall so it NEVER blocks the doorway or corridor! (Panel ③)
+    const bathDoor = new THREE.Mesh(new THREE.BoxGeometry(0.84, 2.05, 0.04), matMahogany);
+    bathDoor.position.set(0.17, 1.025, 1.5);
 
-    const doorInnerCream = new THREE.Mesh(new THREE.BoxGeometry(0.64, 1.95, 0.01), matCreamEnamel);
+    const doorInnerCream = new THREE.Mesh(new THREE.BoxGeometry(0.80, 1.95, 0.01), matCreamEnamel);
     doorInnerCream.position.set(0, 0, -0.02);
     const doorPlaqueBrass = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.07, 0.02), matBrass);
     doorPlaqueBrass.position.set(0, 0.45, 0.025);
     const doorHandle = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.14, 8), matChrome);
-    doorHandle.position.set(-0.25, 0, 0.03);
+    doorHandle.position.set(-0.35, 0, 0.03);
     bathDoor.add(doorInnerCream, doorPlaqueBrass, doorHandle);
 
     if (typeof DoorManager !== 'undefined') {
       DoorManager.registerDoor({
         mesh: bathDoor,
         type: 'slide',
-        openOffset: 0.65,
-        x: 0.55,
+        openOffset: 0.90,
+        x: 0.17,
         z: -45.0 - 6.8,
         name: '3호차 화장실 문'
       });
@@ -335,36 +335,36 @@ const Car3_Coach = (() => {
     // ==========================================
     // 1. Heavy Enamel/Porcelain Pedestal Toilet Bowl with Dark Round Seat Ring (Panel ①)
     const toiletBase = new THREE.Mesh(new THREE.CylinderGeometry(0.20, 0.17, 0.45, 16), matPorcelain);
-    toiletBase.position.set(0.92, 0.225, -0.9);
+    toiletBase.position.set(1.05, 0.225, -1.15);
     // Dark bakelite / round toilet seat ring (좌변식 변기)
     const toiletSeatRing = new THREE.Mesh(new THREE.TorusGeometry(0.18, 0.04, 8, 16), matDarkBakelite);
-    toiletSeatRing.position.set(0.92, 0.46, -0.9);
+    toiletSeatRing.position.set(1.05, 0.46, -1.15);
     toiletSeatRing.rotation.x = Math.PI / 2;
 
     // 2. High-Pressure Chrome Water Flush Pipe with Lever Mechanism (Panel ①)
     const flushPipeVert = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 2.2, 8), matChrome);
-    flushPipeVert.position.set(0.68, 1.35, -1.25);
+    flushPipeVert.position.set(0.80, 1.35, -1.45);
     const flushValve = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.12, 10), matChrome);
-    flushValve.position.set(0.68, 1.45, -1.25);
+    flushValve.position.set(0.80, 1.45, -1.45);
     const flushHandleLever = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 0.18, 8), matChrome);
-    flushHandleLever.position.set(0.68, 1.45, -1.16);
+    flushHandleLever.position.set(0.80, 1.45, -1.36);
     flushHandleLever.rotation.x = Math.PI / 2;
     const flushCrossPipe = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.35, 8), matChrome);
-    flushCrossPipe.position.set(0.80, 0.65, -1.15);
+    flushCrossPipe.position.set(0.92, 0.65, -1.40);
     flushCrossPipe.rotation.z = Math.PI / 2;
 
     // "FLUSH" Wall Plaque above toilet (Panel ①)
     const flushPlaque = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.06, 0.01), matChrome);
-    flushPlaque.position.set(0.92, 1.75, -1.43);
+    flushPlaque.position.set(1.05, 1.75, -1.48);
 
     // 3. Polished Horizontal Metal Grab Rails along wall (Panel ①)
     const grabRailHoriz = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 1.2, 8), matChrome);
     grabRailHoriz.rotation.x = Math.PI / 2;
-    grabRailHoriz.position.set(0.32, 1.15, -0.85);
+    grabRailHoriz.position.set(0.40, 1.15, -1.05);
 
     // 4. Chrome Cylindrical Sanitary Pedal Waste Bin in Corner (Panel ①)
     const pedalBin = new THREE.Group();
-    pedalBin.position.set(0.55, 0.18, -1.2);
+    pedalBin.position.set(0.45, 0.18, -1.25);
     const binCylinder = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.36, 14), matChrome);
     const binPedal = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.02, 0.08), matChrome);
     binPedal.position.set(0, -0.16, 0.11);
@@ -372,28 +372,28 @@ const Car3_Coach = (() => {
 
     // 5. Metal Toilet Paper Dispenser under window (Panel ①)
     const tpHolder = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.14, 0.16), matChrome);
-    tpHolder.position.set(width / 2 - 0.08, 0.85, -0.9);
+    tpHolder.position.set(width / 2 - 0.08, 0.85, -1.15);
 
     // 6. Large Train Window on the Right Wall (Panel ① & ②)
     const restWindowFrame = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.95, 0.72), matChrome);
-    restWindowFrame.position.set(width / 2 - 0.06, 1.5, -0.8);
+    restWindowFrame.position.set(width / 2 - 0.06, 1.5, -0.60);
     const restWindowGlass = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.88, 0.65), new THREE.MeshPhysicalMaterial({ color: 0xdae8f5, roughness: 0.15, transmission: 0.85 }));
-    restWindowGlass.position.set(width / 2 - 0.06, 1.5, -0.8);
+    restWindowGlass.position.set(width / 2 - 0.06, 1.5, -0.60);
 
     // ==========================================
-    // PANEL ②: 세면대 공간 (세면대 & 편의 비품)
+    // PANEL ②: 세면대 공간 (Mounted against Right Wall, leaves center wide open!)
     // ==========================================
     const vanityGroup = new THREE.Group();
-    vanityGroup.position.set(0.92, 0, 0.5);
+    vanityGroup.position.set(1.35, 0, 0.20);
 
     // 1. Polished Stainless Steel Countertop with Raised Marine Edge Rim (Panel ②)
-    const vanityCabinet = new THREE.Mesh(new THREE.BoxGeometry(0.68, 0.78, 0.58), matCreamEnamel);
+    const vanityCabinet = new THREE.Mesh(new THREE.BoxGeometry(0.50, 0.78, 0.76), matCreamEnamel);
     vanityCabinet.position.set(0, 0.39, 0);
-    const steelTop = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.04, 0.62), matStainlessSteel);
+    const steelTop = new THREE.Mesh(new THREE.BoxGeometry(0.54, 0.04, 0.80), matStainlessSteel);
     steelTop.position.set(0, 0.80, 0);
     // Raised water-retaining marine lip rim
-    const marineRim = new THREE.Mesh(new THREE.BoxGeometry(0.74, 0.02, 0.03), matStainlessSteel);
-    marineRim.position.set(0, 0.83, 0.30);
+    const marineRim = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.02, 0.82), matStainlessSteel);
+    marineRim.position.set(-0.26, 0.83, 0);
 
     // Inset White Ceramic Washbasin (Panel ②)
     const ceramicBasin = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.14, 0.12, 16), matPorcelain);
@@ -401,51 +401,48 @@ const Car3_Coach = (() => {
 
     // 3-Hole Chrome Faucet Mixer: Center Spout + Left/Right Cross Handles (Panel ②)
     const vFaucetSpout = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.14, 8), matChrome);
-    vFaucetSpout.position.set(0, 0.90, -0.15);
-    const vHandleL = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.015, 0.015), matChrome);
-    vHandleL.position.set(-0.10, 0.84, -0.15);
-    const vHandleR = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.015, 0.015), matChrome);
-    vHandleR.position.set(0.10, 0.84, -0.15);
+    vFaucetSpout.position.set(0.16, 0.90, 0.02);
+    const vHandleL = new THREE.Mesh(new THREE.BoxGeometry(0.015, 0.015, 0.06), matChrome);
+    vHandleL.position.set(0.16, 0.84, -0.10);
+    const vHandleR = new THREE.Mesh(new THREE.BoxGeometry(0.015, 0.015, 0.06), matChrome);
+    vHandleR.position.set(0.16, 0.84, 0.10);
 
     vanityGroup.add(vanityCabinet, steelTop, marineRim, ceramicBasin, vFaucetSpout, vHandleL, vHandleR);
 
-    // 2. Rectangular Beveled Vanity Mirror with Chrome Frame (Panel ②)
+    // 2. Rectangular Beveled Vanity Mirror with Chrome Frame on Right Wall
     const vanityMirror = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.68, 0.48), matChrome);
-    vanityMirror.position.set(0.62, 1.48, 0.5);
+    vanityMirror.position.set(width / 2 - 0.08, 1.50, 0.20);
     const mirrorGlass = new THREE.Mesh(new THREE.BoxGeometry(0.01, 0.64, 0.44), new THREE.MeshStandardMaterial({ color: 0xccddee, roughness: 0.05, metalness: 0.95 }));
-    mirrorGlass.position.set(0.63, 1.48, 0.5);
+    mirrorGlass.position.set(width / 2 - 0.09, 1.50, 0.20);
 
     // Glass Shelf for toiletries under mirror (Panel ②)
     const glassShelf = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.015, 0.44), matChrome);
-    glassShelf.position.set(0.66, 1.10, 0.5);
+    glassShelf.position.set(width / 2 - 0.11, 1.12, 0.20);
 
     // Overhead Cylindrical Electric Sconce Light above mirror (Panel ②)
     const sconceBase = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.04, 0.28), matChrome);
-    sconceBase.position.set(0.64, 1.90, 0.5);
+    sconceBase.position.set(width / 2 - 0.08, 1.90, 0.20);
     const sconceBulb = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.24, 8), new THREE.MeshBasicMaterial({ color: 0xfffaee }));
     sconceBulb.rotation.x = Math.PI / 2;
-    sconceBulb.position.set(0.67, 1.90, 0.5);
+    sconceBulb.position.set(width / 2 - 0.11, 1.90, 0.20);
 
     // 3. Wall Amenities: Metal Cup Tumbler Holder, Soap Dish, Towel Ring & Hanging Towel (Panel ②)
-    // Left wall: Chrome tumbler cup in holder
     const tumblerHolder = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.030, 0.09, 10), matChrome);
-    tumblerHolder.position.set(0.58, 1.25, 0.18);
+    tumblerHolder.position.set(width / 2 - 0.10, 1.25, -0.15);
 
-    // Right side: Chrome soap dish
     const soapDish = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.02, 0.10), matChrome);
-    soapDish.position.set(width / 2 - 0.08, 1.05, 0.28);
+    soapDish.position.set(width / 2 - 0.10, 1.05, 0.55);
 
-    // Right wall: Towel Ring with Hanging White Cotton Hand Towel (Panel ②)
+    // Towel Ring with Hanging White Cotton Hand Towel (Panel ②)
     const towelBar = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.01, 0.18, 8), matChrome);
     towelBar.rotation.x = Math.PI / 2;
-    towelBar.position.set(width / 2 - 0.08, 1.35, 0.62);
-    // Hanging folded white cotton towel
+    towelBar.position.set(width / 2 - 0.10, 1.35, 0.55);
     const hangingTowel = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.42, 0.16), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9 }));
-    hangingTowel.position.set(width / 2 - 0.10, 1.15, 0.62);
+    hangingTowel.position.set(width / 2 - 0.12, 1.15, 0.55);
 
     // Warm Ambient Light inside Restroom
-    const bathLight = new THREE.PointLight(0xffeedd, 0.9, 4.0);
-    bathLight.position.set(0.85, height - 0.25, -0.2);
+    const bathLight = new THREE.PointLight(0xffeedd, 0.95, 4.5);
+    bathLight.position.set(0.60, height - 0.25, -0.2);
 
     bathGroup.add(
       bathWallL, bathWallFront, bathTransom, bathDoor,
@@ -455,7 +452,6 @@ const Car3_Coach = (() => {
       tumblerHolder, soapDish, towelBar, hangingTowel, bathLight
     );
     group.add(bathGroup);
-    group.add(bathGroup);
 
     // 5. Overhead Brass Luggage Racks (좌석 위 짐 선반 - Photo 1, 3, 4)
     const matSuitcaseBrown = new THREE.MeshStandardMaterial({ color: 0x4a2c16, roughness: 0.65 });
@@ -463,7 +459,7 @@ const Car3_Coach = (() => {
     const matHatFelt = new THREE.MeshStandardMaterial({ color: 0xdfdcd2, roughness: 0.9 });
     const matShawlWool = new THREE.MeshStandardMaterial({ color: 0x2b3846, roughness: 0.95 });
 
-    [-0.95, 0.95].forEach((xSide, sideIdx) => {
+    [-1.20, 1.20].forEach((xSide, sideIdx) => {
       const rack = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.04, length - 5.0), matBrass);
       rack.position.set(xSide, 2.1, -0.5);
       group.add(rack);

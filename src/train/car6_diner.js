@@ -10,8 +10,8 @@ const Car6_Diner = (() => {
     group.position.set(0, 1.2, -111.0);
 
     const length = 20.0;
-    const width = 3.0;
-    const height = 2.7;
+    const width = 3.5;
+    const height = 2.85;
 
     const matWoodFloor = new THREE.MeshStandardMaterial({
       map: Textures.woodFloor,
@@ -144,10 +144,10 @@ const Car6_Diner = (() => {
     const createBulkhead = (zPos) => {
       const bh = new THREE.Group();
       bh.position.set(0, 0, zPos);
-      const postL = new THREE.Mesh(new THREE.BoxGeometry(1.0, height, 0.12), matMahogany);
-      postL.position.set(-1.0, height / 2, 0);
-      const postR = new THREE.Mesh(new THREE.BoxGeometry(1.0, height, 0.12), matMahogany);
-      postR.position.set(1.0, height / 2, 0);
+      const postL = new THREE.Mesh(new THREE.BoxGeometry(1.25, height, 0.12), matMahogany);
+      postL.position.set(-1.125, height / 2, 0);
+      const postR = new THREE.Mesh(new THREE.BoxGeometry(1.25, height, 0.12), matMahogany);
+      postR.position.set(1.125, height / 2, 0);
       const topTransom = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.6, 0.12), matMahogany);
       topTransom.position.set(0, height - 0.3, 0);
       bh.add(postL, postR, topTransom);
@@ -236,10 +236,10 @@ const Car6_Diner = (() => {
     // 4 tables on each side: Right side (4-person), Left side (2-person)
     const tablePositionsZ = [-2.5, 0.5, 3.5, 6.5];
     tablePositionsZ.forEach(tz => {
-      // Right side tables (x = 0.95)
-      group.add(createDiningTable(0.95, tz, true));
-      // Left side tables (x = -0.95)
-      group.add(createDiningTable(-0.95, tz, false));
+      // Right side tables (x = 1.15)
+      group.add(createDiningTable(1.15, tz, true));
+      // Left side tables (x = -1.15)
+      group.add(createDiningTable(-1.15, tz, false));
     });
 
     // ==========================================
@@ -248,20 +248,20 @@ const Car6_Diner = (() => {
     // Ornate Mahogany Archway dividing Dining Room and Buffet Saloon
     const archGroup = new THREE.Group();
     archGroup.position.set(0, 0, -4.2);
-    const archPostL = new THREE.Mesh(new THREE.BoxGeometry(0.75, height, 0.12), matMahogany);
-    archPostL.position.set(-1.08, height / 2, 0);
-    const archPostR = new THREE.Mesh(new THREE.BoxGeometry(0.75, height, 0.12), matMahogany);
-    archPostR.position.set(1.08, height / 2, 0);
-    const archTop = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.5, 0.14), matMahogany);
+    const archPostL = new THREE.Mesh(new THREE.BoxGeometry(0.85, height, 0.12), matMahogany);
+    archPostL.position.set(-1.25, height / 2, 0);
+    const archPostR = new THREE.Mesh(new THREE.BoxGeometry(0.85, height, 0.12), matMahogany);
+    archPostR.position.set(1.25, height / 2, 0);
+    const archTop = new THREE.Mesh(new THREE.BoxGeometry(1.9, 0.5, 0.14), matMahogany);
     archTop.position.set(0, height - 0.25, 0);
-    const archTrim = new THREE.Mesh(new THREE.BoxGeometry(1.65, 0.04, 0.16), matBrass);
+    const archTrim = new THREE.Mesh(new THREE.BoxGeometry(1.95, 0.04, 0.16), matBrass);
     archTrim.position.set(0, height - 0.5, 0);
     archGroup.add(archPostL, archPostR, archTop, archTrim);
     group.add(archGroup);
 
-    // Left Side: 1930s Luxury Pullman Credenza & Wine Display (X = -1.05)
+    // Left Side: 1930s Luxury Pullman Credenza & Wine Display (X = -1.25)
     const credenzaGroup = new THREE.Group();
-    credenzaGroup.position.set(-1.05, 0, -7.0);
+    credenzaGroup.position.set(-1.25, 0, -7.0);
 
     // Polished Mahogany Cabinet with brass handles
     const credenzaBody = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.95, 4.2), matMahogany);
@@ -310,9 +310,9 @@ const Car6_Diner = (() => {
     credenzaGroup.add(credenzaBody, credenzaTop, mirrorBack);
     group.add(credenzaGroup);
 
-    // Right Side: Steward Service Station & Pastry Buffet (X = +1.05)
+    // Right Side: Steward Service Station & Pastry Buffet (X = +1.25)
     const buffetGroup = new THREE.Group();
-    buffetGroup.position.set(1.05, 0, -7.0);
+    buffetGroup.position.set(1.25, 0, -7.0);
 
     const buffetBody = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.95, 4.2), matMahogany);
     buffetBody.position.set(0, 0.475, 0);

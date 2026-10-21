@@ -28,62 +28,62 @@ const Player = (() => {
     seats.length = 0;
 
     // Car 2: Baggage Guard Cot / Bed (Z = -15.8)
-    seats.push({ x: -0.85, y: 1.70, z: -15.8, name: 'Baggage Guard Cot', isBed: true, standPos: { x: 0.0, y: 2.85, z: -15.8 } });
+    seats.push({ x: -1.10, y: 1.70, z: -15.8, name: 'Baggage Guard Cot', isBed: true, standPos: { x: 0.0, y: 2.85, z: -15.8 } });
 
     // Car 3: 7 pairs of Coach double seats (Eye height Y = 2.38m)
     for (let i = 0; i < 7; i++) {
-      const sz = -45.0 + (7.5 - i * 1.9);
-      seats.push({ x: -0.95, y: 2.38, z: sz, name: 'Coach Seat', standPos: { x: -0.25, y: 2.85, z: sz } });
-      seats.push({ x: 0.95, y: 2.38, z: sz, name: 'Coach Seat', standPos: { x: 0.25, y: 2.85, z: sz } });
+      const sz = -45.0 + (-4.2 + i * 1.6);
+      seats.push({ x: -1.12, y: 2.38, z: sz, name: 'Coach Seat', standPos: { x: 0.0, y: 2.85, z: sz } });
+      seats.push({ x: 1.12, y: 2.38, z: sz, name: 'Coach Seat', standPos: { x: 0.0, y: 2.85, z: sz } });
     }
 
     // Car 4: 1st Class Luxury Suites - Drawing Room Sofas, Armchairs & Beds (Photo 3)
     // Armchairs
-    seats.push({ x: 0.15, y: 2.32, z: -60.75, name: 'Suite 1 Parlor Armchair', standPos: { x: 0.15, y: 2.85, z: -62.0 } });
-    seats.push({ x: 0.15, y: 2.32, z: -65.75, name: 'Suite 2 Parlor Armchair', standPos: { x: 0.15, y: 2.85, z: -67.0 } });
-    seats.push({ x: 0.15, y: 2.32, z: -70.75, name: 'Suite 3 Parlor Armchair', standPos: { x: 0.15, y: 2.85, z: -72.0 } });
+    seats.push({ x: 0.25, y: 2.32, z: -60.75, name: 'Suite 1 Parlor Armchair', standPos: { x: 0.15, y: 2.85, z: -62.0 } });
+    seats.push({ x: 0.25, y: 2.32, z: -65.75, name: 'Suite 2 Parlor Armchair', standPos: { x: 0.15, y: 2.85, z: -67.0 } });
+    seats.push({ x: 0.25, y: 2.32, z: -70.75, name: 'Suite 3 Parlor Armchair', standPos: { x: 0.15, y: 2.85, z: -72.0 } });
     // Drawing Room Sofas (Photo 3 Day configuration)
-    seats.push({ x: 0.95, y: 2.30, z: -61.30, name: 'Suite 1 Drawing Room Sofa', standPos: { x: 0.15, y: 2.85, z: -62.0 } });
-    seats.push({ x: 0.95, y: 2.30, z: -66.30, name: 'Suite 2 Drawing Room Sofa', standPos: { x: 0.15, y: 2.85, z: -67.0 } });
-    seats.push({ x: 0.95, y: 2.30, z: -71.30, name: 'Suite 3 Drawing Room Sofa', standPos: { x: 0.15, y: 2.85, z: -72.0 } });
-    // Luxury Double Beds (Mattress at X: 0.85, Z: sCenter - 1.4, standPos safely in open suite entrance X: 0.05, Z: sCenter)
-    seats.push({ x: 0.85, y: 1.74, z: -63.4, name: 'Suite 1 Bed', isBed: true, standPos: { x: 0.05, y: 2.85, z: -62.0 } });
-    seats.push({ x: 0.85, y: 1.74, z: -68.4, name: 'Suite 2 Bed', isBed: true, standPos: { x: 0.05, y: 2.85, z: -67.0 } });
-    seats.push({ x: 0.85, y: 1.74, z: -73.4, name: 'Suite 3 Bed', isBed: true, standPos: { x: 0.05, y: 2.85, z: -72.0 } });
+    seats.push({ x: 1.15, y: 2.30, z: -61.30, name: 'Suite 1 Drawing Room Sofa', standPos: { x: 0.15, y: 2.85, z: -62.0 } });
+    seats.push({ x: 1.15, y: 2.30, z: -66.30, name: 'Suite 2 Drawing Room Sofa', standPos: { x: 0.15, y: 2.85, z: -67.0 } });
+    seats.push({ x: 1.15, y: 2.30, z: -71.30, name: 'Suite 3 Drawing Room Sofa', standPos: { x: 0.15, y: 2.85, z: -72.0 } });
+    // Luxury Double Beds (Mattress at X: 1.05, standPos safely in open suite area X: 0.15)
+    seats.push({ x: 1.05, y: 1.74, z: -63.4, name: 'Suite 1 Bed', isBed: true, standPos: { x: 0.15, y: 2.85, z: -62.0 } });
+    seats.push({ x: 1.05, y: 1.74, z: -68.4, name: 'Suite 2 Bed', isBed: true, standPos: { x: 0.15, y: 2.85, z: -67.0 } });
+    seats.push({ x: 1.05, y: 1.74, z: -73.4, name: 'Suite 3 Bed', isBed: true, standPos: { x: 0.15, y: 2.85, z: -72.0 } });
 
     // Car 5: 2nd Class Sleeper Berths (Beds in 6 sections)
     for (let s = 0; s < 6; s++) {
       const bz = -89.0 + (-4.0 + s * 2.2);
-      seats.push({ x: 0.95, y: 1.72, z: bz, name: `Berth Bed R${s + 1}`, isBed: true, standPos: { x: 0.0, y: 2.85, z: bz } });
-      seats.push({ x: -0.95, y: 1.72, z: bz, name: `Berth Bed L${s + 1}`, isBed: true, standPos: { x: 0.0, y: 2.85, z: bz } });
+      seats.push({ x: 1.10, y: 1.72, z: bz, name: `Berth Bed R${s + 1}`, isBed: true, standPos: { x: 0.0, y: 2.85, z: bz } });
+      seats.push({ x: -1.10, y: 1.72, z: bz, name: `Berth Bed L${s + 1}`, isBed: true, standPos: { x: 0.0, y: 2.85, z: bz } });
     }
 
     // Car 6: Dining Car chairs (4 tables on each side)
     const dinerTableZ = [-113.5, -110.5, -107.5, -104.5];
     dinerTableZ.forEach(tz => {
-      seats.push({ x: 0.95, y: 2.42, z: tz - 0.7, name: 'Dining Chair', standPos: { x: 0.25, y: 2.85, z: tz - 0.7 } });
-      seats.push({ x: 0.95, y: 2.42, z: tz + 0.7, name: 'Dining Chair', standPos: { x: 0.25, y: 2.85, z: tz + 0.7 } });
-      seats.push({ x: -0.95, y: 2.42, z: tz - 0.7, name: 'Dining Chair', standPos: { x: -0.25, y: 2.85, z: tz - 0.7 } });
-      seats.push({ x: -0.95, y: 2.42, z: tz + 0.7, name: 'Dining Chair', standPos: { x: -0.25, y: 2.85, z: tz + 0.7 } });
+      seats.push({ x: 1.15, y: 2.42, z: tz - 0.7, name: 'Dining Chair', standPos: { x: 0.0, y: 2.85, z: tz - 0.7 } });
+      seats.push({ x: 1.15, y: 2.42, z: tz + 0.7, name: 'Dining Chair', standPos: { x: 0.0, y: 2.85, z: tz + 0.7 } });
+      seats.push({ x: -1.15, y: 2.42, z: tz - 0.7, name: 'Dining Chair', standPos: { x: 0.0, y: 2.85, z: tz - 0.7 } });
+      seats.push({ x: -1.15, y: 2.42, z: tz + 0.7, name: 'Dining Chair', standPos: { x: 0.0, y: 2.85, z: tz + 0.7 } });
     });
 
     // Car 7: Lounge Car Club Armchairs & Barstools
-    seats.push({ x: 0.85, y: 2.30, z: -131.0, name: 'Club Armchair', standPos: { x: 0.20, y: 2.85, z: -131.0 } });
-    seats.push({ x: 0.85, y: 2.30, z: -133.5, name: 'Club Armchair', standPos: { x: 0.20, y: 2.85, z: -133.5 } });
-    seats.push({ x: 0.85, y: 2.30, z: -136.5, name: 'Club Armchair', standPos: { x: 0.20, y: 2.85, z: -136.5 } });
-    seats.push({ x: 0.85, y: 2.30, z: -138.5, name: 'Club Armchair', standPos: { x: 0.20, y: 2.85, z: -138.5 } });
-    seats.push({ x: -0.85, y: 2.30, z: -132.5, name: 'Club Armchair', standPos: { x: -0.20, y: 2.85, z: -132.5 } });
-    seats.push({ x: -0.85, y: 2.30, z: -135.0, name: 'Club Armchair', standPos: { x: -0.20, y: 2.85, z: -135.0 } });
+    seats.push({ x: 1.05, y: 2.30, z: -131.0, name: 'Club Armchair', standPos: { x: 0.0, y: 2.85, z: -131.0 } });
+    seats.push({ x: 1.05, y: 2.30, z: -133.5, name: 'Club Armchair', standPos: { x: 0.0, y: 2.85, z: -133.5 } });
+    seats.push({ x: 1.05, y: 2.30, z: -136.5, name: 'Club Armchair', standPos: { x: 0.0, y: 2.85, z: -136.5 } });
+    seats.push({ x: 1.05, y: 2.30, z: -138.5, name: 'Club Armchair', standPos: { x: 0.0, y: 2.85, z: -138.5 } });
+    seats.push({ x: -1.05, y: 2.30, z: -132.5, name: 'Club Armchair', standPos: { x: 0.0, y: 2.85, z: -132.5 } });
+    seats.push({ x: -1.05, y: 2.30, z: -135.0, name: 'Club Armchair', standPos: { x: 0.0, y: 2.85, z: -135.0 } });
 
-    // Barstools (Placed at X = -0.05, standPos at X = 0.60 in wide open walkway!)
-    seats.push({ x: -0.05, y: 2.45, z: -128.3, name: 'Barstool', standPos: { x: 0.60, y: 2.85, z: -128.3 } });
-    seats.push({ x: -0.05, y: 2.45, z: -127.0, name: 'Barstool', standPos: { x: 0.60, y: 2.85, z: -127.0 } });
-    seats.push({ x: -0.05, y: 2.45, z: -125.7, name: 'Barstool', standPos: { x: 0.60, y: 2.85, z: -125.7 } });
+    // Barstools (Placed at X = -0.20, standPos at X = 0.60 in wide open walkway!)
+    seats.push({ x: -0.20, y: 2.45, z: -128.3, name: 'Barstool', standPos: { x: 0.60, y: 2.85, z: -128.3 } });
+    seats.push({ x: -0.20, y: 2.45, z: -127.0, name: 'Barstool', standPos: { x: 0.60, y: 2.85, z: -127.0 } });
+    seats.push({ x: -0.20, y: 2.45, z: -125.7, name: 'Barstool', standPos: { x: 0.60, y: 2.85, z: -125.7 } });
 
     // Car 8: Observation Swivel Chairs
     [-160.0, -157.5, -155.0, -152.5, -150.0, -147.5].forEach(cz => {
-      seats.push({ x: -0.95, y: 2.35, z: cz, name: 'Observation Swivel Chair', standPos: { x: -0.20, y: 2.85, z: cz } });
-      seats.push({ x: 0.95, y: 2.35, z: cz, name: 'Observation Swivel Chair', standPos: { x: 0.20, y: 2.85, z: cz } });
+      seats.push({ x: -1.15, y: 2.35, z: cz, name: 'Observation Swivel Chair', standPos: { x: 0.0, y: 2.85, z: cz } });
+      seats.push({ x: 1.15, y: 2.35, z: cz, name: 'Observation Swivel Chair', standPos: { x: 0.0, y: 2.85, z: cz } });
     });
   };
 

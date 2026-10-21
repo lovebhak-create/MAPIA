@@ -10,8 +10,8 @@ const Car8_Observation = (() => {
     group.position.set(0, 1.2, -155.0);
 
     const length = 20.0;
-    const width = 3.0;
-    const height = 2.7;
+    const width = 3.5;
+    const height = 2.85;
 
     const matWoodFloor = new THREE.MeshStandardMaterial({
       map: Textures.woodFloor,
@@ -115,10 +115,10 @@ const Car8_Observation = (() => {
     // Front Bulkhead (Connecting to Car 7)
     const frontBulkhead = new THREE.Group();
     frontBulkhead.position.set(0, 0, length / 2);
-    const postL = new THREE.Mesh(new THREE.BoxGeometry(1.0, height, 0.12), matMahogany);
-    postL.position.set(-1.0, height / 2, 0);
-    const postR = new THREE.Mesh(new THREE.BoxGeometry(1.0, height, 0.12), matMahogany);
-    postR.position.set(1.0, height / 2, 0);
+    const postL = new THREE.Mesh(new THREE.BoxGeometry(1.25, height, 0.12), matMahogany);
+    postL.position.set(-1.125, height / 2, 0);
+    const postR = new THREE.Mesh(new THREE.BoxGeometry(1.25, height, 0.12), matMahogany);
+    postR.position.set(1.125, height / 2, 0);
     const topTransom = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.6, 0.12), matMahogany);
     topTransom.position.set(0, height - 0.3, 0);
     frontBulkhead.add(postL, postR, topTransom);
@@ -128,10 +128,10 @@ const Car8_Observation = (() => {
     const rearWallGroup = new THREE.Group();
     rearWallGroup.position.set(0, 0, -length / 2 + 3.0);
 
-    const rwL = new THREE.Mesh(new THREE.BoxGeometry(0.9, height, 0.12), matMahogany);
-    rwL.position.set(-1.0, height / 2, 0);
-    const rwR = new THREE.Mesh(new THREE.BoxGeometry(0.9, height, 0.12), matMahogany);
-    rwR.position.set(1.0, height / 2, 0);
+    const rwL = new THREE.Mesh(new THREE.BoxGeometry(1.15, height, 0.12), matMahogany);
+    rwL.position.set(-1.15, height / 2, 0);
+    const rwR = new THREE.Mesh(new THREE.BoxGeometry(1.15, height, 0.12), matMahogany);
+    rwR.position.set(1.15, height / 2, 0);
     const rwTop = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.5, 0.12), matMahogany);
     rwTop.position.set(0, height - 0.25, 0);
 
@@ -188,7 +188,7 @@ const Car8_Observation = (() => {
     [-1, 1].forEach(side => {
       for (let cz = -5.0; cz <= 7.0; cz += 2.5) {
         // Chair facing slightly diagonal toward window
-        group.add(createSwivelChair(side * 0.95, cz, side * (Math.PI / 2 + 0.2)));
+        group.add(createSwivelChair(side * 1.15, cz, side * (Math.PI / 2 + 0.2)));
       }
     });
 
