@@ -51,20 +51,6 @@ const Car3_Coach = (() => {
       metalness: 0.02
     });
 
-    // Deep Velvet Window Curtains (Photo 1)
-    const matCurtainVelvet = new THREE.MeshStandardMaterial({
-      color: 0x4a1219,
-      roughness: 0.85,
-      metalness: 0.05
-    });
-
-    // Window Shade / Blind
-    const matWindowShade = new THREE.MeshStandardMaterial({
-      color: 0x2b1e16,
-      roughness: 0.8,
-      metalness: 0.05
-    });
-
     const matBrass = new THREE.MeshStandardMaterial({
       color: 0xd4af37,
       roughness: 0.35,
@@ -191,13 +177,6 @@ const Car3_Coach = (() => {
         const glass = new THREE.Mesh(new THREE.BoxGeometry(0.04, 1.18, windowSpan * 0.75), matGlass);
         glass.position.set(0, 1.49, wz);
         wallGroup.add(glass);
-
-        // Velvet Window Curtains framing the windows (Photo 1)
-        const curtainLeft = new THREE.Mesh(new THREE.BoxGeometry(0.06, 1.16, 0.12), matCurtainVelvet);
-        curtainLeft.position.set(-xSide * 0.02, 1.49, wz - windowSpan * 0.34);
-        const curtainRight = new THREE.Mesh(new THREE.BoxGeometry(0.06, 1.16, 0.12), matCurtainVelvet);
-        curtainRight.position.set(-xSide * 0.02, 1.49, wz + windowSpan * 0.34);
-        wallGroup.add(curtainLeft, curtainRight);
 
         // Mahogany frame pillar (1.18m tall, flush with wainscot sill and upper header)
         const pillar = new THREE.Mesh(new THREE.BoxGeometry(0.13, 1.18, windowSpan * 0.25), matMahogany);
