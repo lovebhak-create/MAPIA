@@ -89,7 +89,7 @@ const Characters = (() => {
     const ratio = characterRatios[d.key] || 0.55;
     const W = H * ratio;
 
-    // Load High-Res Front and Back Textures
+    // Load High-Res Front and Back Textures (4K Ultra-HD 1800~2000px)
     const frontTex = textureLoader.load(`assets/characters/${d.key}_front.png`);
     frontTex.colorSpace = THREE.SRGBColorSpace;
     frontTex.generateMipmaps = true;

@@ -25,14 +25,16 @@ window.addEventListener('DOMContentLoaded', () => {
 
   // Check URL param ?px=&py=&pz= or ?car=1..8 (default: 3호차 일반 객차)
   const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.has('px')) {
+  if (urlParams.has('px') && urlParams.has('pz')) {
     const px = parseFloat(urlParams.get('px'));
     const py = parseFloat(urlParams.get('py') || '2.85');
     const pz = parseFloat(urlParams.get('pz'));
     const ry = parseFloat(urlParams.get('ry') || '0');
     const rx = parseFloat(urlParams.get('rx') || '0');
-    camera.position.set(px, py, pz);
-    camera.rotation.set(rx, ry, 0, 'YXZ');
+    if (!isNaN(px) && !isNaN(pz)) {
+      camera.position.set(px, isNaN(py) ? 2.85 : py, pz);
+      camera.rotation.set(isNaN(rx) ? 0 : rx, isNaN(ry) ? 0 : ry, 0, 'YXZ');
+    }
   } else {
     const startCar = parseInt(urlParams.get('car') || '3', 10);
     if (startCar >= 1 && startCar <= 8) {
