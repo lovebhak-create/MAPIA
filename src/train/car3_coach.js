@@ -282,33 +282,45 @@ const Car3_Coach = (() => {
     bathGroup.add(bathFloor);
 
     // Enclosing Partition Walls - Solid rear wall seals the car completely!
+    const matCreamEnamel = new THREE.MeshStandardMaterial({ color: 0xeeebe1, roughness: 0.32, metalness: 0.1 });
+
+    // Enclosing Partition Walls - Solid rear wall seals the car completely!
     const bathWallRear = new THREE.Mesh(new THREE.BoxGeometry(1.14, height, 0.08), matMahogany);
     bathWallRear.position.set(1.12, height / 2, -9.95);
 
-    // Outer Corridor Partition Wall: Rich polished mahogany facing the central aisle
-    const bathWallL = new THREE.Mesh(new THREE.BoxGeometry(0.08, height, 2.45), matMahogany);
-    bathWallL.position.set(0.55, height / 2, -8.725);
+    // Front Partition Wall facing passenger area (at Z = -7.5) - Solid 100% sealed partition wall!
+    const bathWallFront = new THREE.Mesh(new THREE.BoxGeometry(1.14, height, 0.08), matMahogany);
+    bathWallFront.position.set(1.12, height / 2, -7.5);
+    const innerLiningFront = new THREE.Mesh(new THREE.BoxGeometry(1.10, height - 0.1, 0.02), matCreamEnamel);
+    innerLiningFront.position.set(1.12, height / 2, -7.45);
+    bathGroup.add(bathWallFront, innerLiningFront);
 
-    // Inner Enamel Metal Lining: Cream/light gray enameled metal panels with rivet trim (Panel ① & ②)
-    const matCreamEnamel = new THREE.MeshStandardMaterial({ color: 0xeeebe1, roughness: 0.32, metalness: 0.1 });
-    const innerLiningL = new THREE.Mesh(new THREE.BoxGeometry(0.02, height - 0.1, 2.41), matCreamEnamel);
-    innerLiningL.position.set(0.60, height / 2, -8.725);
+    // Aisle-facing Wall (at X = 0.55): Contains the accessible Restroom Door directly facing the central aisle!
+    // North section of aisle wall (Z = -7.50 to -7.70, length 0.20m)
+    const bathWallL_North = new THREE.Mesh(new THREE.BoxGeometry(0.08, height, 0.20), matMahogany);
+    bathWallL_North.position.set(0.55, height / 2, -7.60);
+
+    // South section of aisle wall (Z = -8.50 to -9.95, length 1.45m)
+    const bathWallL_South = new THREE.Mesh(new THREE.BoxGeometry(0.08, height, 1.45), matMahogany);
+    bathWallL_South.position.set(0.55, height / 2, -9.225);
+
+    // Inner Enamel Metal Lining on south wall: Cream/light gray enameled metal panels with rivet trim (Panel ① & ②)
+    const innerLiningL = new THREE.Mesh(new THREE.BoxGeometry(0.02, height - 0.1, 1.41), matCreamEnamel);
+    innerLiningL.position.set(0.60, height / 2, -9.225);
     bathGroup.add(innerLiningL);
 
-    // Front Partition Wall facing passenger seats (at Z = -7.5)
-    const bathWallFrontR = new THREE.Mesh(new THREE.BoxGeometry(0.35, height, 0.08), matMahogany);
-    bathWallFrontR.position.set(1.515, height / 2, -7.5);
+    // Transom over doorway (Z = -7.70 to -8.50, width 0.80m, Y = 2.05 to height) - ZERO GAP!
+    const bathTransom = new THREE.Mesh(new THREE.BoxGeometry(0.08, height - 2.05, 0.80), matMahogany);
+    bathTransom.position.set(0.55, 2.05 + (height - 2.05) / 2, -8.10);
 
-    // Flawless zero-gap transom & header casing trim above restroom door
-    const bathTransom = new THREE.Mesh(new THREE.BoxGeometry(0.80, height - 2.04, 0.10), matMahogany);
-    bathTransom.position.set(0.945, height - (height - 2.04) / 2, -7.5);
+    // Doorway header casing trim
+    const bathDoorCasing = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.05, 0.84), matMahogany);
+    bathDoorCasing.position.set(0.55, 2.05, -8.10);
 
-    const bathDoorCasing = new THREE.Mesh(new THREE.BoxGeometry(0.82, 0.06, 0.14), matMahogany);
-    bathDoorCasing.position.set(0.945, 2.05, -7.5);
-
-    const threshold = new THREE.Mesh(new THREE.BoxGeometry(0.80, 0.025, 0.10), matBrass);
-    threshold.position.set(0.945, 0.015, -7.5);
-    bathGroup.add(bathWallRear, bathWallL, bathWallFrontR, bathTransom, bathDoorCasing, threshold);
+    // Brass Threshold
+    const threshold = new THREE.Mesh(new THREE.BoxGeometry(0.10, 0.025, 0.80), matBrass);
+    threshold.position.set(0.55, 0.015, -8.10);
+    bathGroup.add(bathWallRear, bathWallL_North, bathWallL_South, bathTransom, bathDoorCasing, threshold);
 
     // Inside Lavatory Materials (Panel ① & ②)
     const matPorcelain = new THREE.MeshStandardMaterial({ color: 0xfcfcfc, roughness: 0.15, metalness: 0.05 });
@@ -325,30 +337,31 @@ const Car3_Coach = (() => {
     foyerLight.position.set(0, height - 0.15, -7.5);
     bathGroup.add(foyerLampBase, foyerGlobe, foyerLight);
 
-    // "TOILET" Brass Plaque on Corridor Wall / Door Header (Panel ③)
+    // "TOILET" Brass Plaque on Corridor Wall / Door Header (Panel ③) facing central aisle
     const matToiletSign = new THREE.MeshStandardMaterial({ color: 0x141618, roughness: 0.4 });
-    const signBox = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.10, 0.03), matToiletSign);
-    signBox.position.set(0.945, height - 0.22, -7.45);
-    const signPlaque = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.06, 0.01), matBrass);
-    signPlaque.position.set(0, 0, 0.02);
+    const signBox = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.10, 0.32), matToiletSign);
+    signBox.position.set(0.50, height - 0.22, -8.10);
+    const signPlaque = new THREE.Mesh(new THREE.BoxGeometry(0.01, 0.06, 0.28), matBrass);
+    signPlaque.position.set(-0.01, 0, 0);
     signBox.add(signPlaque);
     bathGroup.add(signBox);
 
-    // Restroom Door: Interactive swing door opening inward against left wall (Panel ③)
+    // Restroom Door: Interactive swing door on aisle wall opening inward against front wall (Panel ③)
     const bathDoorPivot = new THREE.Group();
-    bathDoorPivot.position.set(0.59, 0, -7.5);
+    bathDoorPivot.position.set(0.55, 0, -7.70);
 
-    // Height 2.06m overlaps smoothly with casing header at 2.05m - ZERO GAP!
-    const bathDoor = new THREE.Mesh(new THREE.BoxGeometry(0.74, 2.06, 0.04), matMahogany);
-    bathDoor.position.set(0.37, 1.03, 0);
+    const bathDoor = new THREE.Mesh(new THREE.BoxGeometry(0.04, 2.04, 0.80), matMahogany);
+    bathDoor.position.set(0, 1.02, -0.40);
 
-    const doorInnerCream = new THREE.Mesh(new THREE.BoxGeometry(0.70, 1.96, 0.01), matCreamEnamel);
-    doorInnerCream.position.set(0, 0, -0.02);
-    const doorPlaqueBrass = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.07, 0.02), matBrass);
-    doorPlaqueBrass.position.set(0, 0.45, 0.025);
-    const doorHandle = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.14, 8), matChrome);
-    doorHandle.position.set(-0.30, 0, 0.03);
-    bathDoor.add(doorInnerCream, doorPlaqueBrass, doorHandle);
+    const doorInnerCream = new THREE.Mesh(new THREE.BoxGeometry(0.01, 1.96, 0.76), matCreamEnamel);
+    doorInnerCream.position.set(0.02, 0, 0);
+    const doorPlaqueBrass = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.07, 0.24), matBrass);
+    doorPlaqueBrass.position.set(-0.025, 0.45, 0);
+    const doorHandleOuter = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.14, 8), matChrome);
+    doorHandleOuter.position.set(-0.03, 0, -0.32);
+    const doorHandleInner = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.14, 8), matChrome);
+    doorHandleInner.position.set(0.03, 0, -0.32);
+    bathDoor.add(doorInnerCream, doorPlaqueBrass, doorHandleOuter, doorHandleInner);
     bathDoorPivot.add(bathDoor);
     bathGroup.add(bathDoorPivot);
 
@@ -357,8 +370,14 @@ const Car3_Coach = (() => {
         mesh: bathDoorPivot,
         type: 'swing',
         openAngle: -Math.PI / 2,
-        x: 0.59,
-        z: -45.0 - 7.5,
+        x: 0.55,
+        z: -45.0 - 8.10,
+        doorBox: {
+          minX: 0.45,
+          maxX: 0.65,
+          minZ: -45.0 - 8.50,
+          maxZ: -45.0 - 7.70
+        },
         name: '3호차 화장실 문'
       });
     }

@@ -152,11 +152,12 @@ const Collision = (() => {
       addBox(0.65, 1.60, seatZ - 0.35, seatZ + 0.35, 1.0, 2.4, `Car3_SeatR_${i}`);
     }
 
-    // Car 3 Restroom Walls & Fixtures (Doorway X: 0.55 to 1.34 is 100% OPEN for walking in!)
+    // Car 3 Restroom Walls & Fixtures (Doorway on aisle wall Z: -53.50 to -52.70 is 100% open for dynamic door!)
     // Central walkway (X: -0.55 to +0.55) has ZERO collision!
-    addBox(0.50, 0.60, -54.95, -52.5, 1.0, 4.0, 'Car3_RestroomWallL');
+    addBox(0.50, 0.60, -52.70, -52.50, 1.0, 4.0, 'Car3_RestroomWallL_North');
+    addBox(0.50, 0.60, -54.95, -53.50, 1.0, 4.0, 'Car3_RestroomWallL_South');
     addBox(0.55, 1.69, -54.98, -54.90, 1.0, 4.0, 'Car3_RestroomWallRear');
-    addBox(1.34, 1.69, -52.55, -52.45, 1.0, 4.0, 'Car3_RestroomWallFront');
+    addBox(0.55, 1.69, -52.55, -52.45, 1.0, 4.0, 'Car3_RestroomWallFront');
     addBox(0.90, 1.34, -54.90, -54.20, 1.0, 2.2, 'Car3_Toilet');
     addBox(1.20, 1.65, -53.5, -52.8, 1.0, 2.2, 'Car3_Vanity');
 
@@ -169,11 +170,12 @@ const Collision = (() => {
     addBox(-1.65, -0.50, -77.2, -76.8, 1.0, 4.0, 'Car4_BulkheadRear_L');
     addBox(0.50, 1.65, -77.2, -76.8, 1.0, 4.0, 'Car4_BulkheadRear_R');
 
-    // Foyer linen closet & Luxury Private Restroom Walls (Doorway X: 0.55 to 1.34 is 100% OPEN!)
+    // Foyer linen closet & Luxury Private Restroom Walls (Doorway on aisle wall Z: -75.50 to -74.70 is 100% open for dynamic door!)
     addBox(0.40, 1.65, -59.5, -57.0, 1.0, 4.0, 'Car4_FrontCloset');
-    addBox(0.50, 0.60, -76.95, -74.5, 1.0, 4.0, 'Car4_RestroomWallL');
+    addBox(0.50, 0.60, -74.70, -74.50, 1.0, 4.0, 'Car4_RestroomWallL_North');
+    addBox(0.50, 0.60, -76.95, -75.50, 1.0, 4.0, 'Car4_RestroomWallL_South');
     addBox(0.55, 1.69, -76.98, -76.90, 1.0, 4.0, 'Car4_RestroomWallRear');
-    addBox(1.34, 1.69, -74.55, -74.45, 1.0, 4.0, 'Car4_RestroomWallFront');
+    addBox(0.55, 1.69, -74.55, -74.45, 1.0, 4.0, 'Car4_RestroomWallFront');
     addBox(0.90, 1.34, -76.90, -76.20, 1.0, 2.2, 'Car4_Toilet');
     addBox(1.20, 1.65, -75.5, -74.8, 1.0, 2.2, 'Car4_RestroomVanity');
 
@@ -234,11 +236,12 @@ const Collision = (() => {
       addBox(-1.65, -0.55, bz - 1.14, bz - 1.06, 1.0, 3.5, `Car5_DivL_${s}`);
       addBox(0.55, 1.65, bz - 1.14, bz - 1.06, 1.0, 3.5, `Car5_DivR_${s}`);
     }
-    // Car 5 Restroom Walls & Fixtures (Doorway X: 0.55 to 1.34 is 100% OPEN!)
+    // Car 5 Restroom Walls & Fixtures (Doorway on aisle wall Z: -97.50 to -96.70 is 100% open for dynamic door!)
     // Central walkway (X: -0.55 to +0.55) has ZERO collision!
-    addBox(0.50, 0.60, -98.95, -96.5, 1.0, 4.0, 'Car5_RestroomWallL');
+    addBox(0.50, 0.60, -96.70, -96.50, 1.0, 4.0, 'Car5_RestroomWallL_North');
+    addBox(0.50, 0.60, -98.95, -97.50, 1.0, 4.0, 'Car5_RestroomWallL_South');
     addBox(0.55, 1.69, -98.98, -98.90, 1.0, 4.0, 'Car5_RestroomWallRear');
-    addBox(1.34, 1.69, -96.55, -96.45, 1.0, 4.0, 'Car5_RestroomWallFront');
+    addBox(0.55, 1.69, -96.55, -96.45, 1.0, 4.0, 'Car5_RestroomWallFront');
     addBox(0.90, 1.34, -98.90, -98.20, 1.0, 2.2, 'Car5_Toilet');
     addBox(1.20, 1.65, -97.5, -96.8, 1.0, 2.2, 'Car5_Vanity');
 

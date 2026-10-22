@@ -224,41 +224,78 @@ const Car4_Sleeper1 = (() => {
     const bathWallRear = new THREE.Mesh(new THREE.BoxGeometry(1.14, height, 0.08), matMahogany);
     bathWallRear.position.set(1.12, height / 2, -9.95);
 
-    const bathWallL = new THREE.Mesh(new THREE.BoxGeometry(0.08, height, 2.45), matMahogany);
-    bathWallL.position.set(0.55, height / 2, -8.725);
+    // Front partition wall facing Suite 3 - 100% solid, seamless partition sealing the restroom from Suite 3!
+    const bathWallFront = new THREE.Mesh(new THREE.BoxGeometry(1.14, height, 0.08), matMahogany);
+    bathWallFront.position.set(1.12, height / 2, -7.50);
 
-    const bathWallFrontR = new THREE.Mesh(new THREE.BoxGeometry(0.35, height, 0.08), matMahogany);
-    bathWallFrontR.position.set(1.515, height / 2, -7.5);
+    // Aisle-facing Wall (at X = 0.55): Contains the accessible Restroom Door directly facing the hallway!
+    // North section of aisle wall (Z = -7.50 to -7.70, length 0.20m)
+    const bathWallL_North = new THREE.Mesh(new THREE.BoxGeometry(0.08, height, 0.20), matMahogany);
+    bathWallL_North.position.set(0.55, height / 2, -7.60);
 
-    const bathTransom = new THREE.Mesh(new THREE.BoxGeometry(0.80, height - 2.04, 0.10), matMahogany);
-    bathTransom.position.set(0.945, height - (height - 2.04) / 2, -7.5);
+    // South section of aisle wall (Z = -8.50 to -9.95, length 1.45m)
+    const bathWallL_South = new THREE.Mesh(new THREE.BoxGeometry(0.08, height, 1.45), matMahogany);
+    bathWallL_South.position.set(0.55, height / 2, -9.225);
 
-    const bathDoorCasing = new THREE.Mesh(new THREE.BoxGeometry(0.82, 0.06, 0.14), matMahogany);
-    bathDoorCasing.position.set(0.945, 2.05, -7.5);
+    // Transom over doorway (Z = -7.70 to -8.50, width 0.80m, Y = 2.05 to height) - ZERO GAP!
+    const bathTransom = new THREE.Mesh(new THREE.BoxGeometry(0.08, height - 2.05, 0.80), matMahogany);
+    bathTransom.position.set(0.55, 2.05 + (height - 2.05) / 2, -8.10);
 
-    const bathThreshold = new THREE.Mesh(new THREE.BoxGeometry(0.80, 0.025, 0.10), matBrass);
-    bathThreshold.position.set(0.945, 0.015, -7.5);
+    // Doorway header casing trim
+    const bathDoorCasing = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.05, 0.84), matMahogany);
+    bathDoorCasing.position.set(0.55, 2.05, -8.10);
 
-    // Luxury Restroom Door (Interactive swing door opening inward against left wall)
+    // Brass Threshold
+    const bathThreshold = new THREE.Mesh(new THREE.BoxGeometry(0.10, 0.025, 0.80), matBrass);
+    bathThreshold.position.set(0.55, 0.015, -8.10);
+
+    // "1등석 화장실 / RESTROOM" Brass Sign Plaque mounted on aisle wall header facing player
+    const signBox = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.10, 0.32), new THREE.MeshStandardMaterial({ color: 0x141618, roughness: 0.4 }));
+    signBox.position.set(0.50, height - 0.22, -8.10);
+    const signPlaque = new THREE.Mesh(new THREE.BoxGeometry(0.01, 0.06, 0.28), matGoldTrim);
+    signPlaque.position.set(-0.01, 0, 0);
+    signBox.add(signPlaque);
+    bathGroup.add(signBox);
+
+    // Interactive Swing Restroom Door on Aisle Wall (facing player in the hallway!)
+    // Pivot at (0.55, 0, -7.70), door spans along -Z to -8.44 (width 0.74m).
+    // Swings inward into bathroom against the front partition wall (openAngle: -Math.PI / 2).
     const bathDoorPivot = new THREE.Group();
-    bathDoorPivot.position.set(0.59, 0, -7.5);
+    bathDoorPivot.position.set(0.55, 0, -7.70);
 
-    const bathDoor = new THREE.Mesh(new THREE.BoxGeometry(0.74, 2.06, 0.04), matMahogany);
-    bathDoor.position.set(0.37, 1.03, 0);
-    const bathDoorMirror = new THREE.Mesh(new THREE.BoxGeometry(0.35, 1.35, 0.02), matMirror);
-    bathDoorMirror.position.set(0, 0.18, 0.02);
-    const bathPlaque = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.07, 0.03), matGoldTrim);
-    bathPlaque.position.set(0, 0.95, 0.025);
-    bathDoor.add(bathDoorMirror, bathPlaque);
+    const bathDoor = new THREE.Mesh(new THREE.BoxGeometry(0.04, 2.04, 0.80), matMahogany);
+    bathDoor.position.set(0, 1.02, -0.40);
+
+    // Full-length Art Deco Mirror on inner face (facing inside the restroom)
+    const bathDoorMirror = new THREE.Mesh(new THREE.BoxGeometry(0.02, 1.35, 0.38), matMirror);
+    bathDoorMirror.position.set(0.02, 0.18, 0);
+
+    // Brass Plaque on outer face (facing the aisle)
+    const bathPlaque = new THREE.Mesh(new THREE.BoxGeometry(0.025, 0.07, 0.24), matGoldTrim);
+    bathPlaque.position.set(-0.02, 0.45, 0);
+
+    // Handles on the latch edge (at Z = -0.32 relative to door center)
+    const doorHandleOuter = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.14, 8), matBrass);
+    doorHandleOuter.position.set(-0.03, 0, -0.32);
+    const doorHandleInner = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.14, 8), matBrass);
+    doorHandleInner.position.set(0.03, 0, -0.32);
+    bathDoor.add(bathDoorMirror, bathPlaque, doorHandleOuter, doorHandleInner);
     bathDoorPivot.add(bathDoor);
+    bathGroup.add(bathDoorPivot);
 
     if (typeof DoorManager !== 'undefined') {
       DoorManager.registerDoor({
         mesh: bathDoorPivot,
         type: 'swing',
         openAngle: -Math.PI / 2,
-        x: 0.59,
-        z: -67.0 - 7.5,
+        x: 0.55,
+        z: -67.0 - 8.10,
+        doorBox: {
+          minX: 0.45,
+          maxX: 0.65,
+          minZ: -67.0 - 8.50,
+          maxZ: -67.0 - 7.70
+        },
         name: '4호차 1등석 화장실 문'
       });
     }
@@ -440,7 +477,7 @@ const Car4_Sleeper1 = (() => {
     vLight.position.set(1.12, height - 0.25, -8.65);
 
     bathGroup.add(
-      bathWallRear, bathWallL, bathWallFrontR, bathTransom, bathDoorCasing, bathThreshold,
+      bathWallRear, bathWallFront, bathWallL_North, bathWallL_South, bathTransom, bathDoorCasing, bathThreshold,
       vanityGroup, vMirror, vMirrorFrame,
       toilet, tSeat, tLid, flushPipe, flushTank, tpDispenser, towelRail, vLight
     );
