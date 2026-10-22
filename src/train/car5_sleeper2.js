@@ -99,9 +99,39 @@ const Car5_Sleeper2 = (() => {
     // 3. Exterior Walls
     const wallL = new THREE.Mesh(new THREE.BoxGeometry(0.12, height, length), matExtGreen);
     wallL.position.set(-width / 2 + 0.06, height / 2, 0);
-    const wallR = new THREE.Mesh(new THREE.BoxGeometry(0.12, height, length), matExtGreen);
-    wallR.position.set(width / 2 - 0.06, height / 2, 0);
+    // Right exterior wall in berth area (Z = -7.5 to +10.0, length 17.5m)
+    const wallR = new THREE.Mesh(new THREE.BoxGeometry(0.12, height, 17.5), matExtGreen);
+    wallR.position.set(width / 2 - 0.06, height / 2, 1.25);
     group.add(wallL, wallR);
+
+    // Right exterior wall in Restroom area (Z = -7.5 to -10.0, length 2.5m)
+    // Constructed with authentic Pullman dark mahogany interior and single small privacy window
+    const rBathWallGroup = new THREE.Group();
+    rBathWallGroup.position.set(width / 2 - 0.06, 0, 0);
+
+    const rLower = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.90, 2.50), matMahogany);
+    rLower.position.set(0, 0.45, -8.75);
+    const rSillTrim = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.04, 2.50), matMahogany);
+    rSillTrim.position.set(0, 0.90, -8.75);
+
+    const rUpperHeight = height - 2.05;
+    const rUpper = new THREE.Mesh(new THREE.BoxGeometry(0.12, rUpperHeight, 2.50), matMahogany);
+    rUpper.position.set(0, 2.05 + rUpperHeight / 2, -8.75);
+    const rHeaderTrim = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.04, 2.50), matMahogany);
+    rHeaderTrim.position.set(0, 2.05, -8.75);
+
+    const rSolidNorth = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.15, 0.95), matMahogany);
+    rSolidNorth.position.set(0, 1.475, -7.975);
+    const rSolidSouth = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.15, 0.95), matMahogany);
+    rSolidSouth.position.set(0, 1.475, -9.525);
+
+    const rWinHeader = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.25, 0.60), matMahogany);
+    rWinHeader.position.set(0, 1.925, -8.75);
+    const rWinSill = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.30, 0.60), matMahogany);
+    rWinSill.position.set(0, 1.05, -8.75);
+
+    rBathWallGroup.add(rLower, rSillTrim, rUpper, rHeaderTrim, rSolidNorth, rSolidSouth, rWinHeader, rWinSill);
+    group.add(rBathWallGroup);
 
     // End Bulkheads with Interactive Sliding Doors
     const createBulkhead = (zPos) => {
@@ -269,17 +299,6 @@ const Car5_Sleeper2 = (() => {
     const bathWallL_South = new THREE.Mesh(new THREE.BoxGeometry(0.08, height, 1.45), matMahogany);
     bathWallL_South.position.set(0.55, height / 2, -9.225);
 
-    // 2-tone Interior Wall lining on south section (Warm cream upper, dark Pullman mahogany lower wainscot - Photo 6 & 7)
-    const matLowerWainscot = new THREE.MeshStandardMaterial({ color: 0x2e1a12, roughness: 0.45 });
-    const matUpperWall = new THREE.MeshStandardMaterial({ color: 0xeee7db, roughness: 0.4 });
-    const innerWainscotL = new THREE.Mesh(new THREE.BoxGeometry(0.02, 1.1, 1.41), matLowerWainscot);
-    innerWainscotL.position.set(0.60, 0.55, -9.225);
-    const innerUpperL = new THREE.Mesh(new THREE.BoxGeometry(0.02, 1.6, 1.41), matUpperWall);
-    innerUpperL.position.set(0.60, 1.9, -9.225);
-    const innerRailL = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.06, 1.41), matMahogany);
-    innerRailL.position.set(0.60, 1.1, -9.225);
-    bathGroup.add(innerWainscotL, innerUpperL, innerRailL);
-
     // Transom over doorway (Z = -7.70 to -8.50, width 0.80m, Y = 2.05 to height) - ZERO GAP!
     const bathTransom = new THREE.Mesh(new THREE.BoxGeometry(0.80, height - 2.04, 0.08), matMahogany);
     bathTransom.position.set(0.55, 2.05 + (height - 2.05) / 2, -8.10);
@@ -359,8 +378,8 @@ const Car5_Sleeper2 = (() => {
     const washNicheGroup = new THREE.Group();
     washNicheGroup.position.set(1.42, 0.82, -8.15);
 
-    // Arched white enamel wall backplate with molded cast rim (Photo 7)
-    const nicheBackplate = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.72, 0.48), new THREE.MeshStandardMaterial({ color: 0xf5f3ee, roughness: 0.2 }));
+    // Arched mahogany wall backplate with molded cast rim
+    const nicheBackplate = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.72, 0.48), matMahogany);
     nicheBackplate.position.set(0.16, 0.28, 0);
     const nicheArch = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 0.04, 16, 1, false, 0, Math.PI), matMahogany);
     nicheArch.rotation.z = Math.PI / 2;
@@ -440,32 +459,33 @@ const Car5_Sleeper2 = (() => {
       });
     }
 
-    // 3. Ornate Carved Oval Vanity Mirror on Right Wall (Photo 2)
-    const mirrorGroup = new THREE.Group();
-    mirrorGroup.position.set(width / 2 - 0.08, 1.50, -8.15);
-    const ovalMirror = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.02, 16), new THREE.MeshStandardMaterial({ color: 0xccddee, roughness: 0.08, metalness: 0.9 }));
-    ovalMirror.rotation.z = Math.PI / 2;
-    const ovalFrame = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 0.03, 16), matMahogany);
-    ovalFrame.rotation.z = Math.PI / 2;
-    const carvedCrest = new THREE.Mesh(new THREE.SphereGeometry(0.045, 8, 8), matBrass);
-    carvedCrest.position.set(0, 0.25, 0);
-    mirrorGroup.add(ovalMirror, ovalFrame, carvedCrest);
+    // Single small frosted train privacy window on Right Mahogany Wall
+    const matFrostedGlass = new THREE.MeshPhysicalMaterial({
+      color: 0xc8ddf0,
+      roughness: 0.25,
+      metalness: 0.1,
+      transmission: 0.7,
+      transparent: true,
+      opacity: 0.8
+    });
+    const restWindow = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.60, 0.56), matFrostedGlass);
+    restWindow.position.set(width / 2 - 0.06, 1.50, -8.75);
 
-    // 4. Double Brass Coat / Hat Hooks on Wall (Photo 3)
-    const hook1 = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.08, 0.02), matBrass);
-    hook1.position.set(width / 2 - 0.08, 1.85, -7.80);
-    const hook2 = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.08, 0.02), matBrass);
-    hook2.position.set(width / 2 - 0.08, 1.85, -8.60);
+    // Small window mahogany hollow moulded frame casing (4 border trim pieces)
+    const fTop = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.04, 0.64), matMahogany);
+    fTop.position.set(width / 2 - 0.06, 1.82, -8.75);
+    const fBottom = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.04, 0.64), matMahogany);
+    fBottom.position.set(width / 2 - 0.06, 1.18, -8.75);
+    const fNorth = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.68, 0.04), matMahogany);
+    fNorth.position.set(width / 2 - 0.06, 1.50, -8.45);
+    const fSouth = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.68, 0.04), matMahogany);
+    fSouth.position.set(width / 2 - 0.06, 1.50, -9.05);
 
-    // 5. White enameled metal towel holder & chrome grab bar (Photo 7)
-    const towelRack = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.08, 0.36), matNickelSilver);
-    towelRack.position.set(width / 2 - 0.10, 1.15, -7.80);
-    const grabRail = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.42, 8), matNickelSilver);
-    grabRail.position.set(width / 2 - 0.10, 1.10, -8.50);
-
-    // 6. Frosted train window casting natural daylight into restroom (Photo 7)
-    const restWindow = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.85, 0.65), new THREE.MeshPhysicalMaterial({ color: 0xdae8f5, roughness: 0.4, transmission: 0.7 }));
-    restWindow.position.set(width / 2 - 0.06, 1.5, -8.75);
+    // Window Sash divider bars (authentic 4-pane Pullman bathroom privacy window)
+    const muntinH = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.025, 0.56), matMahogany);
+    muntinH.position.set(width / 2 - 0.06, 1.50, -8.75);
+    const muntinV = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.60, 0.025), matMahogany);
+    muntinV.position.set(width / 2 - 0.06, 1.50, -8.75);
 
     // Warm restroom ceiling light
     const bathLight = new THREE.PointLight(0xffdfaa, 0.95, 4.5);
@@ -473,7 +493,7 @@ const Car5_Sleeper2 = (() => {
 
     bathGroup.add(
       toiletBase, toiletSeat, toiletLid, flushPipe, flushTank,
-      washNicheGroup, mirrorGroup, hook1, hook2, towelRack, grabRail, restWindow, bathLight
+      washNicheGroup, restWindow, fTop, fBottom, fNorth, fSouth, muntinH, muntinV, bathLight
     );
     group.add(bathGroup);
 

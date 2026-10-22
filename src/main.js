@@ -30,8 +30,9 @@ window.addEventListener('DOMContentLoaded', () => {
     const py = parseFloat(urlParams.get('py') || '2.85');
     const pz = parseFloat(urlParams.get('pz'));
     const ry = parseFloat(urlParams.get('ry') || '0');
+    const rx = parseFloat(urlParams.get('rx') || '0');
     camera.position.set(px, py, pz);
-    camera.rotation.set(0, ry, 0);
+    camera.rotation.set(rx, ry, 0, 'YXZ');
   } else {
     const startCar = parseInt(urlParams.get('car') || '3', 10);
     if (startCar >= 1 && startCar <= 8) {

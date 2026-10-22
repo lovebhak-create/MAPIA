@@ -133,6 +133,51 @@ const Car4_Sleeper1 = (() => {
       const windowSpan = (length - 4.0) / numWindows;
       for (let i = 0; i < numWindows; i++) {
         const wz = -length / 2 + 2.5 + i * windowSpan;
+
+        // If this is the right wall (xSide === 1) in the bathroom section (i === 0, Z = -7.5 to -10.0):
+        if (xSide === 1 && i === 0) {
+          // Bathroom exterior wall is a solid mahogany wall with ONLY a single small privacy window!
+          const solidNorth = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.15, 0.85), matMahogany);
+          solidNorth.position.set(0, 1.475, -7.925);
+          const solidSouth = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.15, 1.05), matMahogany);
+          solidSouth.position.set(0, 1.475, -9.475);
+
+          const winHeader = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.25, 0.60), matMahogany);
+          winHeader.position.set(0, 1.925, -8.65);
+          const winSill = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.30, 0.60), matMahogany);
+          winSill.position.set(0, 1.05, -8.65);
+
+          const matFrostedGlass = new THREE.MeshPhysicalMaterial({
+            color: 0xc8ddf0,
+            roughness: 0.25,
+            metalness: 0.1,
+            transmission: 0.7,
+            transparent: true,
+            opacity: 0.8
+          });
+          const smallGlass = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.60, 0.56), matFrostedGlass);
+          smallGlass.position.set(0, 1.50, -8.65);
+
+          // Small window mahogany hollow moulded frame casing (4 border trim pieces)
+          const fTop = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.04, 0.64), matMahogany);
+          fTop.position.set(0, 1.82, -8.65);
+          const fBottom = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.04, 0.64), matMahogany);
+          fBottom.position.set(0, 1.18, -8.65);
+          const fNorth = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.68, 0.04), matMahogany);
+          fNorth.position.set(0, 1.50, -8.35);
+          const fSouth = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.68, 0.04), matMahogany);
+          fSouth.position.set(0, 1.50, -8.95);
+
+          // Window Sash divider bars (authentic 4-pane Pullman bathroom privacy window)
+          const muntinH = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.025, 0.56), matMahogany);
+          muntinH.position.set(0, 1.50, -8.65);
+          const muntinV = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.60, 0.025), matMahogany);
+          muntinV.position.set(0, 1.50, -8.65);
+
+          wGroup.add(solidNorth, solidSouth, winHeader, winSill, smallGlass, fTop, fBottom, fNorth, fSouth, muntinH, muntinV);
+          continue;
+        }
+
         const glass = new THREE.Mesh(new THREE.BoxGeometry(0.04, 1.18, windowSpan * 0.75), matGlass);
         glass.position.set(0, 1.49, wz);
         wGroup.add(glass);
@@ -305,27 +350,7 @@ const Car4_Sleeper1 = (() => {
     const matDarkMarble = new THREE.MeshStandardMaterial({ color: 0x141816, roughness: 0.15, metalness: 0.15 });
     const matDarkRosewood = new THREE.MeshStandardMaterial({ color: 0x2b130e, roughness: 0.35, metalness: 0.1 });
 
-    // 1. Oval Art Deco Stained Glass Window with Ruby Red Diamond (Photo 4)
-    const stainedGlassMesh = new THREE.Mesh(
-      new THREE.BoxGeometry(0.04, 0.85, 0.58),
-      new THREE.MeshStandardMaterial({
-        map: Textures.stainedGlass,
-        roughness: 0.1,
-        metalness: 0.05,
-        emissive: 0x8a241c,
-        emissiveIntensity: 0.28
-      })
-    );
-    stainedGlassMesh.position.set(width / 2 - 0.07, 1.62, -8.75);
-
-    // Stained glass oval wooden frame with brass trim
-    const sgFrame = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.92, 0.65), matMahogany);
-    sgFrame.position.set(width / 2 - 0.06, 1.62, -8.75);
-    const sgGlow = new THREE.PointLight(0xff5533, 0.45, 2.5);
-    sgGlow.position.set(width / 2 - 0.2, 1.62, -8.75);
-    bathGroup.add(stainedGlassMesh, sgFrame, sgGlow);
-
-    // 2. Curved Black/Dark Marble Vanity Countertop & Cabinet (Mounted on Right Wall)
+    // 1. Curved Black/Dark Marble Vanity Countertop & Cabinet (Mounted on Right Mahogany Wall)
     const vanityGroup = new THREE.Group();
     vanityGroup.position.set(1.42, 0, -8.15);
 
@@ -442,13 +467,7 @@ const Car4_Sleeper1 = (() => {
       });
     }
 
-    // 3. Large Beveled Vanity Mirror with Brass Bezel on Right Wall
-    const vMirror = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.78, 0.52), matMirror);
-    vMirror.position.set(width / 2 - 0.08, 1.50, -8.15);
-    const vMirrorFrame = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.82, 0.56), matGoldTrim);
-    vMirrorFrame.position.set(width / 2 - 0.07, 1.50, -8.15);
-
-    // 4. Luxury Porcelain Toilet with Dark Rosewood/Mahogany Seat & Lid (Photo 4)
+    // 2. Luxury Porcelain Toilet with Dark Rosewood/Mahogany Seat & Lid (Photo 4)
     const toilet = new THREE.Mesh(new THREE.CylinderGeometry(0.19, 0.17, 0.44, 16), matPorcelain);
     toilet.position.set(1.12, 0.22, -9.50);
     const tSeat = new THREE.Mesh(new THREE.CylinderGeometry(0.23, 0.23, 0.04, 16), matDarkRosewood);
@@ -468,18 +487,13 @@ const Car4_Sleeper1 = (() => {
     tpDispenser.rotation.z = Math.PI / 2;
     tpDispenser.position.set(0.65, 0.55, -9.40);
 
-    // Brass Towel Rail mounted on wall
-    const towelRail = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.48, 8), matGoldTrim);
-    towelRail.position.set(width / 2 - 0.10, 1.05, -8.75);
-
     // Warm Ambient Light Fixture
     const vLight = new THREE.PointLight(0xffeedd, 0.95, 4.5);
     vLight.position.set(1.12, height - 0.25, -8.65);
 
     bathGroup.add(
       bathWallRear, bathWallFront, bathWallL_North, bathWallL_South, bathTransom, bathDoorCasing, bathThreshold,
-      vanityGroup, vMirror, vMirrorFrame,
-      toilet, tSeat, tLid, flushPipe, flushTank, tpDispenser, towelRail, vLight
+      vanityGroup, toilet, tSeat, tLid, flushPipe, flushTank, tpDispenser, vLight
     );
     group.add(bathGroup);
 
