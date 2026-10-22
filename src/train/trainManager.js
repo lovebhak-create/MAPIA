@@ -35,15 +35,15 @@ const TrainManager = (() => {
       metalness: 0.6
     });
 
-    // 1. Continuous Solid Buffer Footplate spanning the entire gap (width 1.50m, length 2.6m)
-    // Ensures you NEVER see an open hole down into the tracks between any cars!
-    const plate = new THREE.Mesh(new THREE.BoxGeometry(1.50, 0.08, 2.6), matFootplate);
+    // 1. Continuous Solid Buffer Footplate spanning the inter-car gap (width 1.40m, length 1.86m)
+    // Seamlessly bridges the cars without protruding into interior rooms!
+    const plate = new THREE.Mesh(new THREE.BoxGeometry(1.40, 0.08, 1.86), matFootplate);
     plate.position.set(0, -0.04, 0);
     plate.receiveShadow = true;
     vGroup.add(plate);
 
     // 2. Heavy Janney Automatic Knuckle Coupler & Buffer Gear underneath the plate
-    const couplerShank = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.18, 2.4), matCastIron);
+    const couplerShank = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.18, 1.8), matCastIron);
     couplerShank.position.set(0, -0.22, 0);
     const couplerHead = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.28, 0.4), matCastIron);
     couplerHead.position.set(0, -0.22, 0);
@@ -51,16 +51,17 @@ const TrainManager = (() => {
 
     // 3. Dual Flexible Air Brake Hoses
     [-0.2, 0.2].forEach(hx => {
-      const hose = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 1.8, 8), matCastIron);
+      const hose = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 1.6, 8), matCastIron);
       hose.rotation.x = Math.PI / 2;
       hose.position.set(hx, -0.32, 0);
       vGroup.add(hose);
     });
 
     // 4. Heavy Accordion Pleats (Enclosing top, left, right)
-    const numPleats = 7;
+    // Confined strictly between car bulkheads (pz: -0.80m to +0.80m) so they NEVER clip into car interior!
+    const numPleats = 6;
     for (let p = 0; p < numPleats; p++) {
-      const pz = -1.1 + (p / (numPleats - 1)) * 2.2;
+      const pz = -0.80 + (p / (numPleats - 1)) * 1.60;
       // Left pleat wall
       const pleatL = new THREE.Mesh(new THREE.BoxGeometry(0.14, 2.75, 0.10), matBellows);
       pleatL.position.set(-0.75, 1.35, pz);
@@ -76,7 +77,7 @@ const TrainManager = (() => {
     // Safety handrails inside vestibule
     [-0.68, 0.68].forEach(hx => {
       const rail = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.02, 0.02, 2.2, 8),
+        new THREE.CylinderGeometry(0.02, 0.02, 1.60, 8),
         new THREE.MeshStandardMaterial({ color: 0xd4af37, roughness: 0.3, metalness: 0.85 })
       );
       rail.rotation.x = Math.PI / 2;

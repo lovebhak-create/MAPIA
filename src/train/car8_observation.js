@@ -133,9 +133,7 @@ const Car8_Observation = (() => {
 
     const topTransom = new THREE.Mesh(new THREE.BoxGeometry(1.0, height - 2.05, 0.12), matMahogany);
     topTransom.position.set(0, 2.05 + (height - 2.05) / 2, 0);
-    const transomCasing = new THREE.Mesh(new THREE.BoxGeometry(1.04, 0.05, 0.14), matMahogany);
-    transomCasing.position.set(0, 2.05, 0);
-    frontBulkhead.add(postL, postR, topTransom, transomCasing);
+    frontBulkhead.add(postL, postR, topTransom);
 
     const sDoor = new THREE.Mesh(new THREE.BoxGeometry(0.98, 2.05, 0.05), matMahogany);
     sDoor.position.set(0, 1.025, 0);

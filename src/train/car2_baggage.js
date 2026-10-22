@@ -126,12 +126,10 @@ const Car2_Baggage = (() => {
       const postR = new THREE.Mesh(new THREE.BoxGeometry(1.25, height, 0.12), matDarkWainscot);
       postR.position.set(1.125, height / 2, 0);
 
-      // Transom spans completely from door top (2.05m) to ceiling (height) - ZERO GAP!
+      // Transom spans completely from door top (2.05m) to ceiling (height) - Flush & clean, NO awkward door casing!
       const transom = new THREE.Mesh(new THREE.BoxGeometry(1.0, height - 2.05, 0.12), matDarkWainscot);
       transom.position.set(0, 2.05 + (height - 2.05) / 2, 0);
-      const transomCasing = new THREE.Mesh(new THREE.BoxGeometry(1.04, 0.05, 0.14), matDarkWainscot);
-      transomCasing.position.set(0, 2.05, 0);
-      bh.add(postL, postR, transom, transomCasing);
+      bh.add(postL, postR, transom);
 
       // Heavy sliding crew door with authentic recessed pocket handle
       const crewDoor = new THREE.Mesh(new THREE.BoxGeometry(0.98, 2.05, 0.05), matDarkWainscot);

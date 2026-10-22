@@ -120,17 +120,41 @@ const Car7_Lounge = (() => {
       headerTrim.position.set(0, 2.05, 0);
       wGroup.add(headerTrim);
 
+      // Solid corner walls sealing car ends completely from Y = 0.90m to 2.05m (Zero holes!)
+      const solidFront = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.15, 2.25), matMahogany);
+      solidFront.position.set(0, 1.475, 8.875);
+      const solidRear = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.15, 1.75), matMahogany);
+      solidRear.position.set(0, 1.475, -9.125);
+      wGroup.add(solidFront, solidRear);
+
       // Windows
       const numWindows = 8;
-      const windowSpan = (length - 4.0) / numWindows;
+      const windowSpan = (length - 4.0) / numWindows; // 2.0m
+      const wWidth = windowSpan * 0.75; // 1.50m
+      const pWidth = windowSpan * 0.25; // 0.50m
+
       for (let i = 0; i < numWindows; i++) {
         const wz = -length / 2 + 2.5 + i * windowSpan;
-        const glass = new THREE.Mesh(new THREE.BoxGeometry(0.04, 1.18, windowSpan * 0.75), matGlass);
-        glass.position.set(0, 1.49, wz);
-        wGroup.add(glass);
+        const glass = new THREE.Mesh(new THREE.BoxGeometry(0.04, 1.12, wWidth - 0.04), matGlass);
+        glass.position.set(0, 1.475, wz);
 
-        const pillar = new THREE.Mesh(new THREE.BoxGeometry(0.13, 1.18, windowSpan * 0.25), matMahogany);
-        pillar.position.set(0, 1.49, wz + windowSpan * 0.5);
+        // Architectural Window Border Frames (4-piece mahogany casing trim)
+        const fTop = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.04, wWidth + 0.01), matMahogany);
+        fTop.position.set(0, 2.03, wz);
+        const fBottom = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.04, wWidth + 0.01), matMahogany);
+        fBottom.position.set(0, 0.92, wz);
+        const fLeft = new THREE.Mesh(new THREE.BoxGeometry(0.14, 1.15, 0.04), matMahogany);
+        fLeft.position.set(0, 1.475, wz - wWidth / 2 + 0.02);
+        const fRight = new THREE.Mesh(new THREE.BoxGeometry(0.14, 1.15, 0.04), matMahogany);
+        fRight.position.set(0, 1.475, wz + wWidth / 2 - 0.02);
+
+        const sashRail = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.03, wWidth - 0.04), matMahogany);
+        sashRail.position.set(0, 1.80, wz);
+
+        wGroup.add(glass, fTop, fBottom, fLeft, fRight, sashRail);
+
+        const pillar = new THREE.Mesh(new THREE.BoxGeometry(0.13, 1.15, pWidth), matMahogany);
+        pillar.position.set(0, 1.475, wz + windowSpan * 0.5);
         wGroup.add(pillar);
       }
 
@@ -148,12 +172,10 @@ const Car7_Lounge = (() => {
       const postR = new THREE.Mesh(new THREE.BoxGeometry(1.25, height, 0.12), matMahogany);
       postR.position.set(1.125, height / 2, 0);
 
-      // Transom spans completely from door top (2.05m) to ceiling (height) - ZERO GAP!
+      // Transom spans completely from door top (2.05m) to ceiling (height) - Flush & clean, NO awkward door casing!
       const topTransom = new THREE.Mesh(new THREE.BoxGeometry(1.0, height - 2.05, 0.12), matMahogany);
       topTransom.position.set(0, 2.05 + (height - 2.05) / 2, 0);
-      const transomCasing = new THREE.Mesh(new THREE.BoxGeometry(1.04, 0.05, 0.14), matMahogany);
-      transomCasing.position.set(0, 2.05, 0);
-      bh.add(postL, postR, topTransom, transomCasing);
+      bh.add(postL, postR, topTransom);
 
       // Sliding Mahogany Door with authentic recessed pocket handle
       const sDoor = new THREE.Mesh(new THREE.BoxGeometry(0.98, 2.05, 0.05), matMahogany);

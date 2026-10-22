@@ -120,20 +120,36 @@ const Car3_Coach = (() => {
       headerTrim.position.set(0, 2.05, 0);
       wallGroup.add(headerTrim);
 
-      // Window pillars and glass
+      // Solid end walls sealing car corners completely from Y = 0.90m to 2.05m (Zero holes!)
+      // Front corner wall (Z = 8.3625 to 10.0m, length = 1.6375m)
+      const solidFront = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.15, 1.6375), matMahogany);
+      solidFront.position.set(0, 1.475, 9.18125);
+      wallGroup.add(solidFront);
+
+      // Rear corner wall on corridor side (xSide === -1, Z = -10.0 to -8.6375m, length = 1.3625m)
+      if (xSide === -1) {
+        const solidRear = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.15, 1.3625), matMahogany);
+        solidRear.position.set(0, 1.475, -9.31875);
+        wallGroup.add(solidRear);
+      }
+
+      // Window pillars, architectural moulding frames, and glass
       const numWindows = 10;
-      const windowSpan = (length - 3.0) / numWindows;
+      const windowSpan = (length - 3.0) / numWindows; // 1.70m
+      const wWidth = windowSpan * 0.75; // 1.275m
+      const pWidth = windowSpan * 0.25; // 0.425m
+
       for (let i = 0; i < numWindows; i++) {
         const wz = -length / 2 + 2.0 + i * windowSpan;
 
         // If this is the right wall (xSide === 1) in the bathroom section (i === 0, Z = -7.5 to -10.0):
         // The bathroom exterior wall is a solid mahogany wall with ONLY a single small privacy frosted window!
         if (xSide === 1 && i === 0) {
-          // Solid wall sections (Y: 0.90m to 2.05m)
-          const solidNorth = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.15, 0.85), matMahogany);
-          solidNorth.position.set(0, 1.475, -7.925);
+          // Solid wall sections (Y: 0.90m to 2.05m) spanning from rear bulkhead (-10.0m) to Window 1 (-6.9375m)
           const solidSouth = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.15, 1.05), matMahogany);
           solidSouth.position.set(0, 1.475, -9.475);
+          const solidNorth = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.15, 1.4125), matMahogany);
+          solidNorth.position.set(0, 1.475, -7.64375);
 
           // Header and sill surrounding the small privacy window
           const winHeader = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.25, 0.60), matMahogany);
@@ -173,14 +189,31 @@ const Car3_Coach = (() => {
           continue;
         }
 
-        // Window glass (1.18m tall, spanning Y = 0.90m to 2.08m, interlocking inside sills & header)
-        const glass = new THREE.Mesh(new THREE.BoxGeometry(0.04, 1.18, windowSpan * 0.75), matGlass);
-        glass.position.set(0, 1.49, wz);
-        wallGroup.add(glass);
+        // Window glass (1.12m tall, inset into frame)
+        const glass = new THREE.Mesh(new THREE.BoxGeometry(0.04, 1.12, wWidth - 0.04), matGlass);
+        glass.position.set(0, 1.475, wz);
 
-        // Mahogany frame pillar (1.18m tall, flush with wainscot sill and upper header)
-        const pillar = new THREE.Mesh(new THREE.BoxGeometry(0.13, 1.18, windowSpan * 0.25), matMahogany);
-        pillar.position.set(0, 1.49, wz + windowSpan * 0.5);
+        // Architectural Window Border Frames (4-piece mahogany casing trim around every passenger window)
+        const fTop = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.04, wWidth + 0.01), matMahogany);
+        fTop.position.set(0, 2.03, wz);
+        const fBottom = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.04, wWidth + 0.01), matMahogany);
+        fBottom.position.set(0, 0.92, wz);
+        const fLeft = new THREE.Mesh(new THREE.BoxGeometry(0.14, 1.15, 0.04), matMahogany);
+        fLeft.position.set(0, 1.475, wz - wWidth / 2 + 0.02);
+        const fRight = new THREE.Mesh(new THREE.BoxGeometry(0.14, 1.15, 0.04), matMahogany);
+        fRight.position.set(0, 1.475, wz + wWidth / 2 - 0.02);
+
+        // Authentic Pullman double-hung horizontal sash divider rail & subtle brass sash lift
+        const sashRail = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.03, wWidth - 0.04), matMahogany);
+        sashRail.position.set(0, 1.80, wz);
+        const sashLift = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.02, 0.08), matBrass);
+        sashLift.position.set(0, 1.80, wz);
+
+        wallGroup.add(glass, fTop, fBottom, fLeft, fRight, sashRail, sashLift);
+
+        // Mahogany frame pillar (1.15m tall, flush with wainscot sill and upper header)
+        const pillar = new THREE.Mesh(new THREE.BoxGeometry(0.13, 1.15, pWidth), matMahogany);
+        pillar.position.set(0, 1.475, wz + windowSpan * 0.5);
         wallGroup.add(pillar);
       }
 
@@ -198,12 +231,10 @@ const Car3_Coach = (() => {
       const postR = new THREE.Mesh(new THREE.BoxGeometry(1.25, height, 0.12), matMahogany);
       postR.position.set(1.125, height / 2, 0);
 
-      // Transom spans completely from door top (2.05m) to ceiling (height) - ZERO GAP!
+      // Transom spans completely from door top (2.05m) to ceiling (height) - Flush & clean, NO awkward door casing!
       const topTransom = new THREE.Mesh(new THREE.BoxGeometry(1.0, height - 2.05, 0.12), matMahogany);
       topTransom.position.set(0, 2.05 + (height - 2.05) / 2, 0);
-      const transomCasing = new THREE.Mesh(new THREE.BoxGeometry(1.04, 0.05, 0.14), matMahogany);
-      transomCasing.position.set(0, 2.05, 0);
-      bh.add(postL, postR, topTransom, transomCasing);
+      bh.add(postL, postR, topTransom);
 
       // Sliding Mahogany Door with authentic recessed pocket handle
       const sDoor = new THREE.Mesh(new THREE.BoxGeometry(0.98, 2.05, 0.05), matMahogany);

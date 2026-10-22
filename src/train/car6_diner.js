@@ -127,23 +127,42 @@ const Car6_Diner = (() => {
       headerTrim.position.set(0, 2.05, 0);
       wGroup.add(headerTrim);
 
+      // Solid front corner wall (Z = 8.75m to 10.0m, length = 1.25m)
+      const solidFront = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.15, 1.25), matMahogany);
+      solidFront.position.set(0, 1.475, 9.375);
+      wGroup.add(solidFront);
+
       // Dining windows (in dining room section Z = -3.5 to +8.5)
       const numWindows = 6;
       const windowSpan = 2.0;
       for (let i = 0; i < numWindows; i++) {
         const wz = -2.5 + i * windowSpan;
-        const glass = new THREE.Mesh(new THREE.BoxGeometry(0.04, 1.18, 1.5), matGlass);
-        glass.position.set(0, 1.49, wz);
-        wGroup.add(glass);
+        const glass = new THREE.Mesh(new THREE.BoxGeometry(0.04, 1.12, 1.46), matGlass);
+        glass.position.set(0, 1.475, wz);
 
-        const pillar = new THREE.Mesh(new THREE.BoxGeometry(0.13, 1.18, 0.5), matMahogany);
-        pillar.position.set(0, 1.49, wz + 1.0);
+        // Architectural Window Border Frames (4-piece mahogany casing trim)
+        const fTop = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.04, 1.51), matMahogany);
+        fTop.position.set(0, 2.03, wz);
+        const fBottom = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.04, 1.51), matMahogany);
+        fBottom.position.set(0, 0.92, wz);
+        const fLeft = new THREE.Mesh(new THREE.BoxGeometry(0.14, 1.15, 0.04), matMahogany);
+        fLeft.position.set(0, 1.475, wz - 0.73);
+        const fRight = new THREE.Mesh(new THREE.BoxGeometry(0.14, 1.15, 0.04), matMahogany);
+        fRight.position.set(0, 1.475, wz + 0.73);
+
+        const sashRail = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.03, 1.46), matMahogany);
+        sashRail.position.set(0, 1.80, wz);
+
+        wGroup.add(glass, fTop, fBottom, fLeft, fRight, sashRail);
+
+        const pillar = new THREE.Mesh(new THREE.BoxGeometry(0.13, 1.15, 0.5), matMahogany);
+        pillar.position.set(0, 1.475, wz + 1.0);
         wGroup.add(pillar);
       }
 
-      // Solid kitchen wall portion (Z = -4.5 to -10, perfectly sealed from sill 0.90m to upper 2.08m)
-      const kWall = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.18, 5.5), matExtGreen);
-      kWall.position.set(0, 1.49, -7.0);
+      // Solid kitchen wall portion (Z = -3.25 to -10, perfectly sealed from sill 0.90m to upper 2.05m)
+      const kWall = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.15, 6.75), matExtGreen);
+      kWall.position.set(0, 1.475, -6.625);
       wGroup.add(kWall);
 
       return wGroup;
@@ -160,12 +179,10 @@ const Car6_Diner = (() => {
       const postR = new THREE.Mesh(new THREE.BoxGeometry(1.25, height, 0.12), matMahogany);
       postR.position.set(1.125, height / 2, 0);
 
-      // Transom spans completely from door top (2.05m) to ceiling (height) - ZERO GAP!
+      // Transom spans completely from door top (2.05m) to ceiling (height) - Flush & clean, NO awkward door casing!
       const topTransom = new THREE.Mesh(new THREE.BoxGeometry(1.0, height - 2.05, 0.12), matMahogany);
       topTransom.position.set(0, 2.05 + (height - 2.05) / 2, 0);
-      const transomCasing = new THREE.Mesh(new THREE.BoxGeometry(1.04, 0.05, 0.14), matMahogany);
-      transomCasing.position.set(0, 2.05, 0);
-      bh.add(postL, postR, topTransom, transomCasing);
+      bh.add(postL, postR, topTransom);
 
       // Sliding Mahogany Door with authentic recessed pocket handle
       const sDoor = new THREE.Mesh(new THREE.BoxGeometry(0.98, 2.05, 0.05), matMahogany);

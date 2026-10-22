@@ -128,19 +128,35 @@ const Car4_Sleeper1 = (() => {
       headerTrim.position.set(0, 2.05, 0);
       wGroup.add(headerTrim);
 
+      // Solid end walls sealing car corners completely from Y = 0.90m to 2.05m (Zero holes!)
+      // Front corner wall (Z = 7.75m to 10.0m, length = 2.25m)
+      const solidFront = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.15, 2.25), matMahogany);
+      solidFront.position.set(0, 1.475, 8.875);
+      wGroup.add(solidFront);
+
+      // Rear corner wall on corridor side (xSide === -1, Z = -10.0 to -8.25m, length = 1.75m)
+      if (xSide === -1) {
+        const solidRear = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.15, 1.75), matMahogany);
+        solidRear.position.set(0, 1.475, -9.125);
+        wGroup.add(solidRear);
+      }
+
       // Windows along length
       const numWindows = 8;
-      const windowSpan = (length - 4.0) / numWindows;
+      const windowSpan = (length - 4.0) / numWindows; // 2.0m
+      const wWidth = windowSpan * 0.75; // 1.50m
+      const pWidth = windowSpan * 0.25; // 0.50m
+
       for (let i = 0; i < numWindows; i++) {
         const wz = -length / 2 + 2.5 + i * windowSpan;
 
         // If this is the right wall (xSide === 1) in the bathroom section (i === 0, Z = -7.5 to -10.0):
         if (xSide === 1 && i === 0) {
           // Bathroom exterior wall is a solid mahogany wall with ONLY a single small privacy window!
-          const solidNorth = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.15, 0.85), matMahogany);
-          solidNorth.position.set(0, 1.475, -7.925);
           const solidSouth = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.15, 1.05), matMahogany);
           solidSouth.position.set(0, 1.475, -9.475);
+          const solidNorth = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.15, 1.60), matMahogany);
+          solidNorth.position.set(0, 1.475, -7.55);
 
           const winHeader = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.25, 0.60), matMahogany);
           winHeader.position.set(0, 1.925, -8.65);
@@ -178,12 +194,30 @@ const Car4_Sleeper1 = (() => {
           continue;
         }
 
-        const glass = new THREE.Mesh(new THREE.BoxGeometry(0.04, 1.18, windowSpan * 0.75), matGlass);
-        glass.position.set(0, 1.49, wz);
-        wGroup.add(glass);
+        // Window glass (1.12m tall, inset into frame)
+        const glass = new THREE.Mesh(new THREE.BoxGeometry(0.04, 1.12, wWidth - 0.04), matGlass);
+        glass.position.set(0, 1.475, wz);
 
-        const pillar = new THREE.Mesh(new THREE.BoxGeometry(0.13, 1.18, windowSpan * 0.25), matMahogany);
-        pillar.position.set(0, 1.49, wz + windowSpan * 0.5);
+        // Architectural Window Border Frames (4-piece mahogany casing trim around every passenger window)
+        const fTop = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.04, wWidth + 0.01), matMahogany);
+        fTop.position.set(0, 2.03, wz);
+        const fBottom = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.04, wWidth + 0.01), matMahogany);
+        fBottom.position.set(0, 0.92, wz);
+        const fLeft = new THREE.Mesh(new THREE.BoxGeometry(0.14, 1.15, 0.04), matMahogany);
+        fLeft.position.set(0, 1.475, wz - wWidth / 2 + 0.02);
+        const fRight = new THREE.Mesh(new THREE.BoxGeometry(0.14, 1.15, 0.04), matMahogany);
+        fRight.position.set(0, 1.475, wz + wWidth / 2 - 0.02);
+
+        // Authentic Pullman double-hung horizontal sash divider rail & subtle brass sash lift
+        const sashRail = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.03, wWidth - 0.04), matMahogany);
+        sashRail.position.set(0, 1.80, wz);
+        const sashLift = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.02, 0.08), matBrass);
+        sashLift.position.set(0, 1.80, wz);
+
+        wGroup.add(glass, fTop, fBottom, fLeft, fRight, sashRail, sashLift);
+
+        const pillar = new THREE.Mesh(new THREE.BoxGeometry(0.13, 1.15, pWidth), matMahogany);
+        pillar.position.set(0, 1.475, wz + windowSpan * 0.5);
         wGroup.add(pillar);
       }
       return wGroup;
@@ -205,11 +239,9 @@ const Car4_Sleeper1 = (() => {
       const postR = new THREE.Mesh(new THREE.BoxGeometry(1.25, height, 0.12), matMahogany);
       postR.position.set(1.125, height / 2, 0);
 
-      // Transom spans completely from door top (2.05m) to ceiling (height) - ZERO GAP!
+      // Transom spans completely from door top (2.05m) to ceiling (height) - Flush & clean, NO awkward door casing!
       const topTransom = new THREE.Mesh(new THREE.BoxGeometry(1.0, height - 2.05, 0.12), matMahogany);
       topTransom.position.set(0, 2.05 + (height - 2.05) / 2, 0);
-      const transomCasing = new THREE.Mesh(new THREE.BoxGeometry(1.04, 0.05, 0.14), matMahogany);
-      transomCasing.position.set(0, 2.05, 0);
 
       const sDoor = new THREE.Mesh(new THREE.BoxGeometry(0.98, 2.05, 0.05), matMahogany);
       sDoor.position.set(0, 1.025, 0);
@@ -232,7 +264,7 @@ const Car4_Sleeper1 = (() => {
         });
       }
 
-      bh.add(postL, postR, topTransom, transomCasing, sDoor);
+      bh.add(postL, postR, topTransom, sDoor);
       return bh;
     };
     group.add(createCarEndBulkhead(length / 2));  // Front door (from Car 3)
