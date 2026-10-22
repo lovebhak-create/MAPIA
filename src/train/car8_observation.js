@@ -83,15 +83,26 @@ const Car8_Observation = (() => {
       const wGroup = new THREE.Group();
       wGroup.position.set(xSide * (width / 2 - 0.06), 0, 1.5);
 
-      // Lower mahogany wainscoting
+      // Lower mahogany wainscoting (spans Y = 0.0m to 0.85m)
       const lower = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.85, wallLength), matMahogany);
       lower.position.set(0, 0.425, 0);
       wGroup.add(lower);
 
-      // Upper wall above windows
-      const upper = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.55, wallLength), matMahogany);
-      upper.position.set(0, height - 0.275, 0);
+      // Window sill trim running the full length of the observation car at Y = 0.85m
+      const sillTrim = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.04, wallLength), matMahogany);
+      sillTrim.position.set(0, 0.85, 0);
+      wGroup.add(sillTrim);
+
+      // Upper wall above windows - spans completely from Y = 2.05m up to the ceiling (height = 2.85m)
+      const upperHeight = height - 2.05; // 0.80m
+      const upper = new THREE.Mesh(new THREE.BoxGeometry(0.12, upperHeight, wallLength), matMahogany);
+      upper.position.set(0, 2.05 + upperHeight / 2, 0);
       wGroup.add(upper);
+
+      // Window header casing moulding trim running the full length at Y = 2.05m
+      const headerTrim = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.06, wallLength), matMahogany);
+      headerTrim.position.set(0, 2.05, 0);
+      wGroup.add(headerTrim);
 
       // Panoramic observation windows
       const numWindows = 8;
@@ -99,11 +110,11 @@ const Car8_Observation = (() => {
       for (let i = 0; i < numWindows; i++) {
         const wz = -wallLength / 2 + 1.0 + i * windowSpan;
         const glass = new THREE.Mesh(new THREE.BoxGeometry(0.04, 1.25, windowSpan * 0.8), matGlass);
-        glass.position.set(0, 1.5, wz);
+        glass.position.set(0, 1.47, wz);
         wGroup.add(glass);
 
-        const pillar = new THREE.Mesh(new THREE.BoxGeometry(0.13, 1.3, windowSpan * 0.2), matMahogany);
-        pillar.position.set(0, 1.5, wz + windowSpan * 0.5);
+        const pillar = new THREE.Mesh(new THREE.BoxGeometry(0.13, 1.25, windowSpan * 0.2), matMahogany);
+        pillar.position.set(0, 1.47, wz + windowSpan * 0.5);
         wGroup.add(pillar);
       }
 

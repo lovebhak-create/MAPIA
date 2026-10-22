@@ -113,15 +113,26 @@ const Car3_Coach = (() => {
       const wallGroup = new THREE.Group();
       wallGroup.position.set(xSide * (width / 2 - 0.06), 0, 0);
 
-      // Lower mahogany wainscoting
+      // Lower mahogany wainscoting (spans Y = 0.0m to 0.90m)
       const lower = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.9, length), matMahogany);
       lower.position.set(0, 0.45, 0);
       wallGroup.add(lower);
 
-      // Upper wall above windows
-      const upper = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.6, length), matMahogany);
-      upper.position.set(0, height - 0.3, 0);
+      // Window sill trim running the full length of the car at Y = 0.90m
+      const sillTrim = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.04, length), matMahogany);
+      sillTrim.position.set(0, 0.90, 0);
+      wallGroup.add(sillTrim);
+
+      // Upper wall above windows - spans completely from Y = 2.05m up to the ceiling (height = 2.85m)
+      const upperHeight = height - 2.05; // 0.80m
+      const upper = new THREE.Mesh(new THREE.BoxGeometry(0.12, upperHeight, length), matMahogany);
+      upper.position.set(0, 2.05 + upperHeight / 2, 0);
       wallGroup.add(upper);
+
+      // Window header casing moulding trim running the full length of the car at Y = 2.05m
+      const headerTrim = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.06, length), matMahogany);
+      headerTrim.position.set(0, 2.05, 0);
+      wallGroup.add(headerTrim);
 
       // Window pillars and glass
       const numWindows = 10;
@@ -129,26 +140,26 @@ const Car3_Coach = (() => {
       for (let i = 0; i < numWindows; i++) {
         const wz = -length / 2 + 2.0 + i * windowSpan;
 
-        // Window glass
-        const glass = new THREE.Mesh(new THREE.BoxGeometry(0.04, 1.1, windowSpan * 0.75), matGlass);
-        glass.position.set(0, 1.5, wz);
+        // Window glass (1.18m tall, spanning Y = 0.90m to 2.08m, interlocking inside sills & header)
+        const glass = new THREE.Mesh(new THREE.BoxGeometry(0.04, 1.18, windowSpan * 0.75), matGlass);
+        glass.position.set(0, 1.49, wz);
         wallGroup.add(glass);
 
-        // Window upper roller blind / shade (Photo 1 & 3)
+        // Window upper roller blind / shade (Photo 1 & 3, rolling down from behind the header trim)
         const shade = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.28, windowSpan * 0.74), matWindowShade);
         shade.position.set(0, 1.95, wz);
         wallGroup.add(shade);
 
         // Velvet Window Curtains framing the windows (Photo 1)
-        const curtainLeft = new THREE.Mesh(new THREE.BoxGeometry(0.06, 1.15, 0.12), matCurtainVelvet);
-        curtainLeft.position.set(-xSide * 0.02, 1.5, wz - windowSpan * 0.34);
-        const curtainRight = new THREE.Mesh(new THREE.BoxGeometry(0.06, 1.15, 0.12), matCurtainVelvet);
-        curtainRight.position.set(-xSide * 0.02, 1.5, wz + windowSpan * 0.34);
+        const curtainLeft = new THREE.Mesh(new THREE.BoxGeometry(0.06, 1.16, 0.12), matCurtainVelvet);
+        curtainLeft.position.set(-xSide * 0.02, 1.49, wz - windowSpan * 0.34);
+        const curtainRight = new THREE.Mesh(new THREE.BoxGeometry(0.06, 1.16, 0.12), matCurtainVelvet);
+        curtainRight.position.set(-xSide * 0.02, 1.49, wz + windowSpan * 0.34);
         wallGroup.add(curtainLeft, curtainRight);
 
-        // Mahogany frame pillar
-        const pillar = new THREE.Mesh(new THREE.BoxGeometry(0.13, 1.2, windowSpan * 0.25), matMahogany);
-        pillar.position.set(0, 1.5, wz + windowSpan * 0.5);
+        // Mahogany frame pillar (1.18m tall, flush with wainscot sill and upper header)
+        const pillar = new THREE.Mesh(new THREE.BoxGeometry(0.13, 1.18, windowSpan * 0.25), matMahogany);
+        pillar.position.set(0, 1.49, wz + windowSpan * 0.5);
         wallGroup.add(pillar);
       }
 

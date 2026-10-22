@@ -106,33 +106,44 @@ const Car6_Diner = (() => {
       const wGroup = new THREE.Group();
       wGroup.position.set(xSide * (width / 2 - 0.06), 0, 0);
 
-      // Lower mahogany wainscoting
+      // Lower mahogany wainscoting (spans Y = 0.0m to 0.90m)
       const lower = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.9, length), matMahogany);
       lower.position.set(0, 0.45, 0);
       wGroup.add(lower);
 
-      // Upper wall above windows
-      const upper = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.6, length), matMahogany);
-      upper.position.set(0, height - 0.3, 0);
+      // Window sill trim running the full length of the car at Y = 0.90m
+      const sillTrim = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.04, length), matMahogany);
+      sillTrim.position.set(0, 0.90, 0);
+      wGroup.add(sillTrim);
+
+      // Upper wall above windows - spans completely from Y = 2.05m up to the ceiling (height = 2.85m)
+      const upperHeight = height - 2.05; // 0.80m
+      const upper = new THREE.Mesh(new THREE.BoxGeometry(0.12, upperHeight, length), matMahogany);
+      upper.position.set(0, 2.05 + upperHeight / 2, 0);
       wGroup.add(upper);
+
+      // Window header casing moulding trim running the full length of the car at Y = 2.05m
+      const headerTrim = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.06, length), matMahogany);
+      headerTrim.position.set(0, 2.05, 0);
+      wGroup.add(headerTrim);
 
       // Dining windows (in dining room section Z = -3.5 to +8.5)
       const numWindows = 6;
       const windowSpan = 2.0;
       for (let i = 0; i < numWindows; i++) {
         const wz = -2.5 + i * windowSpan;
-        const glass = new THREE.Mesh(new THREE.BoxGeometry(0.04, 1.1, 1.5), matGlass);
-        glass.position.set(0, 1.5, wz);
+        const glass = new THREE.Mesh(new THREE.BoxGeometry(0.04, 1.18, 1.5), matGlass);
+        glass.position.set(0, 1.49, wz);
         wGroup.add(glass);
 
-        const pillar = new THREE.Mesh(new THREE.BoxGeometry(0.13, 1.2, 0.5), matMahogany);
-        pillar.position.set(0, 1.5, wz + 1.0);
+        const pillar = new THREE.Mesh(new THREE.BoxGeometry(0.13, 1.18, 0.5), matMahogany);
+        pillar.position.set(0, 1.49, wz + 1.0);
         wGroup.add(pillar);
       }
 
-      // Solid kitchen wall portion (Z = -4.5 to -10)
-      const kWall = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.2, 5.5), matExtGreen);
-      kWall.position.set(0, 1.5, -7.0);
+      // Solid kitchen wall portion (Z = -4.5 to -10, perfectly sealed from sill 0.90m to upper 2.08m)
+      const kWall = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.18, 5.5), matExtGreen);
+      kWall.position.set(0, 1.49, -7.0);
       wGroup.add(kWall);
 
       return wGroup;
