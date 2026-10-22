@@ -192,11 +192,6 @@ const Car3_Coach = (() => {
         glass.position.set(0, 1.49, wz);
         wallGroup.add(glass);
 
-        // Window upper roller blind / shade (Photo 1 & 3, rolling down from behind the header trim)
-        const shade = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.28, windowSpan * 0.74), matWindowShade);
-        shade.position.set(0, 1.95, wz);
-        wallGroup.add(shade);
-
         // Velvet Window Curtains framing the windows (Photo 1)
         const curtainLeft = new THREE.Mesh(new THREE.BoxGeometry(0.06, 1.16, 0.12), matCurtainVelvet);
         curtainLeft.position.set(-xSide * 0.02, 1.49, wz - windowSpan * 0.34);
@@ -579,11 +574,22 @@ const Car3_Coach = (() => {
       rack.position.set(xSide, 2.1, rackCenterZ);
       group.add(rack);
 
-      // Brass support brackets spaced safely over passenger seats
+      // Slim, elegant brass support brackets mounted neatly above window header casing
       for (let bz = -5.8; bz <= 6.0; bz += 2.0) {
-        const bracket = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.25, 0.25), matBrass);
-        bracket.position.set(xSide * 1.3, 2.0, bz);
-        group.add(bracket);
+        // Horizontal support arm under the rack
+        const bracketArm = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.025, 0.025), matBrass);
+        bracketArm.position.set(xSide * 1.45, 2.09, bz);
+
+        // Wall mounting plate on mahogany wall above window casing
+        const wallPlate = new THREE.Mesh(new THREE.BoxGeometry(0.015, 0.10, 0.04), matBrass);
+        wallPlate.position.set(xSide * 1.58, 2.14, bz);
+
+        // Small diagonal reinforcement strut
+        const brace = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.006, 0.14, 6), matBrass);
+        brace.position.set(xSide * 1.51, 2.13, bz);
+        brace.rotation.z = xSide * 0.7;
+
+        group.add(bracketArm, wallPlate, brace);
       }
 
       // Authentic Vintage Luggage Placed on Racks over seats (Photo 1 & 3)
