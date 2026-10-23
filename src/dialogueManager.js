@@ -691,9 +691,23 @@ const DialogueManager = (() => {
           console.warn('Gemini API call failed, falling back to dynamic tiki-taka:', geminiErr);
           reply = dynamicTikiTaka(activeChar, playerText, chatHistory);
         }
+      } else if (typeof puter !== 'undefined' && puter.ai && puter.ai.chat) {
+        // Zero-setup Puter Cloud AI (Real LLM without API keys!)
+        try {
+          const sys = `당신은 1930년대 설원 열차의 승객 '${activeChar.name}'(직업: ${activeChar.job}, MBTI: ${activeChar.mbti})입니다. 성격: ${activeChar.personality}, 어조: ${activeChar.speechTone}. 상대방의 말에 1~2문장의 생생하고 자연스러운 한국어로 즉시 대답하십시오. 절대 기계처럼 굴지 마십시오.`;
+          const historyText = chatHistory.slice(-4).map(h => `${h.role === 'user' ? '플레이어' : activeChar.name}: ${h.text}`).join('\n');
+          const prompt = `${sys}\n\n[이전 대화]\n${historyText}\n플레이어: ${playerText}\n${activeChar.name}:`;
+          const puterPromise = puter.ai.chat(prompt, { model: 'gpt-4o-mini' });
+          const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('puter timeout')), 3800));
+          const aiRes = await Promise.race([puterPromise, timeoutPromise]);
+          reply = typeof aiRes === 'string' ? aiRes.trim() : (aiRes?.message?.content || JSON.stringify(aiRes)).trim();
+        } catch (puterErr) {
+          console.warn('Puter AI error/timeout, using dynamic tiki-taka:', puterErr.message);
+          reply = dynamicTikiTaka(activeChar, playerText, chatHistory);
+        }
       } else {
         // Zero-friction instant simulation: reacts intelligently to user words!
-        await new Promise(r => setTimeout(r, 140 + Math.random() * 180));
+        await new Promise(r => setTimeout(r, 120 + Math.random() * 120));
         reply = dynamicTikiTaka(activeChar, playerText, chatHistory);
       }
 
@@ -841,7 +855,7 @@ const DialogueManager = (() => {
     const isThreat = q.includes('죽을') || q.includes('죽여') || q.includes('죽인') || q.includes('때릴') || q.includes('맞을') || q.includes('꺼져') || q.includes('닥쳐') || q.includes('시비') || q.includes('패버') || q.includes('죽고') || q.includes('가만안');
     const isAskingAge = q.includes('몇 살') || q.includes('몇살') || q.includes('나이') || q.includes('생일') || q.includes('생년') || q.includes('연배');
     const isAskingHometown = q.includes('고향') || q.includes('어디서 왔') || q.includes('사는 곳') || q.includes('집이 어디') || q.includes('어디 출신');
-    const isFood = q.includes('배고') || q.includes('밥') || q.includes('식사') || q.includes('식당') || q.includes('메뉴') || q.includes('먹을') || q.includes('먹자') || q.includes('스튜') || q.includes('스테이크') || q.includes('빵');
+    const isFood = q.includes('배고') || q.includes('밥') || q.includes('식사') || q.includes('식당') || q.includes('메뉴') || q.includes('먹을') || q.includes('먹자') || q.includes('먹었') || q.includes('먹는') || q.includes('먹고') || q.includes('뭐 먹') || q.includes('아침') || q.includes('점심') || q.includes('저녁') || q.includes('스튜') || q.includes('스테이크') || q.includes('빵') || q.includes('비스킷') || q.includes('샌드위치');
     const isDrink = q.includes('술') || q.includes('위스키') || q.includes('맥주') || q.includes('와인') || q.includes('커피') || q.includes('차 한잔') || q.includes('음료') || q.includes('한잔');
     const isAskingTime = q.includes('몇 시') || q.includes('몇시') || q.includes('지금 몇') || q.includes('시간이') || q.includes('시계');
     const isInsult = q.includes('바보') || q.includes('멍청') || q.includes('병신') || q.includes('미친') || q.includes('재수없') || q.includes('짜증') || q.includes('개새') || q.includes('또라이') || q.includes('한심');
@@ -879,6 +893,118 @@ const DialogueManager = (() => {
     const isCounterArgument = q.includes('그게 아니라') || q.includes('내 말은') || q.includes('핑계') || q.includes('변명') || q.includes('억지') || q.includes('증거 있어') || q.includes('증거를');
     const isAttitudeComplaint = q.includes('왜 그래') || q.includes('왜 그러') || q.includes('띠껍') || q.includes('싸가지') || q.includes('성격 왜') || q.includes('말투') || q.includes('싸우자는') || q.includes('시비 거');
     const isTrainEmergency = q.includes('기차 왜') || q.includes('언제 도착') || q.includes('언제 가') || q.includes('탈선') || q.includes('고립') || q.includes('얼어 죽') || q.includes('왜 멈췄') || q.includes('언제 출발');
+
+    // 0-A. DIRECT ACCUSATION: "너 마피아야?", "너 살인마지?", "너 수상해", "너 범인이야?"
+    const isAccusedOfMafia = (q.includes('너') || q.includes('당신') || q.includes('자네') || q.includes('네가') || q.includes('니가')) && (q.includes('마피아') || q.includes('범인') || q.includes('살인') || q.includes('수상') || q.includes('죽였'));
+    if (isAccusedOfMafia) {
+      const accusedPools = {
+        bram: [
+          '네…?! 제, 제가 마피아요…?! 마, 말도 안 돼요! 전 벌레 한 마리도 못 죽이는 문학도예요…! 제발 그런 무서운 누명은 씌우지 마세요…! (새파랗게 질려 손사래를 친다)',
+          '히익…! 저 정말 살인범이나 마피아가 아니에요…! 신분증이랑 대학 학생증도 보여드릴 수 있어요…! 살려주세요…!'
+        ],
+        ward: [
+          '내가 마피아로 보이나? 시카고 시경 15년 차 강력계 형사다. 나한테 그런 농담 했다간 수갑 찬 채로 눈밭에 굴러떨어질 줄 알아라.',
+          '형사를 마피아로 몰아세우다니 배짱 한번 두둑하군. 네 놈이야말로 뭔가 켕기는 게 있어서 선수를 치는 것 아닌가?'
+        ],
+        nell: [
+          '어머나 세상에! 제가 마피아라니요…! 전 시골에서 올라와 평생 바느질만 한 사람이에요… 무서운 오해는 거두어 주세요, 손님.',
+          '호호, 손님도 참… 사람을 그렇게 무섭게 놀리시면 안 돼요. 제 손엔 가위와 바늘밖에 없답니다.'
+        ],
+        cade: [
+          '내가 마피아면 여기서 시커먼 석탄 가루 마시며 하루 14시간 삽질하고 있겠소?! 헛소리 말고 비키쇼!',
+          '석탄 삽으로 뒤통수 맞기 싫으면 입조심하쇼. 화부한테 마피아 타령이라니 기가 차서!'
+        ],
+        harlan: [
+          '무엄하군. 내가 마피아 따위와 동급으로 보이나? 나는 100만 달러 제국을 이끄는 기업가요. 내 자본은 법보다 높소.',
+          '일개 승객이 감히 내게 살인자 누명을 씌우려 들다니. 내 법률 고문단에 넘겨 평생 감옥 썩게 해줄 수도 있소.'
+        ],
+        clara: [
+          '후훗… 제가 마피아일까요? 아니면 마피아의 표적이 된 희생양일까요? 추리 소설의 진실은 마지막 페이지에 밝혀지는 법이죠…',
+          '살인마라… 매력적인 가설이네요. 하지만 진짜 범인은 가장 순진한 얼굴을 하고 당신 곁에 서 있을지도 몰라요, 후훗.'
+        ],
+        jude: [
+          '크하핫! 나? 난 카드 패 돌리는 타짜일 뿐이지 사람 목숨 갖고 장난치는 깡패가 아니라구, 친구!',
+          '하하! 마피아 소굴에서 칩 훔치다 쫓겨난 적은 있어도 내가 마피아는 아니지! 억울하다 억울해!'
+        ],
+        nurse_k: [
+          '의료진에 대한 허위 범죄 혐의 제기는 철도 보안 규정 위반입니다. 환자 치료에 전념할 뿐입니다.',
+          '근거 없는 망상은 질병의 전조 증상일 수 있습니다. 체온 측정과 안정이 필요해 보이시는군요.'
+        ],
+        mabel: [
+          '천박하기 짝이 없군요. 감히 명문가 귀부인에게 마피아 따위의 상스러운 딱지를 붙이려 들다니!',
+          '상스러운 헛소리에 대꾸할 가치도 없어요. 하인이라도 불러 뺨을 후려쳐줄까요?'
+        ],
+        gail: [
+          '허허, 30년간 사람을 살려온 늙은 의사에게 마피아라니… 젊은 친구, 상상력이 너무 지나치구먼.',
+          '살인마라니 당치도 않네. 내 손은 병든 환자를 고치는 데에만 쓰였다네.'
+        ],
+        arthur: [
+          '응? 마피아? 내 주머니엔 고대 점토판 탁본밖에 없네! 학자를 범죄자로 의심하다니 허허!',
+          '기원전 바빌론 법전에도 무고한 자를 고발하면 벌을 받는다 적혀 있네! 난 결백하네!'
+        ],
+        rose: [
+          '어머… 제가 마피아로 보이세요? 전 그냥 무대 위에서 춤추고 노래하는 무용수일 뿐인걸요, 후훗.',
+          '꺄악, 무서워라… 제가 사람을 해칠 사람처럼 보이나요? 너무 짓궂으세요, 손님.'
+        ],
+        lulu: [
+          '뭐야?! 감히 세기의 디바인 룰루에게 마피아라니! 내 아름다움이 죄라면 사형감이겠지만 말이야!',
+          '흥! 날 시기하는 무리들이 퍼뜨린 악성 루머야! 어디서 감히 디바를 범죄자 취급이야?!'
+        ],
+        felix: [
+          '제가 마피아요?! 전 카메라 렌즈로 진실을 기록하는 가난한 사진기자일 뿐이에요! 살려주세요!',
+          '히익! 카메라 셔터 누르는 것 말고는 총방아쇠는 당겨본 적도 없어요! 오해예요!'
+        ],
+        ida: [
+          '비서실 업무 지침상 범죄 조직과의 연루는 있을 수 없습니다. 명예훼손 발언을 중단하십시오.',
+          '회장님과 비서실의 명예를 훼손하는 발언은 즉시 철도 경찰에 통보 조치됩니다.'
+        ],
+        elias: [
+          '크하핫! 내가 마피아면 매일 밤 타자기 두들기며 기사 마감에 쫓기겠소?! 난 팩트를 쫓는 기자요!',
+          '특종을 노리는 탐사 기자한테 마피아 누명을 씌우다니, 날 취재 거부하려고 수작 부리는 거요?!'
+        ]
+      };
+      return pickNonRepeating(accusedPools[key] || ['…무슨 터무니없는 의심이신지요.'], `${key}_accused`);
+    }
+
+    // 0-B. PASSENGER LIST: "기차에 누구누구 있어?", "몇 명 타 있어?", "승객 목록"
+    const isPassengerList = q.includes('누구누구') || q.includes('몇 명') || q.includes('몇명') || q.includes('승객') || q.includes('누가 타') || q.includes('다른 사람') || q.includes('사람들');
+    if (isPassengerList) {
+      const listPools = {
+        bram: [
+          '이 열차엔 저랑 바느질하시는 넬 아주머니, 워드 형사님, 화부 아저씨, 그리고 1등석의 무서운 할란 회장님 같은 분들이 타고 계세요… 다들 비밀이 많아 보여요…',
+          '승객은 대략 16명 정도라고 들었어요… 기자, 의사, 무용수, 사진사까지 온갖 분들이 다 모였는데 분위기가 너무 살벌해요…'
+        ],
+        ward: [
+          '승객 명단상으로는 16명이다. 형사인 나를 포함해 기자, 의사, 재벌, 무용수, 학생까지… 온갖 인간 군상들이 섞여 있지. 쥐새끼처럼 숨은 놈도 있을 거다.',
+          '16명의 승객이 타고 있다. 그중 몇 놈은 내가 수배 명단에서 본 얼굴들과 묘하게 겹쳐. 말조심해라.'
+        ],
+        nell: [
+          '호호, 저 같은 재봉사부터 시작해서 점잖은 의사 선생님, 소설가 아가씨, 사진사 청년까지 총 열여섯 분 정도 계신 것 같아요.',
+          '기차 안에 참 다양한 분들이 계시지요. 무대 무용수 아가씨도 계시고 신문 기자님도 계신답니다.'
+        ]
+      };
+      return pickNonRepeating(listPools[key] || ['…기차 안에는 총 16명의 다양한 승객들이 타고 있습니다.'], `${key}_passengers`);
+    }
+
+    // 0-C. ABOUT THE PLAYER: "나 어때?", "나 어떻게 생각해?", "나 누구 같아?"
+    const isAboutPlayer = q.includes('나 어때') || q.includes('나는 어때') || q.includes('나 어떻게 생각') || q.includes('내가 어때') || q.includes('나에 대해') || q.includes('나 누구');
+    if (isAboutPlayer) {
+      const playerPools = {
+        bram: [
+          '처음엔 조금 무서웠지만… 이렇게 말을 건네주시니 참 다정하고 좋은 분 같아요… 감사해요…',
+          '당신은… 이 차가운 눈보라 속에서 유일하게 제게 따뜻하게 말을 걸어주신 고마운 분이에요…'
+        ],
+        ward: [
+          '호기심이 지나치게 많은 풋내기 승객이다. 비밀 열차에선 눈치 없이 굴다간 제일 먼저 칼 맞는 법이지. 적당히 해라.',
+          '눈빛이 살아있군. 범죄자는 아닌 것 같지만, 위험한 일에 함부로 끼어들지 마라.'
+        ],
+        nell: [
+          '호호, 참 따뜻하고 정이 많으신 분 같아요. 차가운 눈보라 속에서도 손님과 이야기하니 온기가 도네요.',
+          '인상이 참 좋으세요. 시카고에 가셔서도 무슨 일이든 잘 해내실 것 같아요, 호호.'
+        ]
+      };
+      return pickNonRepeating(playerPools[key] || ['…참 흥미로운 분이십니다.'], `${key}_about_player`);
+    }
 
     // 0. THREAT & AGGRESSION: "죽을래?", "죽인다", "때릴래", "꺼져", "닥쳐"
     if (isThreat) {

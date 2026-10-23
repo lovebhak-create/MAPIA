@@ -33,6 +33,9 @@ try {
                     ".json" { "application/json; charset=utf-8" }
                     ".png"  { "image/png" }
                     ".jpg"  { "image/jpeg" }
+                    ".ogg"  { "audio/ogg" }
+                    ".mp3"  { "audio/mpeg" }
+                    ".wav"  { "audio/wav" }
                     default { "application/octet-stream" }
                 }
                 $response.ContentType = $contentType

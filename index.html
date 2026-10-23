@@ -84,11 +84,40 @@
   <!-- Libraries -->
   <script src="libs/three.min.js"></script>
   <script src="libs/PointerLockControls.js"></script>
+  <script src="https://js.puter.com/v2/"></script>
 </head>
 <body>
   <div id="canvas-container"></div>
   <div id="crosshair"></div>
   <div id="sit-prompt">[Space] 키를 눌러 일어나기</div>
+
+  <!-- Audio & BGM HUD Control -->
+  <div id="audio-hud-bar" style="
+    position: fixed;
+    top: 14px;
+    right: 18px;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(14, 18, 24, 0.88);
+    border: 1px solid rgba(223, 177, 66, 0.4);
+    padding: 6px 12px;
+    border-radius: 20px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+    font-size: 12px;
+    color: #dfb142;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  ">
+    <button id="btn-bgm-toggle" style="background:none; border:none; color:#dfb142; font-size:12px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:4px;">
+      <span id="bgm-icon">🎵</span> <span id="bgm-text">배경음악 작게 켬</span>
+    </button>
+    <label for="bgm-file-input" style="background:rgba(223,177,66,0.18); border:1px solid #dfb142; color:#ffe484; font-size:11px; padding:2px 8px; border-radius:10px; cursor:pointer;" title="musiccreator.ai에서 다운로드한 mp3 파일 불러오기">
+      내 음악 넣기 ↗
+    </label>
+    <input id="bgm-file-input" type="file" accept="audio/*" style="display:none;" />
+  </div>
 
   <!-- Source Scripts -->
   <script src="src/textures.js?v=56"></script>

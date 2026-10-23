@@ -8,55 +8,55 @@ const VoiceManager = (() => {
   let lastSpokenText = '';
   let lastCharKey = 'bram';
 
-  // 16 Character Distinct Voice Configurations (Pitch, Speech Rate, Volume, Gender)
+  // 16 Character Distinct Voice Configurations (Fast, natural, crisp speech rates!)
   const charVoiceConfigs = {
-    // 1. Bram: INFP / Male / 21 / Timid literary student -> high pitch, hesitant, stuttering
-    bram: { gender: 'male', pitch: 1.25, rate: 0.90, name: 'Bram' },
+    // 1. Bram: INFP / Male / 21 / Timid literary student -> high pitch, fast nervous tempo
+    bram: { gender: 'male', pitch: 1.25, rate: 1.28, name: 'Bram' },
     
-    // 2. Ward: ISTP / Male / 42 / Cynical detective -> deep baritone, raspy, slow, blunt
-    ward: { gender: 'male', pitch: 0.65, rate: 0.92, name: 'Ward' },
+    // 2. Ward: ISTP / Male / 42 / Cynical detective -> deep baritone, raspy, blunt, steady
+    ward: { gender: 'male', pitch: 0.65, rate: 1.30, name: 'Ward' },
     
-    // 3. Nell: ISFJ / Female / 35 / Polite seamstress -> warm, gentle, calm, soothing
-    nell: { gender: 'female', pitch: 1.15, rate: 0.95, name: 'Nell' },
+    // 3. Nell: ISFJ / Female / 35 / Polite seamstress -> warm, gentle, clear tempo
+    nell: { gender: 'female', pitch: 1.15, rate: 1.32, name: 'Nell' },
     
     // 4. Nurse K: ISTJ / Female / 28 / Strict clinical nurse -> flat, regulated, fast, clipped syllables
-    nurse_k: { gender: 'female', pitch: 1.00, rate: 1.15, name: 'Nurse K' },
+    nurse_k: { gender: 'female', pitch: 1.00, rate: 1.45, name: 'Nurse K' },
     
-    // 5. Cade: ESTP / Male / 29 / Aggressive stoker -> low, loud, fiery, aggressive
-    cade: { gender: 'male', pitch: 0.72, rate: 1.18, name: 'Cade' },
+    // 5. Cade: ESTP / Male / 29 / Aggressive stoker -> low, loud, fiery, fast
+    cade: { gender: 'male', pitch: 0.72, rate: 1.48, name: 'Cade' },
     
-    // 6. Harlan: ENTJ / Male / 55 / Ruthless monopoly baron -> deep, cold, deliberate, commanding
-    harlan: { gender: 'male', pitch: 0.70, rate: 0.85, name: 'Harlan' },
+    // 6. Harlan: ENTJ / Male / 55 / Ruthless monopoly baron -> deep, cold, deliberate baritone
+    harlan: { gender: 'male', pitch: 0.70, rate: 1.22, name: 'Harlan' },
     
-    // 7. Jude: ESFP / Male / 31 / Flamboyant gambler -> cheerful, lively, fast-paced cadence
-    jude: { gender: 'male', pitch: 1.10, rate: 1.25, name: 'Jude' },
+    // 7. Jude: ESFP / Male / 31 / Flamboyant gambler -> cheerful, lively, rapid-fire cadence
+    jude: { gender: 'male', pitch: 1.10, rate: 1.55, name: 'Jude' },
     
-    // 8. Clara: INFJ / Female / 27 / Mystery gothic novelist -> breathy, low, dramatic, eerie pauses
-    clara: { gender: 'female', pitch: 0.85, rate: 0.82, name: 'Clara' },
+    // 8. Clara: INFJ / Female / 27 / Mystery gothic novelist -> breathy, low, dramatic mystery cadence
+    clara: { gender: 'female', pitch: 0.85, rate: 1.20, name: 'Clara' },
     
     // 9. Mabel: ESTJ / Female / 48 / Snobbish aristocrat -> high-strung, haughty, sharp, crisp
-    mabel: { gender: 'female', pitch: 1.30, rate: 1.05, name: 'Mabel' },
+    mabel: { gender: 'female', pitch: 1.30, rate: 1.40, name: 'Mabel' },
     
-    // 10. Gail: ENFJ / Male / 62 / Benevolent doctor -> warm grandfatherly, resonant, wise
-    gail: { gender: 'male', pitch: 0.80, rate: 0.85, name: 'Gail' },
+    // 10. Gail: ENFJ / Male / 62 / Benevolent doctor -> warm grandfatherly, resonant
+    gail: { gender: 'male', pitch: 0.80, rate: 1.22, name: 'Gail' },
     
     // 11. Arthur: INTP / Male / 58 / Eccentric archeologist -> cracked academic tone, excitable, fast
-    arthur: { gender: 'male', pitch: 1.15, rate: 1.20, name: 'Arthur' },
+    arthur: { gender: 'male', pitch: 1.15, rate: 1.52, name: 'Arthur' },
     
     // 12. Rose: ISFP / Female / 23 / Melancholic cabaret dancer -> sultry, delicate, melodic, sweet
-    rose: { gender: 'female', pitch: 1.20, rate: 0.90, name: 'Rose' },
+    rose: { gender: 'female', pitch: 1.20, rate: 1.30, name: 'Rose' },
     
     // 13. Lulu: ENTP / Female / 26 / Vain Broadway diva -> high, theatrical, rapid, diva flair
-    lulu: { gender: 'female', pitch: 1.35, rate: 1.20, name: 'Lulu' },
+    lulu: { gender: 'female', pitch: 1.35, rate: 1.52, name: 'Lulu' },
     
     // 14. Felix: ENFP / Male / 25 / Press photographer -> bouncy, boyish excitement, breathless tempo
-    felix: { gender: 'male', pitch: 1.20, rate: 1.25, name: 'Felix' },
+    felix: { gender: 'male', pitch: 1.20, rate: 1.58, name: 'Felix' },
     
     // 15. Ida: INTJ / Female / 30 / Cold secretary -> measured, emotionless, machine-like cadence
-    ida: { gender: 'female', pitch: 0.92, rate: 1.10, name: 'Ida' },
+    ida: { gender: 'female', pitch: 0.92, rate: 1.42, name: 'Ida' },
     
     // 16. Elias: ESFJ / Male / 34 / Tabloid journalist -> fast-talking, urgent, sensationalist
-    elias: { gender: 'male', pitch: 1.05, rate: 1.30, name: 'Elias' }
+    elias: { gender: 'male', pitch: 1.05, rate: 1.60, name: 'Elias' }
   };
 
   const loadVoices = () => {

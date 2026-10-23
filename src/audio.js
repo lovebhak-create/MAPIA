@@ -1,11 +1,16 @@
-// Web Audio API Sound Synthesizer for 1930s Steam Train
+// src/audio.js - 1930s Train Audio & Background Music Engine
+// Replaced noisy procedural click loop with authentic high-fidelity train sound & soft BGM
+
 const SoundManager = (() => {
   let ctx = null;
   let isMuted = false;
-  let chugTimer = null;
   let isRunning = false;
-  let fireGain = null;
-  let railsGain = null;
+
+  // Real Audio Elements
+  let trainAudio = null;
+  let bgmAudio = null;
+  let bgmVolume = 0.16; // "작게 깔아줘" - Soft, pleasant background volume
+  let trainVolume = 0.22; // Gentle, realistic rail rumble
 
   const init = () => {
     if (!ctx) {
@@ -19,102 +24,76 @@ const SoundManager = (() => {
     }
   };
 
+  // Start realistic train ambient sound and soft BGM
   const startAmbient = () => {
     init();
-    if (!ctx || isRunning) return;
+    if (isRunning) return;
     isRunning = true;
 
-    // 1. Continuous Firebox Roar / Low Engine Rumble
+    // 1. Authentic Train Journey Ambience (Continuous smooth rail track recording)
     try {
-      const bufferSize = ctx.sampleRate * 2;
-      const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-      const output = noiseBuffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) {
-        output[i] = Math.random() * 2 - 1;
+      if (!trainAudio) {
+        trainAudio = new Audio('assets/audio/train_ambient.ogg');
+        trainAudio.loop = true;
+        trainAudio.volume = isMuted ? 0 : trainVolume;
       }
-
-      const whiteNoise = ctx.createBufferSource();
-      whiteNoise.buffer = noiseBuffer;
-      whiteNoise.loop = true;
-
-      const filter = ctx.createBiquadFilter();
-      filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(140, ctx.currentTime);
-
-      fireGain = ctx.createGain();
-      fireGain.gain.setValueAtTime(isMuted ? 0 : 0.18, ctx.currentTime);
-
-      whiteNoise.connect(filter);
-      filter.connect(fireGain);
-      fireGain.connect(ctx.destination);
-      whiteNoise.start();
-
-      // 2. Rail Click-Clack loop
-      startChugLoop();
+      trainAudio.play().catch(e => {
+        console.log('Train ambient audio autoplay waiting for user interaction:', e.message);
+      });
     } catch (e) {
-      console.warn('Audio init error:', e);
+      console.warn('Failed to start train ambient audio:', e);
+    }
+
+    // 2. Soft Vintage 1930s Background Music ("작게 깔아줘")
+    try {
+      if (!bgmAudio) {
+        // Check if user previously saved a custom music track
+        const savedCustomBgm = localStorage.getItem('custom_bgm_data');
+        bgmAudio = new Audio(savedCustomBgm || 'assets/audio/bgm_default.mp3');
+        bgmAudio.loop = true;
+        bgmAudio.volume = isMuted ? 0 : bgmVolume;
+      }
+      bgmAudio.play().catch(e => {
+        console.log('BGM autoplay waiting for user interaction:', e.message);
+      });
+    } catch (e) {
+      console.warn('Failed to start BGM audio:', e);
     }
   };
 
-  const startChugLoop = () => {
-    let step = 0;
-    const chugInterval = 340; // milliseconds per stroke
-
-    const playChugStroke = () => {
-      if (!ctx || isMuted || !isRunning) return;
-
-      const t = ctx.currentTime;
-      // White noise burst with envelope for steam chuff
-      const burstLen = 0.12;
-      const osc = ctx.createBufferSource();
-      const buf = ctx.createBuffer(1, ctx.sampleRate * burstLen, ctx.sampleRate);
-      const data = buf.getChannelData(0);
-      for (let i = 0; i < data.length; i++) {
-        data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.04));
+  // Set Custom Background Music (e.g. from musiccreator.ai)
+  const setCustomBgm = (audioSource) => {
+    try {
+      if (bgmAudio) {
+        bgmAudio.pause();
       }
-      osc.buffer = buf;
-
-      const bp = ctx.createBiquadFilter();
-      bp.type = 'bandpass';
-      bp.frequency.setValueAtTime(step % 2 === 0 ? 320 : 260, t);
-      bp.Q.setValueAtTime(2.5, t);
-
-      const gain = ctx.createGain();
-      gain.gain.setValueAtTime(0.22, t);
-      gain.gain.exponentialRampToValueAtTime(0.001, t + burstLen);
-
-      osc.connect(bp);
-      bp.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start(t);
-
-      // Iron rail joint click-clack on every 4th stroke
-      if (step % 4 === 0) {
-        playRailClick(t + 0.04);
-        playRailClick(t + 0.12);
-      }
-
-      step = (step + 1) % 8;
-    };
-
-    chugTimer = setInterval(playChugStroke, chugInterval);
+      bgmAudio = new Audio(audioSource);
+      bgmAudio.loop = true;
+      bgmAudio.volume = isMuted ? 0 : bgmVolume;
+      bgmAudio.play().then(() => {
+        console.log('Custom BGM playing successfully!');
+      }).catch(err => {
+        console.warn('Custom BGM playback error:', err);
+      });
+    } catch (e) {
+      console.error('Error setting custom BGM:', e);
+    }
   };
 
-  const playRailClick = (t) => {
-    if (!ctx || isMuted) return;
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(450, t);
-    osc.frequency.exponentialRampToValueAtTime(120, t + 0.03);
+  // Adjust BGM Volume
+  const setBgmVolume = (vol) => {
+    bgmVolume = Math.max(0, Math.min(1.0, vol));
+    if (bgmAudio && !isMuted) {
+      bgmAudio.volume = bgmVolume;
+    }
+  };
 
-    gain.gain.setValueAtTime(0.07, t);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.03);
-
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.start(t);
-    osc.stop(t + 0.03);
+  // Adjust Train Volume
+  const setTrainVolume = (vol) => {
+    trainVolume = Math.max(0, Math.min(1.0, vol));
+    if (trainAudio && !isMuted) {
+      trainAudio.volume = trainVolume;
+    }
   };
 
   // Authentic 1930s 3-Chime Steam Whistle
@@ -123,7 +102,6 @@ const SoundManager = (() => {
     if (!ctx || isMuted) return;
 
     const t = ctx.currentTime;
-    // Typical PRR / American 3-chime chords: ~470 Hz (A#4), ~587 Hz (D5), ~700 Hz (F5)
     const freqs = [466.16, 587.33, 700.0];
     const duration = 2.2;
 
@@ -132,21 +110,18 @@ const SoundManager = (() => {
       const gain = ctx.createGain();
 
       osc.type = 'sawtooth';
-      // Slight steam pressure wobble
       osc.frequency.setValueAtTime(freq, t);
       osc.frequency.linearRampToValueAtTime(freq * 1.015, t + 0.4);
       osc.frequency.linearRampToValueAtTime(freq * 0.985, t + duration * 0.8);
       osc.frequency.linearRampToValueAtTime(freq * 0.94, t + duration);
 
-      // Lowpass to mellow out harsh sawtooth into rich steam harmonics
       const filter = ctx.createBiquadFilter();
       filter.type = 'lowpass';
       filter.frequency.setValueAtTime(1400 + idx * 200, t);
 
-      // Envelope
       gain.gain.setValueAtTime(0.001, t);
-      gain.gain.linearRampToValueAtTime(0.12, t + 0.15);
-      gain.gain.setValueAtTime(0.12, t + duration - 0.4);
+      gain.gain.linearRampToValueAtTime(0.10, t + 0.15);
+      gain.gain.setValueAtTime(0.10, t + duration - 0.4);
       gain.gain.exponentialRampToValueAtTime(0.001, t + duration);
 
       osc.connect(filter);
@@ -156,42 +131,18 @@ const SoundManager = (() => {
       osc.start(t);
       osc.stop(t + duration);
     });
-
-    // Whistle steam rush noise
-    const noiseLen = duration;
-    const buf = ctx.createBuffer(1, ctx.sampleRate * noiseLen, ctx.sampleRate);
-    const data = buf.getChannelData(0);
-    for (let i = 0; i < data.length; i++) {
-      data[i] = Math.random() * 2 - 1;
-    }
-    const noise = ctx.createBufferSource();
-    noise.buffer = buf;
-    const bp = ctx.createBiquadFilter();
-    bp.type = 'bandpass';
-    bp.frequency.setValueAtTime(800, t);
-    bp.Q.setValueAtTime(3.0, t);
-    const nGain = ctx.createGain();
-    nGain.gain.setValueAtTime(0.05, t);
-    nGain.gain.exponentialRampToValueAtTime(0.001, t + duration);
-
-    noise.connect(bp);
-    bp.connect(nGain);
-    nGain.connect(ctx.destination);
-    noise.start(t);
-    noise.stop(t + duration);
   };
 
   const playDoorSound = () => {
     init();
     if (!ctx || isMuted) return;
     const t = ctx.currentTime;
-    // Heavy wooden/metal sliding latch sound
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.type = 'square';
     osc.frequency.setValueAtTime(220, t);
     osc.frequency.exponentialRampToValueAtTime(60, t + 0.15);
-    gain.gain.setValueAtTime(0.08, t);
+    gain.gain.setValueAtTime(0.06, t);
     gain.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
     osc.connect(gain);
     gain.connect(ctx.destination);
@@ -199,72 +150,117 @@ const SoundManager = (() => {
     osc.stop(t + 0.15);
   };
 
-  let waterGain = null;
-  let waterSource = null;
-
-  const playWaterSound = (start) => {
-    init();
-    if (!ctx) return;
-    if (start) {
-      if (waterSource) return;
-      try {
-        const bufferSize = ctx.sampleRate * 2;
-        const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-        const output = noiseBuffer.getChannelData(0);
-        for (let i = 0; i < bufferSize; i++) {
-          output[i] = Math.random() * 2 - 1;
-        }
-        waterSource = ctx.createBufferSource();
-        waterSource.buffer = noiseBuffer;
-        waterSource.loop = true;
-
-        const filter = ctx.createBiquadFilter();
-        filter.type = 'bandpass';
-        filter.frequency.setValueAtTime(850, ctx.currentTime);
-        filter.Q.setValueAtTime(1.5, ctx.currentTime);
-
-        waterGain = ctx.createGain();
-        waterGain.gain.setValueAtTime(0.001, ctx.currentTime);
-        waterGain.gain.exponentialRampToValueAtTime(isMuted ? 0.001 : 0.14, ctx.currentTime + 0.15);
-
-        waterSource.connect(filter);
-        filter.connect(waterGain);
-        waterGain.connect(ctx.destination);
-        waterSource.start();
-      } catch (e) {}
-    } else {
-      if (waterGain && waterSource) {
-        try {
-          waterGain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.12);
-          setTimeout(() => {
-            if (waterSource) {
-              try { waterSource.stop(); } catch (e) {}
-              waterSource = null;
-            }
-          }, 150);
-        } catch (e) {}
-      }
-    }
-  };
-
   const toggleMute = () => {
     isMuted = !isMuted;
-    if (fireGain && ctx) {
-      fireGain.gain.setValueAtTime(isMuted ? 0 : 0.18, ctx.currentTime);
+    if (trainAudio) {
+      trainAudio.volume = isMuted ? 0 : trainVolume;
     }
-    if (waterGain && ctx) {
-      waterGain.gain.setValueAtTime(isMuted ? 0 : 0.14, ctx.currentTime);
+    if (bgmAudio) {
+      bgmAudio.volume = isMuted ? 0 : bgmVolume;
     }
     return isMuted;
   };
+
+  // Add Drag-and-Drop and File Input Listener for Music Files (musiccreator.ai MP3)
+  const setupMusicDropHandler = () => {
+    if (typeof window === 'undefined') return;
+
+    window.addEventListener('dragover', (e) => {
+      e.preventDefault();
+    });
+
+    window.addEventListener('drop', (e) => {
+      e.preventDefault();
+      const files = e.dataTransfer.files;
+      if (files && files.length > 0) {
+        const file = files[0];
+        if (file.type.startsWith('audio/') || file.name.endsWith('.mp3') || file.name.endsWith('.ogg') || file.name.endsWith('.wav')) {
+          const reader = new FileReader();
+          reader.onload = (readEvent) => {
+            const dataUrl = readEvent.target.result;
+            try {
+              localStorage.setItem('custom_bgm_data', dataUrl);
+            } catch (storageErr) {
+              console.warn('Storage limit for BGM, playing directly:', storageErr);
+            }
+            setCustomBgm(dataUrl);
+            const textEl = document.getElementById('bgm-text');
+            if (textEl) textEl.textContent = `배경음악: ${file.name.slice(0, 15)}…`;
+            alert(`🎵 '${file.name}' 배경음악이 성공적으로 적용되었습니다!`);
+          };
+          reader.readAsDataURL(file);
+        }
+      }
+    });
+
+    // File Input Picker binding
+    document.addEventListener('DOMContentLoaded', () => {
+      bindHudControls();
+    });
+    // In case DOM is already loaded
+    setTimeout(bindHudControls, 200);
+  };
+
+  const bindHudControls = () => {
+    const fileInput = document.getElementById('bgm-file-input');
+    if (fileInput && !fileInput.dataset.bound) {
+      fileInput.dataset.bound = 'true';
+      fileInput.addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (readEvent) => {
+            const dataUrl = readEvent.target.result;
+            try {
+              localStorage.setItem('custom_bgm_data', dataUrl);
+            } catch (err) {}
+            setCustomBgm(dataUrl);
+            const textEl = document.getElementById('bgm-text');
+            if (textEl) textEl.textContent = `배경음악: ${file.name.slice(0, 15)}…`;
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    }
+
+    const bgmToggle = document.getElementById('btn-bgm-toggle');
+    const bgmIcon = document.getElementById('bgm-icon');
+    const bgmText = document.getElementById('bgm-text');
+    if (bgmToggle && !bgmToggle.dataset.bound) {
+      bgmToggle.dataset.bound = 'true';
+      bgmToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (bgmAudio) {
+          if (bgmAudio.paused) {
+            bgmAudio.play();
+            if (bgmIcon) bgmIcon.textContent = '🎵';
+            if (bgmText) bgmText.textContent = '배경음악 작게 켬';
+          } else {
+            bgmAudio.pause();
+            if (bgmIcon) bgmIcon.textContent = '🔇';
+            if (bgmText) bgmText.textContent = '배경음악 꺼짐';
+          }
+        } else {
+          startAmbient();
+        }
+      });
+    }
+  };
+
+  if (typeof window !== 'undefined') {
+    setupMusicDropHandler();
+  }
 
   return {
     init,
     startAmbient,
     playWhistle,
     playDoorSound,
-    playWaterSound,
     toggleMute,
+    setCustomBgm,
+    setBgmVolume,
+    setTrainVolume,
+    getBgmAudio: () => bgmAudio,
     getIsMuted: () => isMuted
   };
 })();
