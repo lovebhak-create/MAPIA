@@ -517,6 +517,9 @@ const Player = (() => {
             } else {
               prompt.textContent = '[E / 클릭] 의자에 앉기';
             }
+          } else if (aimed.type === 'character') {
+            const isKnown = typeof DialogueManager !== 'undefined' && DialogueManager.isNameRevealed(aimed.item.key);
+            prompt.textContent = isKnown ? `[E / 클릭] ${aimed.item.name}과 대화하기` : `[E / 클릭] 승객에게 말걸기`;
           }
           prompt.style.display = 'block';
         } else {

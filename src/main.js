@@ -52,10 +52,21 @@ window.addEventListener('DOMContentLoaded', () => {
     const sendMsg = urlParams.get('sendMsg');
     const pairChat = urlParams.get('pairChat');
     const testSeq = urlParams.get('testSeq');
+    const testNell = urlParams.get('testNell');
     if (dlgTarget) {
       setTimeout(() => {
         DialogueManager.open(dlgTarget);
-        if (testSeq) {
+        if (testNell) {
+          setTimeout(() => {
+            DialogueManager.sendPlayerMessage('엄.. 안녕하세요 옷이 예뻐서요');
+            setTimeout(() => {
+              DialogueManager.sendPlayerMessage('조심할게 있나요?');
+              setTimeout(() => {
+                DialogueManager.sendPlayerMessage('이름이 뭐예요?');
+              }, 600);
+            }, 600);
+          }, 400);
+        } else if (testSeq) {
           setTimeout(() => {
             DialogueManager.sendPlayerMessage('개웃기노');
             setTimeout(() => {
