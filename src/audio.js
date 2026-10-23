@@ -1,5 +1,5 @@
 // src/audio.js - 1930s Train Audio & Background Music Engine
-// Replaced noisy procedural click loop with authentic high-fidelity train sound & soft BGM
+// Authentic rhythmic rail clatter ('덜커덩 덜커덩') & User-provided Lo-Fi/Jazz BGM
 
 const SoundManager = (() => {
   let ctx = null;
@@ -9,8 +9,8 @@ const SoundManager = (() => {
   // Real Audio Elements
   let trainAudio = null;
   let bgmAudio = null;
-  let bgmVolume = 0.16; // "작게 깔아줘" - Soft, pleasant background volume
-  let trainVolume = 0.22; // Gentle, realistic rail rumble
+  let bgmVolume = 0.22; // User's custom music - pleasant, clear, warm
+  let trainVolume = 0.18; // Cozy rhythmic '덜커덩... 덜커덩...' without any screech
 
   const init = () => {
     if (!ctx) {
@@ -24,16 +24,16 @@ const SoundManager = (() => {
     }
   };
 
-  // Start realistic train ambient sound and soft BGM
+  // Start realistic train rhythmic clatter ('덜커덩') and user's BGM
   const startAmbient = () => {
     init();
     if (isRunning) return;
     isRunning = true;
 
-    // 1. Authentic Train Journey Ambience (Continuous smooth rail track recording)
+    // 1. Authentic Rhythmic Train Joint Sound ('덜커덩... 덜커덩...', zero screech/chalkboard scratching)
     try {
       if (!trainAudio) {
-        trainAudio = new Audio('assets/audio/train_ambient.ogg');
+        trainAudio = new Audio('assets/audio/train_clack.wav');
         trainAudio.loop = true;
         trainAudio.volume = isMuted ? 0 : trainVolume;
       }
@@ -41,15 +41,13 @@ const SoundManager = (() => {
         console.log('Train ambient audio autoplay waiting for user interaction:', e.message);
       });
     } catch (e) {
-      console.warn('Failed to start train ambient audio:', e);
+      console.warn('Failed to start train clack audio:', e);
     }
 
-    // 2. Soft Vintage 1930s Background Music ("작게 깔아줘")
+    // 2. User's BGM (Lo-Fi/Jazz song uploaded by user)
     try {
       if (!bgmAudio) {
-        // Check if user previously saved a custom music track
-        const savedCustomBgm = localStorage.getItem('custom_bgm_data');
-        bgmAudio = new Audio(savedCustomBgm || 'assets/audio/bgm_default.mp3');
+        bgmAudio = new Audio('assets/audio/bgm_default.mp3');
         bgmAudio.loop = true;
         bgmAudio.volume = isMuted ? 0 : bgmVolume;
       }
@@ -249,6 +247,15 @@ const SoundManager = (() => {
 
   if (typeof window !== 'undefined') {
     setupMusicDropHandler();
+    const onFirstUserAction = () => {
+      startAmbient();
+      window.removeEventListener('click', onFirstUserAction);
+      window.removeEventListener('keydown', onFirstUserAction);
+      window.removeEventListener('touchstart', onFirstUserAction);
+    };
+    window.addEventListener('click', onFirstUserAction);
+    window.addEventListener('keydown', onFirstUserAction);
+    window.addEventListener('touchstart', onFirstUserAction);
   }
 
   return {
