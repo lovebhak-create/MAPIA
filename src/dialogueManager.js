@@ -317,6 +317,36 @@ const DialogueManager = (() => {
             <span id="ai-indicator-dot" style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#dfb142;"></span>
             <span id="ai-indicator-text">Gemini AI 설정</span>
           </button>
+
+          <button id="btn-voice-toggle" type="button" title="캐릭터 음성 켜기/끄기" style="
+            background: rgba(35, 26, 20, 0.85);
+            border: 1px solid #755b32;
+            color: #dfb142;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.15s;
+          ">
+            <span id="voice-indicator-icon">🔊</span>
+            <span id="voice-indicator-text">음성 켬</span>
+          </button>
+
+          <button id="btn-voice-replay" type="button" title="목소리 다시 듣기" style="
+            background: rgba(35, 26, 20, 0.85);
+            border: 1px solid #755b32;
+            color: #dfb142;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 7px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.15s;
+          ">🔁 다시듣기</button>
         </div>
 
         <div style="display: flex; align-items: center; gap: 10px;">
@@ -470,6 +500,35 @@ const DialogueManager = (() => {
       });
     }
 
+    // Voice control buttons
+    const voiceToggleBtn = document.getElementById('btn-voice-toggle');
+    const voiceIcon = document.getElementById('voice-indicator-icon');
+    const voiceText = document.getElementById('voice-indicator-text');
+    const voiceReplayBtn = document.getElementById('btn-voice-replay');
+
+    if (voiceToggleBtn) {
+      voiceToggleBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (typeof VoiceManager !== 'undefined') {
+          const enabled = VoiceManager.toggleVoice();
+          if (voiceIcon && voiceText) {
+            voiceIcon.textContent = enabled ? '🔊' : '🔇';
+            voiceText.textContent = enabled ? '음성 켬' : '음성 끔';
+            voiceToggleBtn.style.color = enabled ? '#dfb142' : '#888';
+          }
+        }
+      });
+    }
+
+    if (voiceReplayBtn) {
+      voiceReplayBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (typeof VoiceManager !== 'undefined') {
+          VoiceManager.replay();
+        }
+      });
+    }
+
     updateApiKeyIndicator();
 
     document.getElementById('bubble-form').addEventListener('submit', (e) => {
@@ -566,6 +625,9 @@ const DialogueManager = (() => {
     const greeting = char.greetingLine;
     appendLine(char.key, greeting);
     chatHistory.push({ role: 'assistant', text: greeting });
+    if (typeof VoiceManager !== 'undefined') {
+      VoiceManager.speak(char.key, greeting);
+    }
 
     if (input) {
       input.value = '';
@@ -576,6 +638,9 @@ const DialogueManager = (() => {
   const close = () => {
     isDialogueOpen = false;
     activeChar = null;
+    if (typeof VoiceManager !== 'undefined') {
+      VoiceManager.stop();
+    }
     const box = document.getElementById('speech-bubble-box');
     if (box) box.style.display = 'none';
   };
@@ -640,10 +705,16 @@ const DialogueManager = (() => {
 
       appendLine(activeChar.key, reply);
       chatHistory.push({ role: 'assistant', text: reply });
+      if (typeof VoiceManager !== 'undefined') {
+        VoiceManager.speak(activeChar.key, reply);
+      }
     } catch (err) {
       const fallbackReply = dynamicTikiTaka(activeChar, playerText, chatHistory);
       appendLine(activeChar.key, fallbackReply);
       chatHistory.push({ role: 'assistant', text: fallbackReply });
+      if (typeof VoiceManager !== 'undefined') {
+        VoiceManager.speak(activeChar.key, fallbackReply);
+      }
     } finally {
       isGenerating = false;
       if (sendBtn) {
@@ -2392,79 +2463,149 @@ const DialogueManager = (() => {
       return pickNonRepeating(trainPools[key] || ['…눈보라가 곧 걷히길 바랄 뿐입니다.'], `${key}_train_emergency`);
     }
 
-    // 32. GENERAL CONVERSATIONAL PERSONA BANTER (Zero Single-Word Mad-Libs!)
-    // Realistic, nuanced, human responses reflecting authentic 1930s occupation and MBTI
-    const personaPools = {
+    // 32. UNIVERSAL DIRECT CONVERSATIONAL TIKI-TAKA ENGINE (Zero Monologues!)
+    // Strictly distinguishes Questions vs Statements to ensure 100% interactive dialog without self-monologues!
+    const isGeneralQuestion = q.includes('?') || q.endsWith('냐') || q.endsWith('니') || q.endsWith('까') || q.endsWith('가') || q.endsWith('해') || q.includes('뭐') || q.includes('어디') || q.includes('누구') || q.includes('언제') || q.includes('왜') || q.includes('어떻게') || q.includes('알아') || q.includes('어때') || q.includes('맞아') || q.includes('진짜');
+
+    if (isGeneralQuestion) {
+      const questionPools = {
+        bram: [
+          '저… 저한테 물어보신 건가요? 워낙 말주변이 없어서 제대로 대답해 드리지 못해 죄송해요… 하지만 제 생각엔 이 눈보라가 그칠 때까진 모두가 조심해야 할 것 같아요…',
+          '그 질문에 대해선… 제가 영문학 서적에서 읽은 구절밖에 떠오르지 않지만… 당신 말씀처럼 정말 의문이 드네요… 조심하시는 게 좋을 것 같아요…'
+        ],
+        ward: [
+          '내게 질문을 던질 생각이면 용건부터 확실히 해라. 쓸데없는 사담에 일일이 답변해 줄 만큼 한가한 형사가 아니다.',
+          '그 질문, 꽤 의미심장하게 들리는군. 뭔가 알고서 떠보는 건가? 허튼짓 벌일 생각은 접어라.'
+        ],
+        nell: [
+          '호호, 손님께서 궁금하신 게 많으신가 봐요. 기차에 갇혀 있다 보니 별생각이 다 드시지요? 제가 아는 거라면 편하게 답해 드릴게요.',
+          '그 질문을 들으니 고향 마을의 어르신들이 해주시던 옛이야기가 떠오르네요. 참 흥미로운 말씀이세요, 호호.'
+        ],
+        clara: [
+          '후훗… 당신의 그 질문, 마치 제 비극 소설의 결말을 묻는 독자의 눈빛 같네요… 진실을 알 준비가 되셨나요?',
+          '질문 속에는 언제나 질문하는 자의 은밀한 욕망이 숨어있죠. 당신은 왜 그것이 알고 싶으신가요?'
+        ],
+        jude: [
+          '크하핫! 친구, 질문이 꽤 날카로운데?! 패를 까봐야 알겠지만 내 직감으론 자네 말이 맞는 것 같아!',
+          '하하! 뭘 그렇게 캐묻고 그래! 인생은 복잡하게 따지는 것보다 단순하게 즐기는 게 최고라구!'
+        ],
+        harlan: [
+          '…(시계를 내려다보며) 내게 질문할 자격이 있다고 생각하시오? 가치 있는 정보가 아니라면 내 시간을 낭비하지 마시오.',
+          '내게서 원하는 대답을 얻으려면 그만한 대가를 치러야 할 거요. 일개 승객의 호기심을 채워줄 이유는 없소.'
+        ],
+        mabel: [
+          '평민 주제에 감히 내게 질문을 던지다니 오만하기 짝이 없군요. 하인이나 차장에게나 가서 물어보세요.',
+          '상스러운 질문 따위에 대답할 품격이 못 됩니다. 내 시야에서 물러나세요.'
+        ],
+        nurse_k: [
+          '질문 내용 접수했습니다. 다만 비의료적 사안에 대해서는 답변 권한이 제한되어 있으니 양해 바랍니다.',
+          '객실 안전과 관련된 용건이시라면 명확하게 말씀해 주십시오. 즉시 조치하겠습니다.'
+        ],
+        cade: [
+          '석탄 퍼넣느라 등골이 휘는데 질문은 무슨 얼어 죽을 질문이오! 객실 가서 차장 멱살이나 잡으쇼!',
+          '궁금한 게 많으면 책이나 뒤져보쇼. 땀내 나는 노동자한테 지식 자랑하지 말고!'
+        ],
+        gail: [
+          '허허, 젊은 친구의 호기심이 참으로 싱그럽구먼. 살다 보면 의문투성이지만 시간이 답을 주는 법이라네.',
+          '좋은 질문일세. 눈보라에 갇혀 지루했는데 자네와 이런 이야기를 나눌 수 있어 반갑구먼, 허허.'
+        ],
+        arthur: [
+          '오호! 자네의 그 질문은 고대 이집트 파라오의 서판에도 적혀 있던 영원한 인류의 숙제라네! 참 총명한 친구구먼!',
+          '음! 탐구열이 대단하군! 학자의 호기심을 자극하는 아주 날카로운 발상이야, 허허!'
+        ],
+        rose: [
+          '어머, 저한테 물어보신 건가요? 노래와 춤만 출 줄 아는 부족한 저지만… 손님 말씀에 귀 기울이고 싶어요, 후훗.',
+          '궁금하신 게 있으셨군요. 차가운 기차 안이지만 손님과 이야기하니 따뜻해지는 것 같아요.'
+        ],
+        lulu: [
+          '뭐야? 지금 세기의 디바인 날 취재라도 하겠다는 거야? 내 사생활은 백만 달러짜리 특종이라고!',
+          '흥! 감히 디바한테 캐묻다니 당돌하기도 하지! 그래도 관심 가져주는 건 나쁘지 않네, 호호!'
+        ],
+        felix: [
+          '와! 방금 그 질문을 하실 때의 눈빛! 렌즈에 포착하고 싶을 만큼 진지했어요! 무슨 뜻인지 정말 궁금하네요!',
+          '하하! 저도 사진기만 들고 다녔지 그런 건 미처 생각 못 했네요! 아주 흥미진진한데요?!'
+        ],
+        ida: [
+          '해당 질의는 회장님 비서실 보안 규정상 비공개 사항입니다. 추가 질의는 서면 제출하십시오.',
+          '승객 개인의 사적 질의에는 응대하지 않습니다. 공무에 협조하십시오.'
+        ],
+        elias: [
+          '오호! 특종의 냄새를 맡는 능력이 기자 뺨치는데?! 당신, 혹시 타사 신문사에서 잠입한 스파이요?! 크하핫!',
+          '그 질문, 내일 조간신문 1면에 대문짝만하게 실릴 헤드라인 감이오! 어디서 더 들은 정보 없소?!'
+        ]
+      };
+      return pickNonRepeating(questionPools[key] || ['…무슨 말씀이신지 정확히 질문해 주십시오.'], `${key}_question_general`);
+    }
+
+    // 33. DIRECT CONVERSATIONAL STATEMENT REACTIONS (Active Listening & Banter, Zero Monologues!)
+    const statementPools = {
       bram: [
-        '저… 그렇게 말씀하시니 제가 어떻게 대답해야 할지 조금 당황스러워요… 혹시 화나신 건 아니죠…? (소심하게 시선을 피하며)',
-        '네…? 낯선 분과 이렇게 마주 보고 서 있으니 가슴이 너무 쿵쾅거려요… 제발 이상한 사람으로 보지 말아 주세요…',
-        '눈보라가 쳐서 다들 예민해진 것 같아요… 저도 손이 떨려서 책장도 제대로 못 넘기겠어요…'
+        '아… 당신의 그 말씀에 저도 깊이 공감해요… 이 어두운 열차 안에서 그렇게 이야기해 주시니 조금은 마음이 놓이네요…',
+        '네… 손님의 그 말씀, 조용히 마음에 새겨둘게요… 낯선 저에게 그렇게 말을 건네주셔서 정말 고마워요…'
       ],
       ward: [
-        '…쓸데없는 잡담으로 수사관 시간 뺏지 마라. 사건과 관련된 결정적 증거가 아니면 입 닫고 네 자리로 가.',
-        '눈치 빠른 놈이 살아남는 법이다. 열차 안에서 허튼짓 벌이다간 내 권총 구멍을 보게 될 거다.',
-        '내 시야에서 알짱거리지 마라. 영장 없이도 수상한 자는 즉시 연행할 권한이 내겐 있다.'
+        '네가 방금 한 말, 허튼소리 같지는 않군. 하지만 섣부른 추측은 수사를 망치는 법이다. 말조심해라.',
+        '듣고 보니 일리 있는 말이군. 형사 앞이라고 긴장하지 않고 할 말은 다 하는 녀석이군.'
       ],
       nell: [
-        '호호, 손님께서 참 재미있는 말씀을 해주시네요. 눈보라에 갇혀 다들 굳어있었는데 조금은 마음이 풀리는 것 같아요.',
-        '기차 여행이 길어지니 다들 피곤하실 텐데, 따뜻한 차라도 챙겨 드시며 마음 편히 계세요.',
-        '사람 사는 곳이 다 그렇지요. 조금씩 양보하며 가다 보면 곧 시카고에 닿을 거랍니다, 호호.'
+        '호호, 손님의 그 따뜻한 말씀이 차가운 눈보라 속에서도 큰 위안이 되네요. 참 다정하신 분이세요.',
+        '사람 사는 곳이 다 그렇지요. 손님처럼 따뜻하게 말씀해 주시는 분이 계셔서 기차 안이 훈훈해져요.'
       ],
       cade: [
-        '…말이 참 많구려. 땀 흘려 일하는 사람 앞에 서서 잡담할 시간 있으면 객실로 돌아가쇼.',
-        '이 좁은 복도에서 얼쩡거리지 마쇼. 석탄 나르다 부딪히면 멍드는 건 당신 쪽이오.'
+        '…흥, 혓바닥만 잘 놀리는 줄 알았더니 영 헛소리만은 아니구려. 그래도 석탄 불길 앞엔 오지 마쇼.',
+        '뭐, 알아서 잘하쇼. 험한 일 하는 화부한테 친한 척해 봐야 묻어나는 건 그을음뿐이오.'
       ],
       harlan: [
-        '…(서류를 넘기며 만년필을 툭툭 친다) 내 황금 같은 시간을 낭비하지 마시오. 용건이 없으면 비키시오.',
-        '돈과 권력으로 움직이지 않는 말은 내게 소음일 뿐이오. 비서 아이다를 통해 정식으로 접견 신청하시오.'
+        '…호오, 제법 흥미로운 관점이로군. 내 사업에 도움이 될 만한 통찰이 있다면 계속 지껄여 보시오.',
+        '평범한 승객들의 넋두리와는 사뭇 다르군. 쓸모 있는 말이라면 기억해 두겠소.'
       ],
       clara: [
-        '후훗… 당신의 그 말, 제 다음 추리 소설의 흥미진진한 복선으로 쓰면 아주 매력적이겠군요.',
-        '모든 인간은 각자의 가면을 쓰고 살아가죠. 당신의 그 알 수 없는 표정 뒤엔 어떤 진실이 숨어있나요?'
+        '후훗… 당신의 그 한마디, 마치 제 다음 비극 소설의 가장 차가운 대사처럼 마음에 와닿네요… 매력적이에요.',
+        '그 말속에 담긴 당신의 감정… 차가운 설원 열차의 공기와 참 기묘하게 어우러지는군요.'
       ],
       jude: [
-        '크하핫! 인생 뭐 있나, 그렇게 심각하게 굴지 말고 즐기자구! 시카고 도착하면 끝내주는 판이 기다리고 있으니까!',
-        '하하! 자네 입담이 제법인데? 이 기차에선 속마음을 숨기는 놈보다 자네처럼 시원하게 말하는 놈이 낫지!'
+        '크하핫! 역시 자네랑 이야기하면 막혔던 속이 다 뻥 뚫린다니까! 시카고 가면 내가 술 한잔 산다!',
+        '하하! 바로 그거지! 자네처럼 솔직하고 화끈한 사람, 도박판에서도 아주 귀한 인재라구!'
       ],
       mabel: [
-        '…(차가운 눈빛으로 훑어본 뒤 부채를 접는다) 천박한 자들과 같은 공기를 마시는 것 자체가 고역이군요. 물러서세요.',
-        '교양 없는 자의 잡담 따위 상대할 시간 없어요. 내 시야에서 사라지세요.'
+        '천박한 입에서 나온 말치고는 제법 귀담아들을 구석이 있군요. 하지만 내 앞에서는 여전히 분수를 지키세요.',
+        '…흥, 교양 있는 척하려는 건 가상하군요. 내 드레스에 먼지나 묻히지 마세요.'
       ],
       nurse_k: [
-        '승객 여러분의 체온과 혈압 관리가 우선입니다. 복도 통행을 방해하지 마시고 객실로 복귀하십시오.',
-        '규정과 질서를 준수하는 승객에겐 기차도 안전한 법입니다. 명심하십시오.'
+        '진술 내용 확인했습니다. 객실 내 질서 유지에 부합하는 의견이라면 적극 수용하겠습니다.',
+        '객관적인 의견 감사합니다. 열차 내 보건 위생 지침에 참고하도록 하겠습니다.'
       ],
       gail: [
-        '허허, 젊은 친구와 마주 보고 이야기를 나누니 긴 여행길도 덜 지루하구먼. 건강 조심하시게.',
-        '살다 보면 모진 눈보라도 언젠가 그치는 법이라네. 마음을 편안히 가지시지요.'
+        '허허, 자네의 그 말을 듣고 있자니 30년 의사 생활 동안 마주했던 수많은 인연들이 떠오르는구먼. 고맙네.',
+        '마음이 참 깊은 친구구먼. 눈보라가 아무리 거세도 사람 사이의 따뜻한 온기는 얼지 않는 법이지.'
       ],
       arthur: [
-        '음! 자네의 그 말을 듣고 있자니 기원전 바빌론 점성술사들의 수수께끼가 떠오르는구먼! 참 독특한 발상이야!',
-        '역사는 언제나 사소한 대화에서 시작되지! 자네도 고대 문명에 관심이 있다면 언제든 날 찾아오게나, 허허!'
+        '오호! 자네의 그 의견은 기원전 알렉산드리아 도서관의 철학자들도 깊이 토론했던 난제일세! 대단해!',
+        '자네, 학자의 안목을 타고났구먼! 고대 비문을 마주할 때처럼 가슴이 두근거리는 견해요, 허허!'
       ],
       rose: [
-        '어머, 당신과 이야기하니 마음이 한결 가벼워지는 것 같아요. 시카고 극장 무대에 서게 되면 당신 얼굴이 떠오를 것 같네요, 후훗.',
-        '차가운 바람이 불어도 따뜻한 말 한마디면 가슴속 노래가 피어오르는 법이지요.'
+        '어머, 그렇게 말씀해 주시니 제 가슴속에서 슬픈 멜로디가 눈 녹듯 사라지는 것 같아요, 후훗.',
+        '참 로맨틱한 말씀이네요. 당신의 그 말, 무대 위에서 아리아를 부를 때 꼭 기억할게요.'
       ],
       lulu: [
-        '내 아름다움에 감탄하는 거라면 그만둬, 이미 귀에 딱지가 앉도록 들었으니까!',
-        '빨리 시카고에 도착해서 최고급 호텔 스위트룸에 누워야겠어! 이런 덜컹거리는 기차는 질색이야!'
+        '어머, 제법 센스 있는 코멘트잖아? 세기의 디바인 날 감동하게 만들다니, 자네 제법인데?!',
+        '호호! 내 미모에 취해 횡설수설하는 줄 알았더니 꽤 들을 만한 말이었네! 팬클럽에 가입시켜 줄까?!'
       ],
       felix: [
-        '와우! 방금 당신의 그 표정과 포즈, 정말 드라마틱했어요! 카메라 셔터를 누르고 싶어 손이 근질근질하네요!',
-        '이 열차에 탄 모든 승객들이 저한테는 위대한 명작 사진의 모델이에요, 하하!'
+        '와우! 방금 하신 그 말씀, 흑백 사진의 캡션으로 달기에 정말 완벽해요! 감동받았어요!',
+        '찰칵! 방금 그 말씀을 하실 때의 진지한 표정, 제 마음속 뷰파인더에 영원히 담아둘게요!'
       ],
       ida: [
-        '사적인 대화로 비서실 업무를 지연시키지 마십시오.',
-        '회장님의 공식 일정과 보안에 위배되는 행동은 즉각 배제 조치됩니다.'
+        '기록하였습니다. 회장님 보고서에 참고 사항으로 등재할 가치가 있는지 검토하겠습니다.',
+        '사견 접수되었습니다. 추가 소명 사항이 없다면 대기하십시오.'
       ],
       elias: [
-        '큭큭, 당신 꽤 흥미로운 입담을 가졌군! 다음 호 가십란에 익명으로 한 줄 넣어줄까?!',
-        '이 열차는 비밀의 보물창고라니까! 승객들 눈빛만 봐도 특종 냄새가 진동을 하오!'
+        '크하핫! 당신 정말 명언 제조기로구만! 내일 아침 조간신문 독자 투고란에 그대로 실어주고 싶소!',
+        '특종 감은 아니지만 제법 뼈 때리는 말이었소! 다음 호 가십란 끄트머리에 한 줄 넣어주지!'
       ]
     };
 
-    return pickNonRepeating(personaPools[key] || ['…무슨 말씀이신지 잘 모르겠습니다.'], `${key}_persona`);
+    return pickNonRepeating(statementPools[key] || ['…당신의 말씀에 귀 기울이고 있습니다.'], `${key}_statement`);
   };
 
   // Ambient Overheard Dialogues
