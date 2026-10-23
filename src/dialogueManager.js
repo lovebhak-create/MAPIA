@@ -226,6 +226,29 @@ const DialogueManager = (() => {
     }
   };
 
+  const updateApiKeyIndicator = () => {
+    const key = getApiKey();
+    const dot = document.getElementById('ai-indicator-dot');
+    const text = document.getElementById('ai-indicator-text');
+    const input = document.getElementById('api-key-input');
+    if (dot && text) {
+      if (key) {
+        dot.style.background = '#2ecc71';
+        dot.style.boxShadow = '0 0 6px #2ecc71';
+        text.textContent = 'Gemini AI 연동됨';
+        text.style.color = '#a3e635';
+      } else {
+        dot.style.background = '#dfb142';
+        dot.style.boxShadow = 'none';
+        text.textContent = 'Gemini AI 설정';
+        text.style.color = '#dfb142';
+      }
+    }
+    if (input) {
+      input.value = key ? (key.startsWith('AIza') ? key.slice(0, 8) + '••••••••••••••••' : '••••••••••••••••') : '';
+    }
+  };
+
   // Build the Minimal Floating Speech Bubble UI (Clean, No Prompts, No Clutter)
   const initUI = () => {
     if (document.getElementById('speech-bubble-box')) return;
@@ -259,7 +282,7 @@ const DialogueManager = (() => {
     `;
 
     box.innerHTML = `
-      <!-- Top Header: Speaker Badge + Close -->
+      <!-- Top Header: Speaker Badge + Gemini AI Indicator + Close -->
       <div style="
         display: flex;
         justify-content: space-between;
@@ -277,6 +300,23 @@ const DialogueManager = (() => {
             letter-spacing: 0.5px;
             box-shadow: 0 2px 6px rgba(0,0,0,0.5);
           ">???</span>
+          <button id="btn-api-toggle" type="button" title="Google Gemini AI 키 설정 열기" style="
+            background: rgba(35, 26, 20, 0.85);
+            border: 1px solid #755b32;
+            color: #dfb142;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.15s;
+          ">
+            <span id="ai-indicator-dot" style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#dfb142;"></span>
+            <span id="ai-indicator-text">Gemini AI 설정</span>
+          </button>
         </div>
 
         <div style="display: flex; align-items: center; gap: 10px;">
@@ -290,6 +330,56 @@ const DialogueManager = (() => {
             line-height: 1;
             padding: 0 4px;
           ">&times;</button>
+        </div>
+      </div>
+
+      <!-- Gemini API Key Drawer (Minimal, clean, non-intrusive) -->
+      <div id="api-key-drawer" style="
+        display: none;
+        background: rgba(26, 18, 14, 0.98);
+        border: 1px solid #dfb142;
+        border-radius: 8px;
+        padding: 10px 14px;
+        margin-bottom: 10px;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.6);
+      ">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <strong style="color: #dfb142; font-size: 12.5px;">Google Gemini AI 실시간 대화 연동</strong>
+          <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: #ffe484; font-size: 11px; text-decoration: underline;">[AI Studio 무료 키 발급 ↗]</a>
+        </div>
+        <p style="font-size: 11.5px; color: #c4b5a5; margin: 0 0 8px 0; line-height: 1.4;">
+          Google AI Studio에서 무료로 발급받은 Gemini API 키(AIzaSy...)를 입력하시면 16명의 캐릭터가 실시간 제미나이 AI로 완전히 자유롭게 대화합니다. (채팅창에 키를 바로 붙여넣고 전송해도 자동 등록됩니다)
+        </p>
+        <div style="display: flex; gap: 6px;">
+          <input id="api-key-input" type="password" placeholder="AIzaSy... API 키를 입력하세요" style="
+            flex: 1;
+            background: #140e0b;
+            border: 1px solid #755b32;
+            border-radius: 6px;
+            padding: 6px 10px;
+            color: #fff;
+            font-size: 12px;
+            outline: none;
+          " />
+          <button id="btn-api-save" type="button" style="
+            background: #dfb142;
+            border: none;
+            color: #120e0c;
+            font-weight: 700;
+            font-size: 12px;
+            padding: 0 12px;
+            border-radius: 6px;
+            cursor: pointer;
+          ">저장</button>
+          <button id="btn-api-clear" type="button" style="
+            background: #3b2a20;
+            border: none;
+            color: #e0d0c0;
+            font-size: 11.5px;
+            padding: 0 10px;
+            border-radius: 6px;
+            cursor: pointer;
+          ">키 삭제</button>
         </div>
       </div>
 
@@ -337,6 +427,50 @@ const DialogueManager = (() => {
 
     // Event Bindings
     document.getElementById('btn-bubble-close').addEventListener('click', close);
+
+    const toggleBtn = document.getElementById('btn-api-toggle');
+    const drawer = document.getElementById('api-key-drawer');
+    const keyInput = document.getElementById('api-key-input');
+    const saveBtn = document.getElementById('btn-api-save');
+    const clearBtn = document.getElementById('btn-api-clear');
+
+    if (toggleBtn && drawer) {
+      toggleBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = drawer.style.display !== 'none';
+        drawer.style.display = isOpen ? 'none' : 'block';
+        if (!isOpen && keyInput) {
+          keyInput.focus();
+        }
+      });
+    }
+
+    if (saveBtn && keyInput) {
+      saveBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const val = keyInput.value.trim();
+        if (val && !val.includes('••')) {
+          localStorage.setItem('GEMINI_API_KEY', val);
+          window.GEMINI_API_KEY = val;
+          saveBtn.textContent = '저장됨!';
+          setTimeout(() => { saveBtn.textContent = '저장'; }, 1500);
+          updateApiKeyIndicator();
+          if (drawer) drawer.style.display = 'none';
+        }
+      });
+    }
+
+    if (clearBtn && keyInput) {
+      clearBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        localStorage.removeItem('GEMINI_API_KEY');
+        window.GEMINI_API_KEY = '';
+        keyInput.value = '';
+        updateApiKeyIndicator();
+      });
+    }
+
+    updateApiKeyIndicator();
 
     document.getElementById('bubble-form').addEventListener('submit', (e) => {
       e.preventDefault();
@@ -419,6 +553,7 @@ const DialogueManager = (() => {
 
     if (log) log.innerHTML = '';
     updateSpeakerTag();
+    updateApiKeyIndicator();
 
     if (box) box.style.display = 'block';
 
@@ -448,6 +583,22 @@ const DialogueManager = (() => {
   // Send Player Message & handle dynamic responses
   const sendPlayerMessage = async (playerText) => {
     if (!activeChar) return;
+
+    // Check for directly pasted Gemini API key (AIzaSy...)
+    const trimmed = playerText.trim();
+    if (/^AIzaSy[A-Za-z0-9_-]{33}$/.test(trimmed) || (trimmed.startsWith('AIzaSy') && trimmed.length >= 35)) {
+      const detectedKey = trimmed.match(/AIzaSy[A-Za-z0-9_-]{33}/);
+      if (detectedKey) {
+        const k = detectedKey[0];
+        localStorage.setItem('GEMINI_API_KEY', k);
+        window.GEMINI_API_KEY = k;
+        updateApiKeyIndicator();
+        appendLine('player', '🔑 [Gemini API Key 등록]');
+        appendLine(activeChar.key, '✨ Google Gemini API 키가 정상 등록되었습니다! 이제 16명의 모든 캐릭터가 실시간 제미나이 AI로 완전히 자유롭게 대화합니다.');
+        return;
+      }
+    }
+
     if (isGenerating) {
       setTimeout(() => sendPlayerMessage(playerText), 200);
       return;
@@ -468,16 +619,16 @@ const DialogueManager = (() => {
       let reply = '';
 
       if (apiKey) {
-        // If an API key is available in localStorage, use Gemini
+        // Real Google Gemini API Multi-turn Generation
         try {
           reply = await callGeminiAPI(activeChar, chatHistory, playerText);
         } catch (geminiErr) {
-          console.warn('Gemini error, using dynamic simulation:', geminiErr);
+          console.warn('Gemini API call failed, falling back to dynamic tiki-taka:', geminiErr);
           reply = dynamicTikiTaka(activeChar, playerText, chatHistory);
         }
       } else {
         // Zero-friction instant simulation: reacts intelligently to user words!
-        await new Promise(r => setTimeout(r, 160 + Math.random() * 200));
+        await new Promise(r => setTimeout(r, 140 + Math.random() * 180));
         reply = dynamicTikiTaka(activeChar, playerText, chatHistory);
       }
 
@@ -507,7 +658,7 @@ const DialogueManager = (() => {
   // Call Google Generative Language API if key exists
   const callGeminiAPI = async (char, history, currentMsg) => {
     const apiKey = getApiKey();
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    if (!apiKey) throw new Error('No API key configured');
 
     const isKnown = revealedNames[char.key];
 
@@ -521,38 +672,105 @@ const DialogueManager = (() => {
 - 숨겨진 비밀: ${char.secrets}
 - 이름 공개 여부: ${isKnown ? '플레이어가 이미 이름을 알고 있음' : '아직 이름을 밝히지 않음. 플레이어가 이름이나 신분을 직접 묻기 전에는 먼저 이름을 밝히지 마십시오.'}
 
-[티키타카 대화 지침]
-1. 당신은 기계가 아닙니다! 플레이어가 하는 말(옷/조끼 칭찬이나 불만, 질문, 유행어, 의심 등)에 귀를 기울이고, 반드시 관련된 내용으로 1930년대 당신의 직업과 MBTI에 맞게 자연스럽게 맞받아치십시오(실시간 티키타카).
-2. 플레이어가 "네 조끼가 마음에 들지 않아"처럼 당신의 복장이나 특정 물건을 지적할 경우, 엉뚱한 소리를 하지 말고 그 지적에 대해 당신의 성격(브람의 경우 소심하고 상처받으며 어머니가 짜준 조끼라고 변명함)에 맞게 즉각 반응하십시오.
-3. 엉뚱하게 혼잣말하거나 딴소리를 하지 마십시오.
-4. 대사는 1~2문장의 간결하고 몰입감 넘치는 한국어로 답하십시오.`;
+[실시간 티키타카 대화 지침]
+1. 당신은 기계가 아닙니다! 플레이어가 건네는 말(칭찬, 불만, 의상/소지품 지적, 질문, 유행어, 의심, 협박, 농담 등)에 귀를 기울이고, 반드시 그 내용에 대해 당신의 1930년대 직업과 MBTI에 맞게 자연스럽게 맞받아치십시오(실시간 티키타카).
+2. 절대로 엉뚱한 날씨 독백이나 시카고 혼잣말을 중얼거리지 마십시오. 상대방의 말에 즉각적으로 반응하십시오.
+3. 대사는 1~2문장의 간결하고 생동감 넘치는 한국어로 답변하십시오.`;
 
-    const contents = history.slice(-8).map(h => ({
-      role: h.role === 'assistant' ? 'model' : 'user',
-      parts: [{ text: h.text }]
-    }));
-
-    const body = {
-      system_instruction: { parts: [{ text: systemInstruction }] },
-      contents: contents,
-      generationConfig: {
-        temperature: 0.85,
-        maxOutputTokens: 200
-      }
-    };
-
-    const res = await fetch(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
+    // Strictly build Gemini contents:
+    // 1. contents[0] MUST have role: 'user'
+    // 2. Roles must strictly alternate: 'user' -> 'model' -> 'user' -> 'model'
+    // 3. contents[last] MUST have role: 'user'
+    const contents = [];
+    contents.push({
+      role: 'user',
+      parts: [{ text: '(승객에게 다가가 눈을 마주칩니다)' }]
     });
 
-    if (!res.ok) throw new Error(`Gemini status ${res.status}`);
-    const data = await res.json();
-    if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) {
-      return data.candidates[0].content.parts[0].text.trim();
+    const recentHistory = history.slice(-10);
+    for (let i = 0; i < recentHistory.length; i++) {
+      const h = recentHistory[i];
+      const mappedRole = h.role === 'assistant' ? 'model' : 'user';
+      const last = contents[contents.length - 1];
+      if (last.role === mappedRole) {
+        last.parts[0].text += `\n${h.text}`;
+      } else {
+        contents.push({
+          role: mappedRole,
+          parts: [{ text: h.text }]
+        });
+      }
     }
-    throw new Error('Gemini response format error');
+
+    if (contents[contents.length - 1].role !== 'user') {
+      contents.push({
+        role: 'user',
+        parts: [{ text: currentMsg }]
+      });
+    }
+
+    const models = ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-1.5-pro'];
+    let lastErr = null;
+
+    for (const model of models) {
+      try {
+        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+        const body = {
+          system_instruction: { parts: [{ text: systemInstruction }] },
+          contents: contents,
+          generationConfig: {
+            temperature: 0.85,
+            maxOutputTokens: 220
+          }
+        };
+
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(`HTTP ${res.status}: ${JSON.stringify(errData)}`);
+        }
+
+        const data = await res.json();
+        if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) {
+          return data.candidates[0].content.parts[0].text.trim();
+        }
+      } catch (err) {
+        lastErr = err;
+      }
+    }
+
+    throw lastErr || new Error('All Gemini models failed');
+  };
+
+  // Helper: Extract salient noun or topic from user input
+  const extractCoreTopic = (text) => {
+    let clean = text.replace(/[?!.,~…^;"']/g, ' ').trim();
+    const words = clean.split(/\s+/).filter(w => w.length > 0);
+    if (words.length === 0) return '그 말씀';
+
+    const verbSuffixes = /(먹을래|할래|할거야|할까요|좋아해|있어|없어|해봐|볼래|가자|줄래|했어|하자|갈래|알아|모르|봤어|했니|하세요|할까)$/;
+    const fillers = new Set(['너', '나', '저', '야', '아', '그', '이', '왜', '뭐', '어떻게', '진짜', '정말', '혹시', '그냥', '좀', '내가', '네가', '너는', '나는', '당신', '당신은', '우리', '자네', '그대']);
+
+    let substantive = null;
+    for (const w of words) {
+      if (fillers.has(w)) continue;
+      if (!verbSuffixes.test(w)) {
+        substantive = w;
+        break;
+      }
+    }
+    if (!substantive && words.length > 0) {
+      substantive = words.find(w => !fillers.has(w)) || words[0];
+    }
+
+    let chosen = substantive.replace(/(에서|에게|한테|으로|로|은|는|이|가|을|를|의|에|과|와|도|랑|이야|야|요)$/, '');
+    if (!chosen || chosen.length < 1) chosen = words[0];
+    return chosen;
   };
 
   // Deep Context-Aware Dynamic Tiki-Taka Simulation Engine
@@ -601,6 +819,13 @@ const DialogueManager = (() => {
 
     // Safe Question Detection (Avoid "왜냐하면" matching "왜")
     const isAskingWhy = (q === '왜' || q === '왜요' || q === '왜?' || q.startsWith('왜 ') || q.startsWith('왜?') || q.includes('이유가') || q.includes('어째서'));
+    const isBagOrInspection = q.includes('가방') || q.includes('짐') || q.includes('소지품') || q.includes('트렁크') || q.includes('열어봐') || q.includes('열어보') || q.includes('보여줘') || q.includes('뒤져') || q.includes('확인해') || q.includes('내놔');
+    const isSuspicionOrLie = q.includes('거짓말') || q.includes('진짜야') || q.includes('진짜냐') || q.includes('구라') || q.includes('솔직히') || q.includes('숨기는') || q.includes('비밀') || q.includes('의심') || q.includes('사실대로');
+    const isAskingAboutWard = q.includes('워드') || (q.includes('형사') && key !== 'ward');
+    const isAskingAboutHarlan = q.includes('할란') || (q.includes('회장') && key !== 'harlan');
+    const isAskingAboutNell = q.includes('넬') || (q.includes('재봉사') && key !== 'nell');
+    const isAskingAboutClara = q.includes('클라라') || (q.includes('소설가') && key !== 'clara') || (q.includes('작가') && key !== 'clara');
+    const isAskingAboutMafia = q.includes('마피아') || q.includes('살인') || q.includes('범인') || q.includes('시체') || q.includes('암살') || q.includes('총격');
 
     // 0. THREAT & AGGRESSION: "죽을래?", "죽인다", "때릴래", "꺼져", "닥쳐"
     if (isThreat) {
@@ -939,8 +1164,8 @@ const DialogueManager = (() => {
       return jobPools[key] || char.introLine;
     }
 
-    // 9. DESTINATION: "어디 가세요?", "목적지", "시카고", "왜 탔어요?"
-    if (q.includes('어디') || q.includes('시카고') || q.includes('목적') || q.includes('왜 탔') || q.includes('가는')) {
+    // 9. DESTINATION: "어디 가세요?", "목적지", "왜 탔어요?"
+    if (q.includes('어디 가') || q.includes('어디로') || q.includes('목적지') || q.includes('왜 탔') || q.includes('행선지') || q.includes('어디까지')) {
       const destPools = {
         bram: '학기말 과제 소설 원고를 출판사에 제출하러 시카고로 가고 있어요… 부디 좋은 평가를 받아야 할 텐데요…',
         nell: '새로 문을 여는 시카고 양복점에 일자리를 얻어서 가는 길이에요. 눈길에 기차가 멈추지만 않으면 좋겠는데…',
@@ -1582,94 +1807,372 @@ const DialogueManager = (() => {
       return pickNonRepeating(shortPools[key], `${key}_short`);
     }
 
-    // 14. GENERAL CONVERSATION: Engaging, contextually grounded replies with human personality nuance (ignoring, lies, or polite banter)
-    const generalPools = {
+    // 22. INTER-CHARACTER INQUIRIES: "워드", "할란", "마피아/살인"
+    if (isAskingAboutWard) {
+      const wardPools = {
+        bram: ['워드 형사님 말씀이신가요…? 눈빛이 너무 매섭고 품에 총을 차고 계셔서 마주치기만 해도 다리가 후들거려요…', '그 형사님은 시카고에서 오셨다던데… 혹시 절 수상한 사람으로 오해할까 봐 겁나요…'],
+        nell: ['워드 형사님요? 인상은 조금 무서우시지만 기차 안전을 지키느라 고생하시는 것 같아요, 호호.', '형사님이 가끔 수하물칸 쪽을 순찰하시던데, 코트가 낡아서 꿰매드리고 싶더군요.'],
+        nurse_k: ['워드 형사는 시카고 경찰 소속으로 공식 신분을 확인했습니다. 수사 업무에 불필요한 간섭은 삼가십시오.'],
+        cade: ['그 형사 놈… 아까부터 1호차 주변을 힐끔거리며 짐작만으로 캐묻고 다니더군. 귀찮아 죽겠소.', '석탄 가루 묻히기 싫으면 객실로 꺼지라고 한마디 해줬소.'],
+        harlan: ['시카고 시경의 늙은 사냥개지. 냄새를 맡는 건 인정하지만, 내 자본의 영향력 앞에선 꼬리를 내려야 할 거요.'],
+        clara: ['워드 형사… 짙은 트렌치코트 속에 비극적인 과거를 감춘 남자죠. 제 차기작의 고독한 주인공으로 딱 어울려요, 후훗.'],
+        ida: ['워드 형사에 대해선 경찰청 신원 조회를 마쳤습니다. 회장님의 이동 경로와 겹치지 않도록 주시 중입니다.'],
+        jude: ['형사 나리? 켁! 도박꾼한테 경찰은 벼락 맞을 까마귀 같은 존재지! 난 저 양반 근처엔 얼씬도 안 해!'],
+        lulu: ['그 무뚝뚝한 형사 아저씨? 흥, 내 사인 한 장이라도 받으려고 온 줄 알았더니 쳐다보지도 않더라구! 무례해!'],
+        felix: ['워드 형사님의 그 날카로운 눈빛과 낡은 페도라! 하드보일드 누아르 사진의 완벽한 모델이에요!'],
+        mabel: ['하급 경찰 따위가 귀족의 열차에 타고 있다는 것 자체가 격이 떨어지는군요. 말 섞고 싶지 않아요.'],
+        elias: ['워드 형사! 시카고 강력계의 전설이지! 저 양반이 이 열차에 탔다는 건 반드시 피비린내 나는 사건이 터진다는 징조요!']
+      };
+      if (wardPools[key]) return pickNonRepeating(wardPools[key], `${key}_about_ward`);
+    }
+
+    if (isAskingAboutHarlan) {
+      const harlanPools = {
+        bram: ['3호차에 계신 그 거물 사업가 분이요…? 경호원까지 데리고 계셔서 감히 쳐다보지도 못하겠어요…', '돈이 엄청나게 많은 분이라던데, 시골 출신인 저 같은 사람은 사람 취급도 안 하실 것 같아요…'],
+        nell: ['할란 회장님요? 기차를 통째로 살 만큼 부자시라던데… 늘 굳은 표정으로 서류만 보시더군요.', '돈이 아무리 많아도 눈보라 속에선 모두가 똑같은 승객일 뿐이지요, 호호.'],
+        ward: ['할란 포드… 시카고 암흑가와 정계를 주무르는 탐욕스러운 독사지. 이번 열차에 탄 진짜 이유를 캐내고 있다.'],
+        clara: ['거대한 황금 제국을 세웠지만, 가슴속엔 죽음의 공포를 품고 사는 가련한 폭군이죠… 제 소설의 비극적 악당이에요.'],
+        ida: ['할란 포드 회장님은 미국 산업 경제의 심장이십니다. 회장님에 대한 불손한 언행은 엄벌에 처해집니다.'],
+        cade: ['그 늙은 부자 놈? 호화 객실에서 와인이나 홀짝이는 놈 때문에 우리가 영하의 추위에서 석탄을 퍼야 하오.'],
+        jude: ['할란 회장! 캬, 저 양반 호주머니에서 칩 몇 개만 빼앗아도 평생 카지노에서 떵떵거릴 텐데 말이야!'],
+        elias: ['할란 포드의 비자금 장부! 내가 그 장부의 냄새를 맡고 이 기차에 잠입한 거요! 이번에 터지면 퓰리처상감이오!']
+      };
+      if (harlanPools[key]) return pickNonRepeating(harlanPools[key], `${key}_about_harlan`);
+    }
+
+    if (isAskingAboutMafia) {
+      const mafiaPools = {
+        bram: ['마, 마피아요…?! 이 기차에 그런 무서운 암흑가 킬러가 타고 있나요?! 어떡해… 저 살아서 시카고에 갈 수 있을까요…?! (새파랗게 질린다)', '소설에서나 보던 갱단이 현실에 있다니… 너무 무서워요…'],
+        ward: ['마피아든 살인 청부업자든 내 구역에선 쥐새끼처럼 기어 다니게 될 거다. 냄새를 맡았다면 즉시 내게 제보해라.'],
+        nell: ['어머나 세상에…! 설마 이 눈보라 치는 열차에 무서운 총잡이가 있을 리가요… 너무 걱정 마세요, 손님.'],
+        nurse_k: ['의심스러운 무장 인원을 목격하셨다면 즉시 열차 승무원과 경찰에 신고하십시오. 독단적인 행동은 위험합니다.'],
+        cade: ['마피아가 총을 들이밀든 말든 난 석탄만 땔 뿐이오. 불길 속으로 던져버리면 그놈들도 뼈만 남을 거요.'],
+        harlan: ['카포네의 잔당 놈들인가? 내 전속 경호원들의 기관총 앞에서는 한낱 파리 목숨에 불과할 뿐이오.'],
+        clara: ['피와 복수, 그리고 밀주… 1930년대 시카고의 어둠이 이 설원 열차까지 쫓아왔군요. 멋진 결말이 기다려지네요, 후훗.'],
+        elias: ['빙고! 시카고 갱단의 청부 살인범이 이 열차 1등석을 노리고 있다는 첩보가 있소! 특종이 눈앞이오!']
+      };
+      return pickNonRepeating(mafiaPools[key] || ['…무슨 흉흉한 소문이 도는 모양이군요.'], `${key}_mafia`);
+    }
+
+    // 23. LUGGAGE & INSPECTION: "가방", "짐", "열어봐", "보여줘", "내놔", "뒤져봐"
+    if (isBagOrInspection) {
+      const isCommand = q.includes('열어') || q.includes('보여') || q.includes('내놔') || q.includes('뒤져') || q.includes('털어');
+      const bagPools = {
+        bram: isCommand ? [
+          '여, 열어보라고요?! 절대 안 돼요! 이건 제 사생활이자 대학교 등록금이란 말이에요…! 왜 남의 가방을 함부로 뒤지려 하세요?! (가방을 등 뒤로 숨기며 눈시울이 붉어진다)',
+          '제발 이러지 마세요…! 가방 안엔 정말 낡은 소설 원고와 필기도구뿐이에요… 보여드릴 수 없어요…!'
+        ] : [
+          '제 낡은 갈색 가방이요…? 여, 여기엔 소설 원고랑 대학교 등록금밖에 없어요… 진짜예요…! 도둑맞을까 봐 꼭 품고 있는 것뿐이에요…',
+          '시골에서 어머니가 쥐어주신 전 재산이 든 가방이에요… 덜컹거릴 때마다 잃어버릴까 봐 손에서 놓을 수가 없어요…'
+        ],
+        ward: isCommand ? [
+          '열어보라고? 네놈부터 벽에 밀치고 불심검문 해주랴? 영장도 없는 놈이 형사 트렁크에 손댔다간 즉결 체포다.',
+          '총알 구멍 나기 싫으면 손 치워라. 내 가방은 시카고 시경의 관할이다.'
+        ] : [
+          '내 가방? 형사의 짐짝엔 수갑과 리볼버 탄약뿐이다. 쓸데없이 기웃거리다간 의심만 살 뿐이야.',
+          '수사에 필요한 장비 외엔 아무것도 없다. 딴생각 말고 네 자리나 지켜라.'
+        ],
+        nell: isCommand ? [
+          '어머, 제 바느질 가방을요? 호호, 비밀스러운 건 없지만 바늘이 뾰족해서 찔리면 크게 다친답니다. 조심하세요.',
+          '굳이 보시겠다면 보여드릴 순 있지만, 헌 헝겊과 실타래뿐이라 실망하실 텐데요, 호호.'
+        ] : [
+          '제 바느질 가방이 궁금하세요? 안에는 헝겊 조각과 비단실타래, 뾰족한 바늘들뿐이랍니다. 찔리면 아프니 조심하세요, 호호.',
+          '손님들의 찢어진 코트를 수선해 드릴 실과 가위가 들어있지요. 여행길의 든든한 짝꿍이랍니다.'
+        ],
+        nurse_k: [
+          '의료 장비와 소독약, 규제 응급 약품(모르핀)이 보관된 구급 가방입니다. 규정상 민간인의 임의 열람은 엄격히 금지됩니다.',
+          '의약품 보관함에 무단 접근 시 열차 보안 규정에 따라 격리 조치될 수 있습니다.'
+        ],
+        cade: [
+          '…내 낡은 가죽 가방에 손대지 마쇼. 석탄 검댕이나 묻은 화부의 짐짝에 뭐가 들었는지 참견 말고 썩 물러나쇼!',
+          '거친 공구랑 낡은 작업복뿐이오. 남의 짐 뒤적거리다 화구에 처박히는 수가 있소.'
+        ],
+        jude: [
+          '크하핫! 내 트렁크를 보겠다고? 뜯어보면 온통 트럼프 카드와 주사위, 행운의 칩뿐이라 실망할 텐데!',
+          '도박사의 가방엔 행운과 승리만이 담겨 있지! 시카고 판돈 500달러가 든 지갑도 있구 말이야, 하하!'
+        ],
+        harlan: [
+          '건방지게 내 비밀 서류 가방을 넘봐? 경호원! 이 불한당을 당장 끌어내 설원 밖으로 내던져라!',
+          '내 서류 가방 하나에 미국 철도망의 운명이 걸려 있소. 네 목숨 따위로 감당할 수 있는 물건이 아니오.'
+        ],
+        clara: [
+          '제 원고 가방이에요. 아직 발표되지 않은 살인 미스터리가 잠들어 있죠… 열어보실래요? 판도라의 상자처럼 비극만 쏟아져 나올지도 몰라요, 후훗.',
+          '작가의 비밀 노트는 독약과 같답니다. 엿보는 순간 당신도 비극의 주인공이 될 테니까요.'
+        ],
+        ida: [
+          '회장님의 기밀 경영 장부와 계약서가 보관된 포트폴리오입니다. 인가되지 않은 접근은 철도 경찰에 즉각 인계됩니다.',
+          '공식 보안 결재가 없는 인원의 소지품 열람 요구는 거부합니다.'
+        ],
+        gail: [
+          '허허, 청진기와 기본 소독약이 든 왕진 가방이라네. 눈보라에 환자가 생길까 봐 늘 곁에 두고 있지.',
+          '낡은 가방이지만 수많은 생명을 살려낸 소중한 의사 가방이라네.'
+        ],
+        arthur: [
+          '오! 이 상자 말이군! 기원전 수메르 쐐기문자 탁본과 고대 발굴 파편들이 들어있지! 자네도 고고학 유물에 관심이 있나?!',
+          '함부로 만지면 4000년 전 유물이 바스러진다네! 눈으로만 보게나, 허허!'
+        ],
+        rose: [
+          '제 악보와 무대 의상이 들어있는 분장 가방이에요. 다음 시카고 오페라 무대에서 입을 화려한 드레스랍니다, 후훗.',
+          '화장품과 향수가 가득해서 달콤한 냄새가 나지요? 열어보셔도 괜찮아요, 후훗.'
+        ],
+        lulu: [
+          '어머! 내 최고급 파리산 가죽 트렁크에 눈독 들이지 마! 온갖 보석과 밍크 코트가 가득해서 네 전 재산으로도 못 살걸?',
+          '디바의 드레스룸을 함부로 엿보려 하다니, 무례하기 짝이 없네!'
+        ],
+        felix: [
+          '제 암실 장비와 필름 통들이에요! 빛이 들어가면 귀한 사진들이 전부 타버리니까 절대 열면 안 돼요!',
+          '특수 렌즈와 감광판이 들어있어서 충격에 약해요. 조심해 주세요!'
+        ],
+        mabel: [
+          '천박한 손 치우세요. 내 보석함 근처에 1인치라도 다가왔다간 시카고 법원에 평생을 저당잡히게 해줄 테니까요.',
+          '하등한 것들이 감히 귀족의 소지품을 넘보다니, 불쾌하기 짝이 없군요.'
+        ],
+        elias: [
+          '큭큭, 내 취재 수첩과 폭탄급 스캔들 파일들이지! 이걸 까는 순간 미국 정재계 절반이 뒤집어진다고!',
+          '기자의 가방은 특종의 화약고요! 섣불리 건드렸다간 크게 다칠 거요, 크하하!'
+        ]
+      };
+      return pickNonRepeating(bagPools[key] || ['…제 소지품에 관심이 많으시군요.'], `${key}_bag`);
+    }
+
+    // 24. CONTEXTUAL "WHY" & FOLLOW-UP INQUIRY: "왜?", "어째서?", "이유가 뭐야?"
+    if (isAskingWhy) {
+      const lastBot = history.filter(h => h.role === 'assistant').slice(-1)[0]?.text || '';
+      if (lastBot.includes('조끼') || lastBot.includes('어머니') || lastBot.includes('옷')) {
+        if (key === 'bram') return '왜 이 조끼를 입었냐고요…? 어머니가 밤새 떠주신 거라 저에겐 세상에서 가장 따뜻한 옷이에요… 촌스러워도 전 이게 소중해요…';
+        if (key === 'ward') return '왜 이 낡은 코트냐고? 핏자국과 탄약 냄새를 숨기기엔 구겨진 트렌치코트만 한 게 없으니까.';
+      }
+      if (lastBot.includes('가방') || lastBot.includes('등록금') || lastBot.includes('원고')) {
+        if (key === 'bram') return '가방을 왜 꼭 쥐고 있냐고요…? 이, 이건 제 모든 학비가 들어있어서… 잃어버리면 대학도 못 가고 고향으로 쫓겨나거든요…!';
+        if (key === 'ward') return '왜 형사 가방을 못 열게 하냐고? 현장 보존과 증거 보호는 경찰의 기본 수칙이니까.';
+      }
+      const whyPools = {
+        bram: [
+          '이, 이유를 물으셔도… 전 그저 시카고에 무사히 도착해서 공부하고 싶을 뿐이에요… 제발 몰아세우지 마세요…',
+          '제가 워낙 겁이 많고 소심해서 그래요… 남들이 쳐다보기만 해도 심장이 쿵쾅거리거든요…'
+        ],
+        ward: [
+          '형사가 움직이는 데 일일이 민간인한테 이유를 설명할 의무는 없다. 얌전히 자리에 앉아 있어라.',
+          '이유? 눈보라 속에 늑대가 숨어있을 때 사냥꾼이 방아쇠에 손을 얹는 것과 같은 이치다.'
+        ],
+        nell: [
+          '호호, 세상 모든 일에 거창한 이유가 있는 건 아니랍니다. 그저 마음 가는 대로 베풀 뿐이지요.',
+          '눈보라에 갇혀 있을 때일수록 서로 따뜻하게 대하는 게 순리 아니겠어요?'
+        ],
+        nurse_k: [
+          '환자의 생명 보호와 열차 내 감염 예방이 제 의학적 판단의 이유입니다.',
+          '규정과 절차에 따른 조치에는 사적인 감정이나 변명이 필요하지 않습니다.'
+        ],
+        cade: [
+          '석탄을 왜 퍼넣냐고? 불이 꺼지면 이 기차에 탄 승객 전부가 얼어 죽으니까 그렇소! 잔말 말고 비키쇼!',
+          '목숨 걸고 달리는 기관차 밑바닥 사정을 당신 같은 샌님이 알 리가 있소?'
+        ],
+        jude: [
+          '크하핫! 도박판에서 왜 판돈을 올리냐고 묻는 것만큼 어리석은 질문은 없지! 스릴이 있으니까!',
+          '인생은 한 번뿐이야, 친구! 주사위가 구르는 데 무슨 거창한 이유가 필요해?!'
+        ],
+        harlan: [
+          '왜냐고 묻는 자 치고 내게 이득을 가져다준 자는 없었소. 돈과 권력이 곧 나의 이유요.',
+          '자본주의의 원리는 단순하오. 지배하든가, 지배당하든가 둘 중 하나지.'
+        ],
+        clara: [
+          '왜냐하면… 비극은 언제나 가장 은밀하고 사소한 의문에서 싹트는 법이니까요. 후훗.',
+          '이유를 찾는 자는 이미 함정에 발을 들인 것이나 다름없답니다.'
+        ],
+        ida: [
+          '비서실의 모든 결정은 회장님의 철저한 경영 방침에 기인합니다.',
+          '효율성과 보안, 그 두 가지가 제 행동의 유일한 이유입니다.'
+        ],
+        gail: [
+          '허허, 인간에 대한 연민과 인술… 그것이 내가 눈보라 속에서도 청진기를 놓지 않는 이유라네.',
+          '어려운 이웃을 돕는 데 무슨 계산이 필요하겠는가.'
+        ],
+        arthur: [
+          '호기심일세! 묻혀 있는 진실을 파헤치는 학자의 순수한 열정, 그것보다 더 위대한 이유가 어디 있겠나!',
+          '기원전 수메르인들도 하늘의 별을 보며 ‘왜?’라고 물었지! 자네도 학자의 기질이 있구먼!'
+        ],
+        rose: [
+          '음악과 사랑이 있으니까요! 사람들의 가슴을 울리는 노래를 부르는 것이 제 삶의 전부랍니다, 후훗.',
+          '어두운 밤일수록 아름다운 선율이 더 절실한 법이니까요.'
+        ],
+        lulu: [
+          '왜냐구? 난 세기의 디바 룰루니까! 내 기분과 내 아름다움이 곧 법이야!',
+          '여자의 마음을 논리적으로 따지려 들다니, 촌스러운 남자네!'
+        ],
+        felix: [
+          '순간의 찬란함을 영원히 박제하기 위해서죠! 뷰파인더 너머의 세상은 숨 막히게 아름다우니까요!',
+          '셔터를 누르지 않으면 그 위대한 순간은 영영 사라져 버리잖아요!'
+        ],
+        mabel: [
+          '하등한 자에게 내 고결한 동기를 설명할 의무 따윈 없어요. 주제넘게 캐묻지 마세요.',
+          '귀족의 선택은 그 자체로 정당합니다. 천민은 그저 따르기만 하면 돼요.'
+        ],
+        elias: [
+          '진실을 밝히기 위해서요! 어둠 속에 숨겨진 권력자들의 추악한 비리를 온 세상에 폭로하는 게 기자의 사명이오!',
+          '대중은 알 권리가 있고, 난 그걸 전달할 펜을 쥐었소! 이것보다 확실한 이유가 어디 있소?'
+        ]
+      };
+      return pickNonRepeating(whyPools[key] || ['…그것이 제 방식입니다.'], `${key}_why`);
+    }
+
+    // 25. SUSPICION & LIE CHECKS: "거짓말", "진짜야?", "솔직히", "숨기는", "비밀", "의심"
+    if (isSuspicionOrLie) {
+      const liePools = {
+        bram: [
+          '거, 거짓말 아니에요…! 제 눈을 보세요, 전 정말 거짓말 못 하는 성격이에요…! (안절부절못하며 손가락을 꼼지락거린다)',
+          '제발 의심하지 마세요… 저 같은 시골뜨기가 무슨 거창한 비밀을 숨기겠어요… 흑…'
+        ],
+        ward: [
+          '내 말이 진짜냐고? 거리의 협박범과 사기꾼들을 십수 년 잡아넣은 내 감을 의심하는 건가?',
+          '비밀이라… 이 기차에 탄 승객 중 비밀 없는 놈은 하나도 없다. 네놈을 포함해서 말이지.'
+        ],
+        nell: [
+          '호호, 늙은 재봉사가 무슨 비밀이 있겠어요. 솔직하게 땀 흘려 일하는 것뿐이랍니다.',
+          '의심을 품고 세상을 보면 따뜻한 차 한 잔도 독약처럼 느껴지는 법이지요, 손님.'
+        ],
+        nurse_k: [
+          '공식 의료 면허를 소지한 의료인으로서 허위 진술은 하지 않습니다. 근거 없는 의혹 제기는 삼가십시오.',
+          '의학적 사실과 규정 준수 외에 사적으로 숨기는 것은 없습니다.'
+        ],
+        cade: [
+          '…거짓말할 힘이 있으면 석탄 한 삽 더 뜨겠소. 땀 흘려 일하는 노동자 의심 말고 썩 꺼지쇼.',
+          '남의 꼬투리 잡으려 들지 말고 제 앞가림이나 잘하쇼.'
+        ],
+        jude: [
+          '크하핫! 도박꾼한테 진짜냐고 묻는 놈이 제일 먼저 밑천 털리는 법이지! 날 믿을지 말지는 자네 배짱이야!',
+          '포커페이스가 없으면 어떻게 승부사라 하겠나? 하지만 자네한테 사기 칠 생각은 없어, 진짜라니까!'
+        ],
+        harlan: [
+          '비밀이라… 자본가에게 비밀이란 곧 주가이자 권력이지. 그걸 너 따위 뜨내기에게 털어놓을 것 같소?',
+          '내 말이 진실인지 의심할 배짱이 있다면, 내 자본의 힘부터 감당해 보시오.'
+        ],
+        clara: [
+          '후훗… 어디까지가 진실이고 어디부터가 허구일까요? 소설가의 입술에서 흘러나오는 말은 늘 안개와 같답니다.',
+          '모든 인간은 각자의 가면을 쓰고 살아가죠. 당신의 그 순진한 표정도 가면인가요?'
+        ],
+        ida: [
+          '업무상의 모든 보고는 100% 검증된 사실에 기반합니다. 허위 정보 유포는 법적 책임을 묻겠습니다.',
+          '비밀 유지는 최고 비서실의 핵심 의무입니다. 질의를 중단하십시오.'
+        ],
+        gail: [
+          '허허, 평생 환자를 돌보며 살아온 늙은 의사라네. 거짓으로 타인을 속여서 무엇을 얻겠는가.',
+          '마음의 의심을 내려놓게나, 젊은 친구. 눈보라보다 무서운 건 사람에 대한 불신이라네.'
+        ],
+        arthur: [
+          '학술적 고증이 끝난 사실만 말할 뿐일세! 함무라비 법전의 쐐기문자는 결코 거짓말을 하지 않지!',
+          '허허, 내 기억력이 가끔 깜빡할 순 있어도 거짓을 꾸며낼 재주는 없다네!'
+        ],
+        rose: [
+          '어머, 절 못 믿으시는 건가요? 무대 위가 아닌 곳에서 거짓말을 할 이유는 전혀 없는걸요, 후훗.',
+          '제 눈동자를 들여다보세요. 거짓을 말하는 사람의 눈빛이 이렇게 맑을까요?'
+        ],
+        lulu: [
+          '흥! 내가 왜 너 따위한테 거짓말을 해? 난 솔직하고 당당한 세기의 디바야!',
+          '비밀? 디바의 사생활은 언제나 신비로워야 하는 법이지! 다 알려고 들면 다쳐!'
+        ],
+        felix: [
+          '사진은 결코 거짓말을 하지 않아요! 렌즈에 맺히는 빛은 언제나 100% 진실만을 기록하니까요!',
+          '제 순수한 예술혼을 의심하지 마세요! 전 보이는 그대로를 사랑할 뿐이에요!'
+        ],
+        mabel: [
+          '하등한 자의 의심 따위 상대할 가치도 없습니다. 내 앞에서 감히 진실을 입에 올리지 마세요.',
+          '천민이 품는 망상 따위 관심 없어요. 내 시야에서 사라지세요.'
+        ],
+        elias: [
+          '취재원의 비밀은 무덤까지 가져가는 게 기자의 윤리요! 하지만 진실을 캐내는 내 촉은 결코 거짓말을 안 하지!',
+          '의심이 간다고? 좋아, 날 믿지 못하겠다면 다음 주 조간신문 1면을 확인해 보시오, 크하핫!'
+        ]
+      };
+      return pickNonRepeating(liePools[key] || ['…진실은 시간이 지나면 밝혀질 것입니다.'], `${key}_lie`);
+    }
+
+    // 26. DYNAMIC SUBJECT-ECHOING IN-CHARACTER MBTI ENGINE (Replaces repetitive general monologues!)
+    // Extracts the user's core topic and formulates a dynamic, responsive reply!
+    const topic = extractCoreTopic(raw);
+    const dynamicSubjectPools = {
       bram: [
-        '저… 혹시 다른 객차에는 무슨 일 없나요? 덜컹거릴 때마다 심장이 철렁해요…',
-        '그래도 이렇게 이야기 나눠주시니 조금은 안심이 돼요… 고마워요…',
-        '시카고는 어떤 도시일까요? 도스토예프스키 소설처럼 차갑고 거대하겠죠…?',
-        '손이 자꾸 떨려서 책장을 넘기기가 힘드네요… 눈보라가 어서 그쳤으면 좋겠어요…'
-      ],
-      nell: [
-        '기차 여행이 많이 피곤하시죠? 따뜻한 물이라도 챙겨 드세요.',
-        '혹시 다른 칸에서 무슨 일 있었나요? 다들 조금씩 굳어 있는 것 같아요.',
-        '바깥 눈이 그치면 시카고 풍경이 정말 예쁠 텐데, 얼른 무사히 도착했으면 좋겠어요.',
-        '바늘귀를 꿰다 보면 잡념이 사라진답니다. 손님도 마음 편히 쉬세요, 호호.'
+        `'${topic}' 말씀이신가요…? 앗, 저는… 그런 건 잘 몰라서 조금 부끄럽네요… 하지만 당신이 그렇게 말씀해 주시니 신경이 쓰여요… (손가락을 꼼지락거리며)`,
+        `저… '${topic}'에 대해 이야기해 주신 건가요…? 이렇게 낯선 분과 대화를 나누니 긴장이 조금 풀리는 것 같아요… 고마워요…`,
+        `'${topic}'이라니, 도스토예프스키 소설 속 한 구절처럼 묘하게 마음에 남는 말이네요… 시카고에 가서도 기억날 것 같아요…`
       ],
       ward: [
-        '…(시가 연기를 길게 내뿜으며 창밖으로 시선을 돌린다. 귀찮다는 표정이다)',
-        '…수사에 도움 안 되는 잡담은 사양한다. 얌전히 자리에 앉아 있어.',
-        '눈치가 빠른 놈이 살아남는 법이지. 네 눈빛, 기억해 두겠다.',
-        '다음 역에 도착할 때까지 아무 짓도 벌이지 마라. 내 경고다.'
+        `'${topic}'? 풋내기 승객 양반, 지금 영하 20도 눈밭에 갇힌 기차 안에서 '${topic}' 타령이나 늘어놓을 때인가? 쓸데없는 잡담 집어치우고 네 자리나 지켜라.`,
+        `'${topic}'이라… 흥, 사건과 무관한 헛소리는 형사 수첩에 한 줄도 적히지 않는다. 딴청 피우지 마라.`,
+        `네 입에서 나온 '${topic}'이란 단어… 수상쩍은 냄새가 나는군. 이번 사건과 무슨 연관이라도 있는 건가?`
       ],
-      cade: [
-        '…(삽을 쥔 채 땀을 훔치며 묵묵히 보일러 화구만 노려본다)',
-        '…기차가 덜컹거리는 건 선로에 눈이 쌓여서 그렇소. 별일 아니니 들어가 쉬쇼.',
-        '말이 참 많구려. 석탄 가루 마시기 싫으면 객실로 돌아가쇼.',
-        '증기압 유지하는 것만으로도 죽을 맛이오. 잡담은 다른 사람하고 나누쇼.'
+      nell: [
+        `어머나, '${topic}' 말씀이신가요? 차가운 눈보라 속에서도 '${topic}' 이야기를 들으니 마음이 한결 따뜻해지는 것 같아요, 호호.`,
+        `손님께서 '${topic}'에 대해 말씀하시니 제 고향 마을 풍경이 떠오르네요. 기차 안이라도 마음 편히 계세요.`,
+        `'${topic}'이라니 참 고운 말씀이네요. 바느질하는 제 손끝에도 온기가 전해지는 기분이랍니다, 호호.`
       ],
       nurse_k: [
-        '체온과 맥박에 이상이 없으시다면 객실로 복귀하십시오. 복도는 통행로입니다.',
-        '규칙을 준수하는 승객에겐 기차도 안전한 법입니다. 명심하십시오.',
-        '감염 예방을 위해 개인위생을 철저히 관리하십시오.'
+        `'${topic}'에 관한 사항은 열차 내 공식 보건 및 위생 지침에 해당하지 않습니다. 승객 안전을 위해 객실 질서를 유지해 주십시오.`,
+        `'${topic}' 발언을 확인했습니다. 체온과 맥박에 이상이 없으시다면 다른 승객의 통행을 방해하지 마십시오.`,
+        `의학적으로 볼 때 극심한 추위 속에선 불필요한 감정 소모나 사담을 줄이는 것이 건강에 유익합니다.`
       ],
-      elias: [
-        '큭큭, 당신 꽤 흥미로운 입담을 가졌군! 다음 호 가십란에 익명으로 한 줄 넣어줄까?',
-        '이 열차의 승객들은 하나같이 비밀의 보물창고라니까! 안 그렇소?',
-        '비밀 하나 알려줄까? 1등석의 모 거물이 이번 밤을 무사히 못 넘길 거라는 첩보가 있소!'
-      ],
-      harlan: [
-        '…(서류를 넘기며 만년필을 툭툭 친다. 당신의 말을 들은 척도 안 한다)',
-        '내 시간을 더 뺏을 셈이오? 용건이 없으면 비서 아이다를 통해 약속부터 잡으시오.',
-        '돈이란 냉정한 것이지. 이 기차도 결국 내 자본의 흐름 위에 굴러가는 거요.'
-      ],
-      clara: [
-        '당신과의 이 짧은 대화도 제 다음 장의 훌륭한 복선이 될 것 같군요. 매력적이에요.',
-        '인간은 고립될 때 비로소 자신의 진짜 얼굴을 드러내죠. 이 열차처럼요.',
-        '…(창문에 낀 성에 위에 조용히 물음표 하나를 손가락으로 그린다)'
-      ],
-      ida: [
-        '사적인 대화로 업무를 지연시키지 마십시오.',
-        '회장님의 지침에 어긋나는 행동은 삼가 주십시오.',
-        '보안 프로토콜에 따라 비인가 승객의 장시간 체류는 금지됩니다.'
-      ],
-      gail: [
-        '허허, 여행길에선 건강이 최우선입니다. 찬바람 조심하시지요.',
-        '마음이 어지러울 땐 눈을 감고 심호흡을 해보시지요.',
-        '살다 보면 눈보라도 언젠가 지나가는 법이라네. 편안히 마음을 먹게나.'
-      ],
-      arthur: [
-        '고대 로마인들도 이런 마차를 타고 원정을 다녔을 테지… 낭만이 있어!',
-        '자네도 역사에 관심이 있다면 언제든 날 찾아오게!',
-        '음… 이 기차의 덜컹거림 속에서 고대 음악의 박자가 느껴지는군!'
+      cade: [
+        `…'${topic}' 같은 배부른 소리 말고 썩 비키쇼. 이 시뻘건 화구 앞에서 땀 흘려 일하는 놈한테 '${topic}'이 무슨 상관이오?`,
+        `말이 참 많구려. 석탄 가루 마시기 싫으면 '${topic}' 타령 그만하고 객실로 돌아가쇼.`,
+        `기차가 덜컹거리는 건 선로에 눈이 쌓여서 그렇소. '${topic}' 따위 신경 쓸 여유 없으니 가보쇼.`
       ],
       jude: [
-        '헤헤, 사실 난 말이지… 시카고 거대 카지노의 숨겨진 지분을 갖고 있지! …믿거나 말거나, 크하핫!',
-        '하하! 인생 뭐 있나, 한판 배짱 있게 던져보는 거지!',
-        '좋아, 친구! 시카고에 도착하면 내가 끝내주는 위스키 한 잔 살게!'
+        `크하핫! '${topic}'이라니! 그거 아주 흥미진진한 패로구만! 시카고 판돈으로 '${topic}'을 걸면 배당이 얼마나 나올까?!`,
+        `오호, 친구! 자네 제법 배짱이 두둑하군! '${topic}' 이야기를 꺼내는 걸 보니 한판 붙어볼 맛이 나겠어!`,
+        `하하! 인생 뭐 있나, '${topic}'이든 뭐든 배짱 있게 질러보는 거지! 시카고 도착하면 내가 한잔 사겠네!`
+      ],
+      harlan: [
+        `하! 내 황금 같은 시간 1초를 고작 '${topic}' 따위의 잡담으로 낭비할 셈이오? 내게 이득이 되지 않는 말은 귓등으로도 안 듣소.`,
+        `'${topic}'? 자본주의 시장에서 그게 단 1달러의 가치라도 있소? 영양가 없는 소리 집어치우고 물러나시오.`,
+        `내 신경을 거스르지 마시오. 이 기차도 결국 내 영향력 아래 굴러간다는 걸 잊지 마시오.`
+      ],
+      clara: [
+        `'${topic}'… 기묘하고도 매혹적인 단어로군요. 고립된 폭설 열차와 '${topic}', 제 다음 비극 소설의 결말을 장식할 멋진 은유가 될 것 같아요. 후훗.`,
+        `당신의 입술에서 흘러나온 '${topic}'이라는 복선… 이 열차의 누군가는 그 말 때문에 피를 흘리게 될지도 모르죠.`,
+        `인간은 고립될 때 비로소 자신의 진짜 비밀을 드러내죠. 당신에게 '${topic}'은 어떤 가면인가요?`
+      ],
+      ida: [
+        `'${topic}' 관련 내용은 회장님의 공식 일정 브리핑 대상이 아닙니다. 비인가 사적 대화는 삼가 주십시오.`,
+        `해당 발언은 회장님 비서실 보안 프로토콜상 기록 가치가 없습니다. 통행로를 비켜주십시오.`,
+        `업무를 방해하는 무의미한 언행에 대해선 경비대를 통해 경고 조치할 수 있습니다.`
+      ],
+      gail: [
+        `허허, 젊은 친구가 '${topic}'에 대해 이야기하니 정겹구먼. 차가운 여행길에 그런 사색을 즐기는 것도 좋은 활력소가 되지요.`,
+        `마음이 어지러울 땐 '${topic}'을 조용히 되새겨보는 것도 위로가 된다네. 건강 조심하시게나.`,
+        `살다 보면 모진 눈보라도 언젠가 걷히는 법이라네. 편안한 마음으로 차 한잔하시지요, 허허.`
+      ],
+      arthur: [
+        `오호! '${topic}'이라! 기원전 1500년 메소포타미아 점토판에도 '${topic}'과 매우 흡사한 상형문자가 적혀 있었지! 자네, 역사에 눈이 트였구먼!`,
+        `음! '${topic}'의 어원을 파고들면 고대 오리엔트 문명과의 연결고리를 찾을 수 있을 걸세! 참 흥미로운 가설이야!`,
+        `기차의 덜컹거림 속에서도 자네와 '${topic}'을 논할 수 있다니, 이번 발굴 여행은 낭만이 넘치는구먼, 허허!`
       ],
       rose: [
-        '음악이 흐르면 다들 미소를 되찾을 텐데 말이에요, 후훗.',
-        '당신과 이야기하니 마음이 한결 가벼워졌어요.',
-        '시카고 극장 무대 위에서 화려한 조명을 받을 생각을 하면 가슴이 두근거려요.'
+        `어머, '${topic}'이라니… 마치 한 편의 감미로운 아리아 가사처럼 마음을 울리네요. 당신은 참 섬세한 분이군요, 후훗.`,
+        `차가운 눈보라 속에서도 '${topic}' 이야기를 들으니 가슴속에서 따뜻한 선율이 피어오르는 것 같아요.`,
+        `시카고 오페라 무대에 서게 되면 당신이 들려준 '${topic}'을 떠올리며 노래할게요, 후훗.`
       ],
       lulu: [
-        '내 아름다움에 감탄하는 거라면 그만둬, 이미 귀에 딱지가 앉도록 들었으니까!',
-        '빨리 시카고에 도착해서 최고급 호텔 스위트룸에 누워야겠어!',
-        '…(손거울을 들고 립스틱을 고치며 당신의 말을 흘려듣는다)'
+        `'${topic}'? 어머, 세기의 디바인 날 앞에 세워두고 고작 '${topic}' 타령이야? 날 찬양하고 반짝이는 다이아몬드 이야기를 해보라구!`,
+        `내 매혹적인 향기와 미모에 취해서 기껏 꺼낸 말이 '${topic}'이라니, 귀엽기도 해라!`,
+        `흥, 빨리 시카고 호텔 스위트룸에 도착해서 '${topic}' 따윈 잊고 최고급 샴페인이나 마셔야겠어!`
       ],
       felix: [
-        '당신의 눈빛에서 정말 멋진 이야기가 읽혀요! 카메라에 담고 싶어요!',
-        '이 기차의 모든 순간이 저한테는 예술 작품이에요!',
-        '셔터를 누르는 순간, 그 시간은 영원히 멈추는 법이죠!'
+        `와우! 방금 '${topic}'이라고 말씀하실 때의 그 눈빛과 표정! 1930년대의 걸작 흑백사진 한 장으로 남기기에 완벽해요!`,
+        `'${topic}'을 테마로 한 찰나의 스냅숏! 셔터를 누르고 싶어 손가락이 근질근질하네요!`,
+        `이 폭설 열차의 모든 순간이 저한테는 예술이지만, 방금 자네의 '${topic}' 이야기는 최고였어요!`
       ],
       mabel: [
-        '…(차가운 눈빛으로 훑어본 뒤 은장식 부채를 천천히 접는다. 대꾸할 가치를 못 느끼는 듯하다)',
-        '…잡담할 시간 있으면 내 시야에서 사라지세요.',
-        '천박한 자들과 한 공기를 마시는 것 자체가 고역이군요.'
+        `천박한 입에서 나오는 '${topic}' 따위의 소리에 내가 귀를 기울여야 할 이유가 있나요? 하등한 것의 잡담은 역겨울 뿐이에요.`,
+        `…잡담할 시간 있으면 내 시야에서 사라지세요. 격 떨어지는 자와 같은 공기를 마시는 것 자체가 고역이군요.`,
+        `내 보석과 명예에 비하면 네놈이 지껄이는 '${topic}' 따위는 길가의 흙먼지만도 못해요.`
+      ],
+      elias: [
+        `오호! '${topic}'?! 잠깐, 설마 그게 이번 열차에 탄 거물들의 밀거래 암호인가?! 특종의 냄새가 진동을 하는구만!`,
+        `큭큭, 당신 꽤 의미심장한 입담을 가졌군! 내일 아침 조간신문 가십란에 '${topic}'이란 제목으로 실어줄까?!`,
+        `이 열차는 비밀의 화약고요! 방금 그 '${topic}' 이야기, 어디서 입수한 정보인지 솔직히 불어보시오!`
       ]
     };
-    return pickNonRepeating(generalPools[key] || ['…'], `${key}_general`);
+
+    return pickNonRepeating(dynamicSubjectPools[key] || [`…'${topic}' 말씀이시군요.`], `${key}_subject_${topic}`);
   };
 
   // Ambient Overheard Dialogues
