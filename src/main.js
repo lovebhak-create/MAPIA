@@ -51,10 +51,21 @@ window.addEventListener('DOMContentLoaded', () => {
     const dlgTarget = urlParams.get('openDlg');
     const sendMsg = urlParams.get('sendMsg');
     const pairChat = urlParams.get('pairChat');
+    const testSeq = urlParams.get('testSeq');
     if (dlgTarget) {
       setTimeout(() => {
         DialogueManager.open(dlgTarget);
-        if (sendMsg) {
+        if (testSeq) {
+          setTimeout(() => {
+            DialogueManager.sendPlayerMessage('개웃기노');
+            setTimeout(() => {
+              DialogueManager.sendPlayerMessage('엄..줴줴이야');
+              setTimeout(() => {
+                DialogueManager.sendPlayerMessage('?');
+              }, 600);
+            }, 600);
+          }, 400);
+        } else if (sendMsg) {
           setTimeout(() => {
             DialogueManager.sendPlayerMessage(decodeURIComponent(sendMsg));
           }, 400);
