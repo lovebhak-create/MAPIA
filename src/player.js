@@ -189,7 +189,59 @@ const Player = (() => {
     return null;
   };
 
-  const tryInteract = () => {
+  // Dedicated Character Detector: generous 4.5m distance & wide cone of sight
+  const findAimedCharacter = (maxDist = 4.5) => {
+    if (typeof Characters === 'undefined' || !Characters.getList || !camera) return null;
+    const camPos = camera.position;
+    const camDir = new THREE.Vector3();
+    camera.getWorldDirection(camDir);
+
+    const charList = Characters.getList();
+    let bestChar = null;
+    let bestScore = -999;
+
+    for (let i = 0; i < charList.length; i++) {
+      const c = charList[i];
+      const cx = c.position.x;
+      const cy = 2.0;
+      const cz = c.position.z;
+
+      const dx = cx - camPos.x;
+      const dy = cy - camPos.y;
+      const dz = cz - camPos.z;
+      const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+      if (dist > maxDist) continue;
+
+      const invDist = 1.0 / (dist + 0.001);
+      const dot = (dx * camDir.x + dy * camDir.y + dz * camDir.z) * invDist;
+
+      // Generous angle check: within ~82 degrees (dot > 0.15)
+      if (dot > 0.15) {
+        const score = dot * 3.0 - (dist / maxDist);
+        if (score > bestScore) {
+          bestScore = score;
+          bestChar = c.userData;
+        }
+      }
+    }
+
+    // Proximity fallback: if close (within 3.0m), talk to character even if not looking directly at them!
+    if (!bestChar) {
+      let closestDist = 3.0;
+      for (let i = 0; i < charList.length; i++) {
+        const c = charList[i];
+        const dist = camera.position.distanceTo(new THREE.Vector3(c.position.x, 2.0, c.position.z));
+        if (dist < closestDist) {
+          closestDist = dist;
+          bestChar = c.userData;
+        }
+      }
+    }
+
+    return bestChar;
+  };
+
+  const tryInteract = (mouseEvent) => {
     if (typeof DialogueManager !== 'undefined' && DialogueManager.isOpen()) {
       return;
     }
@@ -199,27 +251,53 @@ const Player = (() => {
       return;
     }
 
-    // Direct Character Raycast check for dialogue within 3.5m
+    // 1. HIGHEST PRIORITY: Raycast against characters with generous 6.0m distance!
     if (typeof Characters !== 'undefined' && camera) {
       const charRay = new THREE.Raycaster();
-      charRay.setFromCamera(new THREE.Vector2(0, 0), camera);
+      let screenCoords = new THREE.Vector2(0, 0); // Default to screen center
+      if (mouseEvent && typeof mouseEvent.clientX === 'number' && (!controls || !controls.isLocked)) {
+        screenCoords.x = (mouseEvent.clientX / window.innerWidth) * 2 - 1;
+        screenCoords.y = -(mouseEvent.clientY / window.innerHeight) * 2 + 1;
+      }
+      charRay.setFromCamera(screenCoords, camera);
       const hits = charRay.intersectObjects(Characters.getList(), true);
-      if (hits.length > 0 && hits[0].distance < 3.5 && hits[0].object.userData.characterKey) {
-        if (typeof DialogueManager !== 'undefined') {
-          DialogueManager.open(hits[0].object.userData.characterKey);
-          return;
+      for (let i = 0; i < hits.length; i++) {
+        if (hits[i].distance < 6.0 && hits[i].object.userData && hits[i].object.userData.characterKey) {
+          if (typeof DialogueManager !== 'undefined') {
+            DialogueManager.open(hits[i].object.userData.characterKey);
+            return;
+          }
+        }
+      }
+      // Also try center raycast if mouse event was off-center
+      if (screenCoords.x !== 0 || screenCoords.y !== 0) {
+        charRay.setFromCamera(new THREE.Vector2(0, 0), camera);
+        const centerHits = charRay.intersectObjects(Characters.getList(), true);
+        for (let i = 0; i < centerHits.length; i++) {
+          if (centerHits[i].distance < 6.0 && centerHits[i].object.userData && centerHits[i].object.userData.characterKey) {
+            if (typeof DialogueManager !== 'undefined') {
+              DialogueManager.open(centerHits[i].object.userData.characterKey);
+              return;
+            }
+          }
         }
       }
     }
 
+    // 2. SECOND PRIORITY: Proximity character detection (up to 4.5m)
+    const aimedChar = findAimedCharacter(4.5);
+    if (aimedChar && aimedChar.key) {
+      if (typeof DialogueManager !== 'undefined') {
+        DialogueManager.open(aimedChar.key);
+        return;
+      }
+    }
+
+    // 3. OTHER FIXTURES: Doors, Sinks, Seats
     const aimed = findAimedInteractiveItem();
     if (!aimed) return;
 
-    if (aimed.type === 'character') {
-      if (typeof DialogueManager !== 'undefined') {
-        DialogueManager.open(aimed.item.key);
-      }
-    } else if (aimed.type === 'door') {
+    if (aimed.type === 'door') {
       DoorManager.toggleDoor(aimed.item);
     } else if (aimed.type === 'sink') {
       SinkManager.toggleSink(aimed.item);
@@ -400,17 +478,28 @@ const Player = (() => {
     document.addEventListener('keydown', onKeyDown);
     document.addEventListener('keyup', onKeyUp);
 
-    // Pointerdown and click listeners for mouse click when locked (triggers door toggle, sitting/sleeping reliably)
+    // Pointerdown and click listeners for mouse click (triggers character dialogue & fixtures reliably)
     document.addEventListener('pointerdown', (e) => {
-      if (e.button === 0 && controls && controls.isLocked) {
-        tryInteract();
+      if (e.button === 0) {
+        if (typeof DialogueManager !== 'undefined' && DialogueManager.isOpen()) return;
+        tryInteract(e);
       }
     });
 
-    domElement.addEventListener('click', () => {
-      if (!controls || !controls.isLocked) return;
-      tryInteract();
+    domElement.addEventListener('click', (e) => {
+      if (typeof DialogueManager !== 'undefined' && DialogueManager.isOpen()) return;
+      tryInteract(e);
     });
+
+    const sitPrompt = document.getElementById('sit-prompt');
+    if (sitPrompt) {
+      sitPrompt.style.cursor = 'pointer';
+      sitPrompt.style.pointerEvents = 'auto';
+      sitPrompt.addEventListener('click', (e) => {
+        e.stopPropagation();
+        tryInteract(e);
+      });
+    }
   };
 
   const toggleFlashlight = () => {
@@ -433,7 +522,57 @@ const Player = (() => {
     }
   };
 
+  const updateInteractionPrompt = () => {
+    const prompt = document.getElementById('sit-prompt');
+    if (!prompt) return;
+
+    if (isSitting) {
+      prompt.textContent = '[Space] 키를 눌러 일어나기';
+      prompt.style.display = 'block';
+      return;
+    }
+
+    if (typeof DialogueManager !== 'undefined' && DialogueManager.isOpen()) {
+      prompt.style.display = 'none';
+      return;
+    }
+
+    // 1. HIGHEST PRIORITY: Characters in range (up to 4.2m)
+    const aimedChar = findAimedCharacter(4.2);
+    if (aimedChar) {
+      const isKnown = typeof DialogueManager !== 'undefined' && DialogueManager.isNameRevealed(aimedChar.key);
+      const label = isKnown ? aimedChar.name : '승객';
+      prompt.textContent = `[E / 클릭] ${label}과 대화하기`;
+      prompt.style.display = 'block';
+      return;
+    }
+
+    // 2. Fixtures: Doors, Sinks, Seats
+    const aimed = findAimedInteractiveItem();
+    if (aimed) {
+      if (aimed.type === 'door') {
+        prompt.textContent = aimed.item.isOpen ? `[E / 클릭] ${aimed.item.name} 닫기` : `[E / 클릭] ${aimed.item.name} 열기`;
+      } else if (aimed.type === 'sink') {
+        prompt.textContent = aimed.item.isRunning ? `[E / 클릭] ${aimed.item.name} 물 잠그기` : `[E / 클릭] ${aimed.item.name} 물 틀기`;
+      } else if (aimed.type === 'seat') {
+        if (aimed.item.isToilet) {
+          prompt.textContent = '[E / 클릭] 변기에 앉기';
+        } else if (aimed.item.isBed) {
+          prompt.textContent = '[E / 클릭] 침대에 눕기';
+        } else {
+          prompt.textContent = '[E / 클릭] 의자에 앉기';
+        }
+      }
+      prompt.style.display = 'block';
+    } else {
+      prompt.style.display = 'none';
+    }
+  };
+
   const update = (delta) => {
+    // Prompt updates continuously so player always knows they can press E or click!
+    updateInteractionPrompt();
+
     if (!controls || !controls.isLocked) return;
 
     // If sitting down, camera stays at chair position
@@ -494,39 +633,6 @@ const Player = (() => {
 
     // Continuous slide collision resolution for all furniture, walls, doors!
     Collision.move(camera.position, dx, dz, camera.position.y);
-
-    // Update Interaction HUD Prompt (Doors, Sinks, Seats, Beds, Toilets)
-    // ONLY displays when crosshair is directly aimed at the object AND close (코앞 거리 & 시선 일치)!
-    const prompt = document.getElementById('sit-prompt');
-    if (prompt) {
-      if (isSitting) {
-        prompt.textContent = '[Space] 키를 눌러 일어나기';
-        prompt.style.display = 'block';
-      } else {
-        const aimed = findAimedInteractiveItem();
-        if (aimed) {
-          if (aimed.type === 'door') {
-            prompt.textContent = aimed.item.isOpen ? `[E / 클릭] ${aimed.item.name} 닫기` : `[E / 클릭] ${aimed.item.name} 열기`;
-          } else if (aimed.type === 'sink') {
-            prompt.textContent = aimed.item.isRunning ? `[E / 클릭] ${aimed.item.name} 물 잠그기` : `[E / 클릭] ${aimed.item.name} 물 틀기`;
-          } else if (aimed.type === 'seat') {
-            if (aimed.item.isToilet) {
-              prompt.textContent = '[E / 클릭] 변기에 앉기';
-            } else if (aimed.item.isBed) {
-              prompt.textContent = '[E / 클릭] 침대에 눕기';
-            } else {
-              prompt.textContent = '[E / 클릭] 의자에 앉기';
-            }
-          } else if (aimed.type === 'character') {
-            const isKnown = typeof DialogueManager !== 'undefined' && DialogueManager.isNameRevealed(aimed.item.key);
-            prompt.textContent = isKnown ? `[E / 클릭] ${aimed.item.name}과 대화하기` : `[E / 클릭] 승객에게 말걸기`;
-          }
-          prompt.style.display = 'block';
-        } else {
-          prompt.style.display = 'none';
-        }
-      }
-    }
   };
 
   return {

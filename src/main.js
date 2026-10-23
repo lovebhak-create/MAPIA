@@ -54,6 +54,17 @@ window.addEventListener('DOMContentLoaded', () => {
     const testSeq = urlParams.get('testSeq');
     const testNell = urlParams.get('testNell');
     const testVest = urlParams.get('testVest');
+    const testInteract = urlParams.get('testInteract');
+    const testKeyE = urlParams.get('testKeyE');
+    if (testInteract || testKeyE) {
+      setTimeout(() => {
+        camera.position.set(0, 2.85, -40.0);
+        camera.rotation.set(0, Math.PI / 2, 0); // Look at Bram at (-0.95, 1.2, -40.4)
+        setTimeout(() => {
+          Player.trySitOrStand();
+        }, 300);
+      }, 500);
+    }
     if (dlgTarget) {
       setTimeout(() => {
         DialogueManager.open(dlgTarget);
@@ -73,6 +84,14 @@ window.addEventListener('DOMContentLoaded', () => {
                 DialogueManager.sendPlayerMessage('이름이 뭐예요?');
               }, 600);
             }, 600);
+          }, 400);
+        } else if (urlParams.get('testThreat')) {
+          setTimeout(() => {
+            DialogueManager.sendPlayerMessage('죽을래?');
+          }, 400);
+        } else if (urlParams.get('testAge')) {
+          setTimeout(() => {
+            DialogueManager.sendPlayerMessage('너 몇 살이야?');
           }, 400);
         } else if (testSeq) {
           setTimeout(() => {
@@ -151,18 +170,6 @@ window.addEventListener('DOMContentLoaded', () => {
     // Dynamic firebox flame pulsation in Locomotive Cab
     if (fireLight) {
       fireLight.intensity = 2.4 + Math.sin(timeElapsed * 15.0) * 0.6 + Math.cos(timeElapsed * 23.0) * 0.4;
-    }
-
-    // Character Raycast for subtle nameplate display & interaction prompt
-    if (nameplate) {
-      raycaster.setFromCamera(screenCenter, camera);
-      const hits = raycaster.intersectObjects(Characters.getList(), true);
-      if (hits.length > 0 && hits[0].distance < 3.5 && hits[0].object.userData.characterName) {
-        nameplate.innerHTML = `<span style="color:#ffd875;font-weight:700;margin-right:6px;">[E] 대화하기:</span> ${hits[0].object.userData.characterName}`;
-        nameplate.style.display = 'block';
-      } else {
-        nameplate.style.display = 'none';
-      }
     }
 
     renderer.render(scene, camera);

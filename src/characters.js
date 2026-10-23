@@ -146,6 +146,22 @@ const Characters = (() => {
 
     group.add(visualGroup);
 
+    // Wide Interaction Hitbox (cylinder radius: 0.70m, height: 2.3m)
+    // Ensures raycasts and clicks from any angle effortlessly hit the character!
+    const hitBox = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.70, 0.70, H + 0.5, 12),
+      new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.0, depthWrite: false })
+    );
+    hitBox.visible = true;
+    hitBox.userData = {
+      isCharacter: true,
+      characterKey: d.key,
+      characterName: d.name,
+      characterData: d,
+      characterGroup: group
+    };
+    group.add(hitBox);
+
     // Soft Realistic Ground Contact Shadow
     const shadowMesh = new THREE.Mesh(
       new THREE.PlaneGeometry(Math.max(W, 0.85), 0.70),
