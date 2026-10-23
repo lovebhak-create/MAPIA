@@ -47,39 +47,39 @@ const Characters = (() => {
     ward: 0.489
   };
 
-  // 16 Characters Definition with authentic train positions
+  // 16 Characters Definition with authentic train positions and 16 distinct MBTI types
   const characterData = [
     // 1. Car 1: Locomotive (케이드 - 노동자)
-    { id: 1, key: 'cade', name: '케이드 / 노동자 (Cade)', h: 1.84, pos: { x: -0.65, y: 1.2, z: -3.5 }, rotY: 0.3 },
+    { id: 1, key: 'cade', name: '케이드 / 노동자 (Cade)', mbti: 'ISFP', h: 1.84, pos: { x: -0.65, y: 1.2, z: -3.5 }, rotY: 0.3 },
 
     // 2. Car 2: Baggage Car (워드 - 형사)
-    { id: 2, key: 'ward', name: '워드 / 형사 (Ward)', h: 1.85, pos: { x: 0.0, y: 1.2, z: -20.5 }, rotY: 0 },
+    { id: 2, key: 'ward', name: '워드 / 형사 (Ward)', mbti: 'ISTP', h: 1.85, pos: { x: 0.0, y: 1.2, z: -20.5 }, rotY: 0 },
 
     // 3. Car 3: Coach Car (4 passengers)
-    { id: 3, key: 'bram', name: '브람 / 대학생 (Bram)', h: 1.76, pos: { x: -0.95, y: 1.2, z: -40.4 }, rotY: 0 },
-    { id: 4, key: 'nell', name: '넬 / 재봉사 (Nell)', h: 1.72, pos: { x: 0.95, y: 1.2, z: -42.0 }, rotY: 0 },
-    { id: 5, key: 'nurse_k', name: '케이 / 간호사 (K)', h: 1.74, pos: { x: 0.0, y: 1.2, z: -45.2 }, rotY: 0.15 },
-    { id: 6, key: 'elias', name: '엘리아스 / 기자 (Elias)', h: 1.80, pos: { x: 0.95, y: 1.2, z: -48.5 }, rotY: -Math.PI / 2 },
+    { id: 3, key: 'bram', name: '브람 / 대학생 (Bram)', mbti: 'INFP', h: 1.76, pos: { x: -0.95, y: 1.2, z: -40.4 }, rotY: 0 },
+    { id: 4, key: 'nell', name: '넬 / 재봉사 (Nell)', mbti: 'ISFJ', h: 1.72, pos: { x: 0.95, y: 1.2, z: -42.0 }, rotY: 0 },
+    { id: 5, key: 'nurse_k', name: '케이 / 간호사 (K)', mbti: 'ISTJ', h: 1.74, pos: { x: 0.0, y: 1.2, z: -45.2 }, rotY: 0.15 },
+    { id: 6, key: 'elias', name: '엘리아스 / 기자 (Elias)', mbti: 'ENTP', h: 1.80, pos: { x: 0.95, y: 1.2, z: -48.5 }, rotY: -Math.PI / 2 },
 
     // 4. Car 4: 1st Class Sleeper (3 passengers in Luxury Suites)
-    { id: 7, key: 'harlan', name: '할란 / 사업가 (Harlan)', h: 1.84, pos: { x: 0.85, y: 1.2, z: -61.4 }, rotY: -Math.PI / 2 },
-    { id: 8, key: 'clara', name: '클라라 / 소설가 (Clara)', h: 1.76, pos: { x: 0.85, y: 1.2, z: -66.4 }, rotY: -Math.PI / 2 },
-    { id: 9, key: 'ida', name: '아이다 / 비서 (Ida)', h: 1.76, pos: { x: 0.85, y: 1.2, z: -71.4 }, rotY: -Math.PI / 2 },
+    { id: 7, key: 'harlan', name: '할란 / 사업가 (Harlan)', mbti: 'ENTJ', h: 1.84, pos: { x: 0.85, y: 1.2, z: -61.4 }, rotY: -Math.PI / 2 },
+    { id: 8, key: 'clara', name: '클라라 / 소설가 (Clara)', mbti: 'INFJ', h: 1.76, pos: { x: 0.85, y: 1.2, z: -66.4 }, rotY: -Math.PI / 2 },
+    { id: 9, key: 'ida', name: '아이다 / 비서 (Ida)', mbti: 'ESTJ', h: 1.76, pos: { x: 0.85, y: 1.2, z: -71.4 }, rotY: -Math.PI / 2 },
 
     // 5. Car 5: 2nd Class Sleeper (2 passengers)
-    { id: 10, key: 'gail', name: '게일 / 의사 (Gail)', h: 1.78, pos: { x: 0.15, y: 1.2, z: -84.0 }, rotY: 0 },
-    { id: 11, key: 'arthur', name: '아서 / 교수 (Arthur)', h: 1.78, pos: { x: -0.85, y: 1.2, z: -92.0 }, rotY: Math.PI / 2 },
+    { id: 10, key: 'gail', name: '게일 / 의사 (Gail)', mbti: 'ENFJ', h: 1.78, pos: { x: 0.15, y: 1.2, z: -84.0 }, rotY: 0 },
+    { id: 11, key: 'arthur', name: '아서 / 교수 (Arthur)', mbti: 'INTP', h: 1.78, pos: { x: -0.85, y: 1.2, z: -92.0 }, rotY: Math.PI / 2 },
 
     // 6. Car 6: Dining Car (2 passengers at dining tables)
-    { id: 12, key: 'jude', name: '주드 / 사기꾼 (Jude)', h: 1.82, pos: { x: 0.95, y: 1.2, z: -107.5 }, rotY: 0 },
-    { id: 13, key: 'rose', name: '로즈 / 무용수 (Rose)', h: 1.74, pos: { x: 0.95, y: 1.2, z: -106.1 }, rotY: Math.PI },
+    { id: 12, key: 'jude', name: '주드 / 사기꾼 (Jude)', mbti: 'ESTP', h: 1.82, pos: { x: 0.95, y: 1.2, z: -107.5 }, rotY: 0 },
+    { id: 13, key: 'rose', name: '로즈 / 무용수 (Rose)', mbti: 'ESFJ', h: 1.74, pos: { x: 0.95, y: 1.2, z: -106.1 }, rotY: Math.PI },
 
     // 7. Car 7: Lounge Car (2 characters)
-    { id: 14, key: 'lulu', name: '룰루 / 가수 (Lulu)', h: 1.78, pos: { x: -0.98, y: 1.2, z: -126.8 }, rotY: Math.PI / 2 },
-    { id: 15, key: 'felix', name: '필릭스 / 사진사 (Felix)', h: 1.80, pos: { x: 0.85, y: 1.2, z: -132.5 }, rotY: -Math.PI / 2 },
+    { id: 14, key: 'lulu', name: '룰루 / 가수 (Lulu)', mbti: 'ESFP', h: 1.78, pos: { x: -0.98, y: 1.2, z: -126.8 }, rotY: Math.PI / 2 },
+    { id: 15, key: 'felix', name: '필릭스 / 사진사 (Felix)', mbti: 'ENFP', h: 1.80, pos: { x: 0.85, y: 1.2, z: -132.5 }, rotY: -Math.PI / 2 },
 
     // 8. Car 8: Observation Car (1 passenger)
-    { id: 16, key: 'mabel', name: '메이벨 / 귀족 (Mabel)', h: 1.80, pos: { x: 0.90, y: 1.2, z: -152.0 }, rotY: -Math.PI / 2 }
+    { id: 16, key: 'mabel', name: '메이벨 / 귀족 (Mabel)', mbti: 'INTJ', h: 1.80, pos: { x: 0.90, y: 1.2, z: -152.0 }, rotY: -Math.PI / 2 }
   ];
 
   // Build high-fidelity 3D character with natural human body lines, face, and 3D depth
@@ -160,11 +160,13 @@ const Characters = (() => {
     shadowMesh.position.set(0, 0.015, 0);
     group.add(shadowMesh);
 
-    // Store references for dynamic camera tracking in update()
+    // Store references for dynamic camera tracking in update() & interaction
     group.userData = {
       isCharacter: true,
       name: d.name,
       key: d.key,
+      mbti: d.mbti,
+      characterData: d,
       radius: 0.28,
       baseY: d.pos.y,
       baseRotY: d.rotY,
@@ -176,7 +178,11 @@ const Characters = (() => {
     };
 
     group.traverse(child => {
-      child.userData.characterName = d.name;
+      child.userData.characterName = `${d.name} [${d.mbti}]`;
+      child.userData.characterKey = d.key;
+      child.userData.characterData = d;
+      child.userData.characterGroup = group;
+      child.userData.isCharacter = true;
     });
 
     return group;

@@ -42,6 +42,32 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // Initialize Dialogue Manager UI
+  if (typeof DialogueManager !== 'undefined') {
+    DialogueManager.init();
+
+    // Support direct dialogue opening via URL query (e.g. ?openDlg=nurse_k or ?openDlg=jude)
+    const urlParams = new URLSearchParams(window.location.search);
+    const dlgTarget = urlParams.get('openDlg');
+    const sendMsg = urlParams.get('sendMsg');
+    const pairChat = urlParams.get('pairChat');
+    if (dlgTarget) {
+      setTimeout(() => {
+        DialogueManager.open(dlgTarget);
+        if (sendMsg) {
+          setTimeout(() => {
+            DialogueManager.sendPlayerMessage(decodeURIComponent(sendMsg));
+          }, 400);
+        } else if (pairChat) {
+          setTimeout(() => {
+            const pairBtn = document.getElementById('btn-interact-pair');
+            if (pairBtn) pairBtn.click();
+          }, 400);
+        }
+      }, 300);
+    }
+  }
+
   // 4. PointerLock & Clean Click to Play
   const controls = Player.getControls();
 
@@ -84,6 +110,11 @@ window.addEventListener('DOMContentLoaded', () => {
     // Update Characters (Push physics: player pushes characters smoothly out of the way!)
     Characters.update(delta, camera.position);
 
+    // Update Ambient Overheard Passenger Dialogues
+    if (typeof DialogueManager !== 'undefined') {
+      DialogueManager.updateAmbient(delta, camera.position);
+    }
+
     // Update Environment (track parallax, moving telegraph poles, smokestack steam particles)
     Environment.update(delta, 22.0);
 
@@ -92,12 +123,12 @@ window.addEventListener('DOMContentLoaded', () => {
       fireLight.intensity = 2.4 + Math.sin(timeElapsed * 15.0) * 0.6 + Math.cos(timeElapsed * 23.0) * 0.4;
     }
 
-    // Character Raycast for subtle nameplate display
+    // Character Raycast for subtle nameplate display & interaction prompt
     if (nameplate) {
       raycaster.setFromCamera(screenCenter, camera);
       const hits = raycaster.intersectObjects(Characters.getList(), true);
-      if (hits.length > 0 && hits[0].distance < 4.0 && hits[0].object.userData.characterName) {
-        nameplate.textContent = hits[0].object.userData.characterName;
+      if (hits.length > 0 && hits[0].distance < 3.5 && hits[0].object.userData.characterName) {
+        nameplate.innerHTML = `<span style="color:#ffd875;font-weight:700;margin-right:6px;">[E] 대화하기:</span> ${hits[0].object.userData.characterName}`;
         nameplate.style.display = 'block';
       } else {
         nameplate.style.display = 'none';

@@ -174,6 +174,15 @@ const Player = (() => {
       evaluate('seat', s, s.x, targetY, s.z);
     }
 
+    // 4. Characters (aiming at character head/chest Y = 2.0)
+    if (typeof Characters !== 'undefined' && Characters.getList) {
+      const charList = Characters.getList();
+      for (let i = 0; i < charList.length; i++) {
+        const c = charList[i];
+        evaluate('character', c.userData, c.position.x, 2.0, c.position.z);
+      }
+    }
+
     if (bestItem) {
       return { type: bestType, item: bestItem };
     }
@@ -181,15 +190,36 @@ const Player = (() => {
   };
 
   const tryInteract = () => {
+    if (typeof DialogueManager !== 'undefined' && DialogueManager.isOpen()) {
+      return;
+    }
+
     if (isSitting) {
       standUp();
       return;
     }
 
+    // Direct Character Raycast check for dialogue within 3.5m
+    if (typeof Characters !== 'undefined' && camera) {
+      const charRay = new THREE.Raycaster();
+      charRay.setFromCamera(new THREE.Vector2(0, 0), camera);
+      const hits = charRay.intersectObjects(Characters.getList(), true);
+      if (hits.length > 0 && hits[0].distance < 3.5 && hits[0].object.userData.characterKey) {
+        if (typeof DialogueManager !== 'undefined') {
+          DialogueManager.open(hits[0].object.userData.characterKey);
+          return;
+        }
+      }
+    }
+
     const aimed = findAimedInteractiveItem();
     if (!aimed) return;
 
-    if (aimed.type === 'door') {
+    if (aimed.type === 'character') {
+      if (typeof DialogueManager !== 'undefined') {
+        DialogueManager.open(aimed.item.key);
+      }
+    } else if (aimed.type === 'door') {
       DoorManager.toggleDoor(aimed.item);
     } else if (aimed.type === 'sink') {
       SinkManager.toggleSink(aimed.item);
@@ -270,6 +300,10 @@ const Player = (() => {
 
     // Keyboard handlers
     const onKeyDown = (e) => {
+      if (typeof DialogueManager !== 'undefined' && DialogueManager.isOpen()) {
+        return;
+      }
+
       // Space to stand up if sitting
       if (e.code === 'Space' && isSitting) {
         standUp();
