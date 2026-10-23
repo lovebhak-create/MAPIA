@@ -189,8 +189,8 @@ const Player = (() => {
     return null;
   };
 
-  // Dedicated Character Detector: generous 4.5m distance & wide cone of sight
-  const findAimedCharacter = (maxDist = 4.5) => {
+  // Dedicated Character Detector: strictly close distance (<= 2.2m, 코앞) & directly facing (dot > 0.65)
+  const findAimedCharacter = (maxDist = 2.2) => {
     if (typeof Characters === 'undefined' || !Characters.getList || !camera) return null;
     const camPos = camera.position;
     const camDir = new THREE.Vector3();
@@ -210,29 +210,16 @@ const Player = (() => {
       const dy = cy - camPos.y;
       const dz = cz - camPos.z;
       const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
-      if (dist > maxDist) continue;
+      if (dist > maxDist) continue; // STRICT: must be close (코앞, <= 2.2m)
 
       const invDist = 1.0 / (dist + 0.001);
       const dot = (dx * camDir.x + dy * camDir.y + dz * camDir.z) * invDist;
 
-      // Generous angle check: within ~82 degrees (dot > 0.15)
-      if (dot > 0.15) {
+      // Must be looking directly at the character (dot > 0.65, within ~45 degrees)
+      if (dot > 0.65) {
         const score = dot * 3.0 - (dist / maxDist);
         if (score > bestScore) {
           bestScore = score;
-          bestChar = c.userData;
-        }
-      }
-    }
-
-    // Proximity fallback: if close (within 3.0m), talk to character even if not looking directly at them!
-    if (!bestChar) {
-      let closestDist = 3.0;
-      for (let i = 0; i < charList.length; i++) {
-        const c = charList[i];
-        const dist = camera.position.distanceTo(new THREE.Vector3(c.position.x, 2.0, c.position.z));
-        if (dist < closestDist) {
-          closestDist = dist;
           bestChar = c.userData;
         }
       }
@@ -251,41 +238,23 @@ const Player = (() => {
       return;
     }
 
-    // 1. HIGHEST PRIORITY: Raycast against characters with generous 6.0m distance!
+    // 1. HIGHEST PRIORITY: Raycast against characters with strictly close 2.2m distance (코앞)
     if (typeof Characters !== 'undefined' && camera) {
       const charRay = new THREE.Raycaster();
-      let screenCoords = new THREE.Vector2(0, 0); // Default to screen center
-      if (mouseEvent && typeof mouseEvent.clientX === 'number' && (!controls || !controls.isLocked)) {
-        screenCoords.x = (mouseEvent.clientX / window.innerWidth) * 2 - 1;
-        screenCoords.y = -(mouseEvent.clientY / window.innerHeight) * 2 + 1;
-      }
-      charRay.setFromCamera(screenCoords, camera);
+      charRay.setFromCamera(new THREE.Vector2(0, 0), camera);
       const hits = charRay.intersectObjects(Characters.getList(), true);
       for (let i = 0; i < hits.length; i++) {
-        if (hits[i].distance < 6.0 && hits[i].object.userData && hits[i].object.userData.characterKey) {
+        if (hits[i].distance <= 2.2 && hits[i].object.userData && hits[i].object.userData.characterKey) {
           if (typeof DialogueManager !== 'undefined') {
             DialogueManager.open(hits[i].object.userData.characterKey);
             return;
           }
         }
       }
-      // Also try center raycast if mouse event was off-center
-      if (screenCoords.x !== 0 || screenCoords.y !== 0) {
-        charRay.setFromCamera(new THREE.Vector2(0, 0), camera);
-        const centerHits = charRay.intersectObjects(Characters.getList(), true);
-        for (let i = 0; i < centerHits.length; i++) {
-          if (centerHits[i].distance < 6.0 && centerHits[i].object.userData && centerHits[i].object.userData.characterKey) {
-            if (typeof DialogueManager !== 'undefined') {
-              DialogueManager.open(centerHits[i].object.userData.characterKey);
-              return;
-            }
-          }
-        }
-      }
     }
 
-    // 2. SECOND PRIORITY: Proximity character detection (up to 4.5m)
-    const aimedChar = findAimedCharacter(4.5);
+    // 2. SECOND PRIORITY: Close-range character detection (up to 2.2m)
+    const aimedChar = findAimedCharacter(2.2);
     if (aimedChar && aimedChar.key) {
       if (typeof DialogueManager !== 'undefined') {
         DialogueManager.open(aimedChar.key);
@@ -478,15 +447,14 @@ const Player = (() => {
     document.addEventListener('keydown', onKeyDown);
     document.addEventListener('keyup', onKeyUp);
 
-    // Pointerdown and click listeners for mouse click (triggers character dialogue & fixtures reliably)
-    document.addEventListener('pointerdown', (e) => {
-      if (e.button === 0) {
-        if (typeof DialogueManager !== 'undefined' && DialogueManager.isOpen()) return;
-        tryInteract(e);
-      }
-    });
-
+    // Click listener on canvas:
+    // If not locked, the click MUST ONLY lock the pointer! (Starts first-person play)
+    // Only when ALREADY locked in first-person mode does clicking interact with close-range items/characters!
     domElement.addEventListener('click', (e) => {
+      if (!controls.isLocked) {
+        controls.lock();
+        return;
+      }
       if (typeof DialogueManager !== 'undefined' && DialogueManager.isOpen()) return;
       tryInteract(e);
     });
@@ -497,7 +465,11 @@ const Player = (() => {
       sitPrompt.style.pointerEvents = 'auto';
       sitPrompt.addEventListener('click', (e) => {
         e.stopPropagation();
-        tryInteract(e);
+        if (controls.isLocked) {
+          tryInteract(e);
+        } else {
+          controls.lock();
+        }
       });
     }
   };
@@ -537,8 +509,8 @@ const Player = (() => {
       return;
     }
 
-    // 1. HIGHEST PRIORITY: Characters in range (up to 4.2m)
-    const aimedChar = findAimedCharacter(4.2);
+    // 1. HIGHEST PRIORITY: Characters in strictly close range (<= 2.2m, 코앞)
+    const aimedChar = findAimedCharacter(2.2);
     if (aimedChar) {
       const isKnown = typeof DialogueManager !== 'undefined' && DialogueManager.isNameRevealed(aimedChar.key);
       const label = isKnown ? aimedChar.name : '승객';
