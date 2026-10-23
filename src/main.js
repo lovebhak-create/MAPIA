@@ -53,10 +53,18 @@ window.addEventListener('DOMContentLoaded', () => {
     const pairChat = urlParams.get('pairChat');
     const testSeq = urlParams.get('testSeq');
     const testNell = urlParams.get('testNell');
+    const testVest = urlParams.get('testVest');
     if (dlgTarget) {
       setTimeout(() => {
         DialogueManager.open(dlgTarget);
-        if (testNell) {
+        if (testVest) {
+          setTimeout(() => {
+            DialogueManager.sendPlayerMessage('왜냐하면 네 조끼가 마음에 들지 않아');
+            setTimeout(() => {
+              DialogueManager.sendPlayerMessage('미안 농담이야');
+            }, 600);
+          }, 400);
+        } else if (testNell) {
           setTimeout(() => {
             DialogueManager.sendPlayerMessage('엄.. 안녕하세요 옷이 예뻐서요');
             setTimeout(() => {
